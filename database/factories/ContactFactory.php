@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\SourceEnum;
-use App\Enums\StatusEnum;
+use App\Enums\ContactStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ContactFactory extends Factory
@@ -34,7 +34,7 @@ class ContactFactory extends Factory
             'email_address' => fake()->unique()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
-            'status' => fake()->randomElement(StatusEnum::values()),
+            'status' => fake()->randomElement(ContactStatusEnum::values()),
             'source' => fake()->randomElement(SourceEnum::values()),
             'opt_in_date' => $optInDateStr,
             'opt_in_confirmation' => fake()->boolean(),
