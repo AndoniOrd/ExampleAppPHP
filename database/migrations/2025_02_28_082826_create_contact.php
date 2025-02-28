@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('email_address');
             $table->string('first_name');
             $table->string('last_name');
-            $table->enum('status', StatusEnum::values()); // Use StatusEnum
+            $table->enum('status', ContactStatusEnum::values()); // Use StatusEnum
             $table->enum('source', SourceEnum::values()); // Use SourceEnum
             $table->date('opt_in_date');
             $table->boolean('opt_in_confirmation');
