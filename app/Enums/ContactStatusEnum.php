@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum StatusEnum: string
+enum ContactStatusEnum: string
 {
     case Subscribed = 'subscribed';
     case Unsubscribed = 'unsubscribed';
