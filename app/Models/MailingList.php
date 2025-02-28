@@ -22,3 +22,4 @@ class MailingList extends Model
         return $this->belongsToMany(Contact::class);
     }
 }
+

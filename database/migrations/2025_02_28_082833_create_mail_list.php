@@ -14,6 +14,7 @@ return new class extends Migration {
             // Primary key
             $table->id();
 
+
             // Attributes
             $table->string('name');
             $table->string('description')->nullable();
@@ -37,3 +38,4 @@ return new class extends Migration {
         Schema::dropIfExists('mailing_lists');
     }
 };
+
