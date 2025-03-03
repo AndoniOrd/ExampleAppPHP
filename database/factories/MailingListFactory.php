@@ -18,7 +18,7 @@ class MailingListFactory extends Factory
             'description' => $this->faker->sentence,
             'creation_date' => $this->faker->date(),
             'last_updated_date' => $this->faker->date(),
-            'owner_id' => User::inRandomOrder()->first()->id, // Assuming a user already exists
+            'owner_id' => User::factory(), // Crea un usuario si no existe
             'status' => $this->faker->randomElement(['active', 'draft', 'archived']),
             'type' => $this->faker->randomElement(['newsletter', 'promotions', 'updates']),
             'tags' => $this->faker->words(3, true), // Comma-separated tags

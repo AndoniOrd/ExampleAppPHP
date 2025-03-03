@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MailingList extends Model
 {
+    use HasFactory;
     // Protect attributes from mass-assignment unless explicitly allowed
     protected $fillable = [
         'name',
