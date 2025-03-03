@@ -19,7 +19,7 @@ class UsersTableSeeder extends Seeder
         User::create([
             'first_name'     => 'John',
             'last_name'      => 'Doe',
-            'email_address'  => 'john.doe@example.com',
+            'email_address'  => 'john.doe' . uniqid() . '@example.com',
             'password'       => Hash::make('securepassword'),
             'phone_number'   => '123-456-7890',
             'role'           => 'admin',
@@ -34,4 +34,5 @@ class UsersTableSeeder extends Seeder
             'website'        => 'https://doeenterprises.com',
         ]);
     }
+    
 }
