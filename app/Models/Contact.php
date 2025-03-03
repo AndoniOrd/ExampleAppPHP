@@ -3,9 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\Contact as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class Contact extends Model
 {
+
+ /** @use HasFactory<\Database\Factories\UserFactory> */
+ use HasFactory, Notifiable;
+     
     public $timestamps = false;
 
     protected $fillable = [
