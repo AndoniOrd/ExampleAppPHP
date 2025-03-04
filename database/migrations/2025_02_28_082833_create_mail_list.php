@@ -14,7 +14,6 @@ return new class extends Migration {
             // Primary key
             $table->id();
 
-
             // Attributes
             $table->string('name');
             $table->string('description')->nullable();
@@ -22,9 +21,9 @@ return new class extends Migration {
             $table->date('last_updated_date');
             $table->foreignId('owner_id')->constrained('users')->onDelete('cascade'); // Foreign key to Users table
             $table->enum('status', ['active', 'draft', 'archived']);
-            $table->enum('type', ['newsletter', 'promotions', 'updates']); // You can adjust the types as necessary
+            $table->enum('type', ['newsletter', 'promotions', 'updates']); // Adjusted types
             $table->string('tags')->nullable(); // Can store categories/tags as a string or as JSON
-
+            
             // Timestamps for created_at and updated_at
             $table->timestamps();
         });
@@ -38,4 +37,3 @@ return new class extends Migration {
         Schema::dropIfExists('mailing_lists');
     }
 };
-

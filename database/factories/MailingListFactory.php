@@ -1,29 +1,34 @@
 <?php
-
 namespace Database\Factories;
 
 use App\Models\MailingList;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Carbon\Carbon;
 
 class MailingListFactory extends Factory
 {
     protected $model = MailingList::class;
 
-    public function definition()
+    public function definition(): array
     {
+        // Ensure a user exists
+        $user = User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('password')
+            ]
+        );
+
         return [
-            'name' => $this->faker->word . ' Newsletter',
-            'description' => $this->faker->sentence,
-            'creation_date' => $this->faker->date(),
-            'last_updated_date' => $this->faker->date(),
-            'owner_id' => User::factory(), // Crea un usuario si no existe
-            'status' => $this->faker->randomElement(['active', 'draft', 'archived']),
+            'name' => $this->faker->words(2, true) . ' Newsletter',
+            'description' => $this->faker->sentence(),
+            'creation_date' => now()->toDateString(),
+            'last_updated_date' => now()->toDateString(),
+            'owner_id' => $user->id,
+            'status' => $this->faker->randomElement(['draft', 'active', 'archived']),
             'type' => $this->faker->randomElement(['newsletter', 'promotions', 'updates']),
-            'tags' => $this->faker->words(3, true), // Comma-separated tags
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'tags' => $this->faker->word()
         ];
     }
 }

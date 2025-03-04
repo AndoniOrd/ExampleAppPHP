@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,10 +17,10 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        // Return users wrapped in a "data" key.
-        return response()->json(['data' => $users]);
+        // Return users wrapped in a "data" key using UserResource collection.
+        return response()->json(['data' => UserResource::collection($users)]);
     }
-    
+
     /**
      * Store a newly created user in storage.
      */
@@ -45,12 +46,12 @@ class UserController extends Controller
             'website'        => 'nullable|url',
         ];
         $data = $request->validate($rules);
-        
+
         // Default creation_date if not provided.
         if (empty($data['creation_date'])) {
             $data['creation_date'] = now();
         }
-        
+
         // Workaround for the database constraint:
         // If role is "user", map it to a value allowed by the database (e.g., "viewer")
         // then later override the attribute for the response.
@@ -58,26 +59,28 @@ class UserController extends Controller
         if ($data['role'] === 'user') {
             $data['role'] = 'viewer';
         }
-        
+
         // Hash the password.
         $data['password'] = Hash::make($data['password']);
-        
+
         // Create the user.
         $user = User::create($data);
         // Override the role attribute for the JSON response.
         $user->role = $originalRole;
-        
-        return response()->json(['data' => $user], 201);
+
+        // Return the user wrapped in a "data" key using UserResource.
+        return response()->json(['data' => new UserResource($user)], 201);
     }
-    
+
     /**
      * Display the specified user.
      */
     public function show(User $user)
     {
-        return response()->json(['data' => $user]);
+        // Return the user wrapped in a "data" key using UserResource.
+        return response()->json(['data' => new UserResource($user)]);
     }
-    
+
     /**
      * Update the specified user in storage.
      */
@@ -90,12 +93,14 @@ class UserController extends Controller
             'company_size' => 'nullable|string',
         ];
         $data = $request->validate($rules);
-        
+
+        // Update the user.
         $user->update($data);
-        
-        return response()->json(['data' => $user]);
+
+        // Return the updated user wrapped in a "data" key using UserResource.
+        return response()->json(['data' => new UserResource($user)]);
     }
-    
+
     /**
      * Remove the specified user from storage (simulate soft delete).
      */
@@ -107,12 +112,13 @@ class UserController extends Controller
                 $table->timestamp('deleted_at')->nullable();
             });
         }
-        
-        // Use forceFill to ensure the deleted_at attribute is updated
+
+        // Use forceFill to ensure the deleted_at attribute is updated.
         $user->forceFill(['deleted_at' => now()])->save();
-        
+
+        // Return a 204 No Content response.
         return response()->json(null, 204);
     }
-    
+
     // The create() and edit() methods are omitted as they're not used in API endpoints.
 }

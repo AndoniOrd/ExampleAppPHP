@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MailingListController;  // Ensure MailingListController is imported
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -14,8 +15,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+// Define the mailinglists routes
 Route::prefix('api')->group(function () {
     Route::resource('users', UserController::class);
+    Route::resource('mailinglists', MailingListController::class);  // Add mailinglists route
 });
 
 require __DIR__.'/settings.php';

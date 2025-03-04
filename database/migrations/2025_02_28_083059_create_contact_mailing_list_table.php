@@ -6,23 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     * 
-     */
     public function up(): void
     {
-        Schema::create('contact_mailing_list', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('contact_id')->constrained()->onDelete('cascade'); // References 'contacts' table
-            $table->foreignId('mailing_list_id')->constrained()->onDelete('cascade'); // References 'mailing_lists' table
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('contact_mailing_list')) {
+            Schema::create('contact_mailing_list', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('contact_id');
+                $table->unsignedBigInteger('mailing_list_id');
+                $table->timestamps();
+
+                $table->foreign('contact_id')
+                      ->references('id')
+                      ->on('contacts')
+                      ->onDelete('cascade');
+
+                $table->foreign('mailing_list_id')
+                      ->references('id')
+                      ->on('mailing_lists')
+                      ->onDelete('cascade');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('contact_mailing_list');

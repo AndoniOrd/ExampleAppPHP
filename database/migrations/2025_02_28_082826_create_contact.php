@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('contacts', function (Blueprint $table) {
-            $table->increments('id'); // INTEGER UNSIGNED primary key
+            $table->id(); // BIGINT UNSIGNED primary key, equivalent to bigIncrements()
             $table->string('email_address');
             $table->string('first_name');
             $table->string('last_name');
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->json('custom_fields');
             $table->date('creation_date');
             $table->date('last_updated_date');
+            $table->timestamps(); // Add timestamps if needed
         });
     }
 
