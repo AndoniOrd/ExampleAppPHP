@@ -1,7 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
-         colors="true">
+         colors="true"
+>
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
@@ -16,32 +18,16 @@
         </include>
     </source>
     <php>
-        <!-- Set environment variables for testing -->
-        <env name="APP_ENV" value="testing" force="true"/>
-        <env name="APP_NAME" value="Laravel" force="true"/>
-        <env name="APP_KEY" value="base64:F7XPxXStRw4uiLRuTjnf5H86+iBmGAui5G22gHb3h+Y=" force="true"/>
-        <env name="APP_DEBUG" value="true" force="true"/>
-        <env name="APP_URL" value="http://localhost" force="true"/>
-        <env name="APP_LOCALE" value="en" force="true"/>
-        <env name="APP_FALLBACK_LOCALE" value="en" force="true"/>
-        <env name="APP_FAKER_LOCALE" value="en_US" force="true"/>
-        <env name="APP_MAINTENANCE_DRIVER" value="file" force="true"/>
-        <env name="BCRYPT_ROUNDS" value="12" force="true"/>
-        <env name="LOG_CHANNEL" value="stack" force="true"/>
-        <env name="LOG_LEVEL" value="debug" force="true"/>
-        <env name="DB_CONNECTION" value="mysql" force="true"/>
-        <env name="DB_HOST" value="mysql" force="true"/>
-        <env name="DB_PORT" value="3306" force="true"/>
-        <env name="DB_DATABASE" value="ddh" force="true"/>
-        <env name="DB_USERNAME" value="sail" force="true"/>
-        <env name="DB_PASSWORD" value="password" force="true"/>
-        <env name="SESSION_DRIVER" value="database" force="true"/>
-        <env name="QUEUE_CONNECTION" value="database" force="true"/>
-        <env name="CACHE_STORE" value="database" force="true"/>
-        <env name="MAIL_MAILER" value="log" force="true"/>
-        <env name="MAIL_HOST" value="127.0.0.1" force="true"/>
-        <env name="MAIL_PORT" value="2525" force="true"/>
-        <env name="MAIL_FROM_ADDRESS" value="hello@example.com" force="true"/>
-        <env name="MAIL_FROM_NAME" value="Laravel" force="true"/>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_STORE" value="array"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
     </php>
 </phpunit>
