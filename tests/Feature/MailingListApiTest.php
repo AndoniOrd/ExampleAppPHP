@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\MailingList;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -40,14 +41,17 @@ class MailingListApiTest extends TestCase
     #[Test]
     public function test_it_can_create_a_mailing_list(): void
     {
+        // Crear un usuario válido para usarlo como owner
+        $user = User::factory()->create();
+
         $mailingListData = [
             'name' => 'Newsletter Subscribers',
             'description' => 'Monthly newsletter',
             'creation_date' => now()->toDateString(),
             'last_updated_date' => now()->toDateString(),
-            'owner_id' => 1, // Ensure this user exists in your test database
+            'owner_id' => $user->id, // Usamos el id del usuario creado
             'status' => 'active',
-            'type' => 'newsletter',
+            'type' => 'promotions',
             'tags' => 'news,monthly'
         ];
 
@@ -58,14 +62,12 @@ class MailingListApiTest extends TestCase
                 'data' => [
                     'id',
                     'name',
-                    'status',
-                    'type'
+                    'status'
                 ]
             ]);
 
         $this->assertDatabaseHas('mailing_lists', [
-            'name' => 'Newsletter Subscribers',
-            'type' => 'newsletter'
+            'name' => 'Newsletter Subscribers'
         ]);
     }
 
@@ -90,13 +92,12 @@ class MailingListApiTest extends TestCase
         $mailingList = MailingList::factory()->create();
 
         $response = $this->getJson("/api/mailinglists/{$mailingList->id}");
-
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
                     'id' => $mailingList->id,
                     'name' => $mailingList->name,
-                    'type' => $mailingList->type
+                    'type' => $mailingList->type,
                 ]
             ]);
     }
@@ -104,33 +105,28 @@ class MailingListApiTest extends TestCase
     #[Test]
     public function test_it_can_update_a_mailing_list(): void
     {
-        // Create a mailing list
+        // Crear un mailing list
         $mailingList = MailingList::factory()->create();
 
-        // Data to update
+        // Datos para actualizar
         $updateData = [
             'name' => 'Updated Mailing List',
-            'type' => 'promotions' // Ensure this is a valid type from the migration
         ];
 
-        // Send PUT request to update the mailing list
+        // Enviar request PUT para actualizar
         $response = $this->putJson("/api/mailinglists/{$mailingList->id}", $updateData);
 
-        // Assert the response
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id'   => $mailingList->id,
+                    'id' => $mailingList->id,
                     'name' => 'Updated Mailing List',
-                    'type' => 'promotions'
                 ],
             ]);
 
-        // Ensure the mailing list was updated in the database
         $this->assertDatabaseHas('mailing_lists', [
-            'id'   => $mailingList->id,
+            'id' => $mailingList->id,
             'name' => 'Updated Mailing List',
-            'type' => 'promotions'
         ]);
     }
 

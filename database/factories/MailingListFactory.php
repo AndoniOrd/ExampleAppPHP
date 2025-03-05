@@ -11,14 +11,8 @@ class MailingListFactory extends Factory
 
     public function definition(): array
     {
-        // Ensure a user exists
-        $user = User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => bcrypt('password')
-            ]
-        );
+        // Create a new User using the User factory
+        $user = User::factory()->create();
 
         return [
             'name' => $this->faker->words(2, true) . ' Newsletter',
