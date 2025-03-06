@@ -31,6 +31,7 @@ return new class extends Migration
         $table->string('website')->nullable();
         $table->rememberToken();
         $table->timestamps();
+        
     });
 }
     /**
@@ -55,6 +56,7 @@ return new class extends Migration
             'company_size',
             'website',
         ]);
+        Schema::dropIfExists('users'); // Correct way to reverse table creation
     });
 }
 

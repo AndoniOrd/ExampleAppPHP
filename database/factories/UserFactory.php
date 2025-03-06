@@ -13,11 +13,11 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'first_name'       => $this->faker->firstName,
-            'last_name'        => $this->faker->lastName,
-            'email_address'    => $this->faker->unique()->safeEmail(),
-            'email_verified_at'=> now(),
-            'password'         => static::$password ??= Hash::make('password'),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'email_address' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'),
             'phone_number'     => $this->faker->phoneNumber,
             'role'             => 'viewer', // default role; override in tests if needed
             'account_status'   => 'active',
