@@ -13,7 +13,7 @@ class AllPermissionSeeder extends Seeder
     {
         $this->call([
             UserPermissionSeeder::class,
-            // Add additional permission seeders as needed
+            MailingListPermissionSeeder::class,
         ]);
     }
 }
