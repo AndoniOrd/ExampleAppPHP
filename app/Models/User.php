@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
+use Laravel\Sanctum\HasApiTokens;
 
 
 /**
@@ -36,7 +37,7 @@ use Laratrust\Traits\HasRolesAndPermissions;
 class User extends Authenticatable implements LaratrustUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable,HasRolesAndPermissions;
+    use HasFactory, Notifiable,HasRolesAndPermissions,HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
