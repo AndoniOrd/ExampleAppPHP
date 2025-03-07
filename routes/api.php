@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 
-Route::apiResource('users', UserController::class);
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+//Route::apiResource('users', UserController::class);
+Route::middleware('auth:sanctum')->group( function () {
+    Route::get('users', [UserController::class,'index'])
+    ->middleware('role:admin')
+    ->name('users.list');
 });
 
 Route::post('/login', function (Request $request) {

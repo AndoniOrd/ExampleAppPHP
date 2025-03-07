@@ -2,9 +2,18 @@
 
 namespace App\Models;
 
-use Laratrust\Models\Permission as PermissionModel;
+use Laratrust\Models\LaratrustPermission;
 
-class Permission extends PermissionModel
+class Permission extends LaratrustPermission
 {
-    public $guarded = [];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'display_name',
+        'description',
+    ];
 }

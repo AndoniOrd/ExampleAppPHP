@@ -16,10 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Define the mailinglists routes
-Route::prefix('api')->group(function () {
-    Route::resource('users', UserController::class);
-    Route::resource('mailinglists', MailingListController::class);  // Add mailinglists route
-});
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -16,5 +16,10 @@ class DatabaseSeeder extends Seeder
         // Create 10 random users
         User::factory(10)->create();
         MailingList::factory(10)->create();
+        
+        // Call the LaratrustSeeder properly
+        $this->call([
+            LaratrustSeeder::class
+        ]);
     }
 }

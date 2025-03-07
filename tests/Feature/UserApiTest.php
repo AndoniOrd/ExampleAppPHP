@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -164,11 +165,15 @@ class UserApiTest extends TestCase
     #[Test]
     public function it_enforces_unique_email(): void
     {
-        User::factory()->create(['email_address' => 'duplicate@example.com']);
+        $role = Role::factory()->create();
+       $user = User::factory()->create(['email_address' => 'duplicate@example.com']);
+       $user->addRole($role);
 
-        $response = $this->postJson('/api/users', [
+        $response = $this->actingAs($user)->getJson('/api/users', [
             'email_address' => 'duplicate@example.com'
         ]);
+
+        dd($response->json());
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors('email_address');

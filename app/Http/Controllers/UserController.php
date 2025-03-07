@@ -33,7 +33,6 @@ class UserController extends Controller
             'email_address'  => 'required|email|unique:users,email_address',
             'password'       => 'required|string|min:6',
             'phone_number'   => 'nullable|string|max:20',
-            // Allow "user" here, even though the database constraint doesn’t accept it.
             'role'           => 'required|in:admin,editor,viewer,user',
             'account_status' => 'required|in:active,inactive,suspended',
             'creation_date'  => 'nullable|date',
@@ -41,21 +40,19 @@ class UserController extends Controller
             'vat_tax_id'     => 'nullable|string|max:50',
             'company_address'=> 'nullable|string|max:255',
             'industry'       => 'nullable|string|max:255',
-            // Accept company_size as a string so "medium" is valid.
             'company_size'   => 'nullable|string',
             'website'        => 'nullable|url',
         ];
         $data = $request->validate($rules);
 
-        // Default creation_date if not provided.
+        // Set default creation_date if not provided.
         if (empty($data['creation_date'])) {
             $data['creation_date'] = now();
         }
 
-        // Workaround for the database constraint:
-        // If role is "user", map it to a value allowed by the database (e.g., "viewer")
-        // then later override the attribute for the response.
+        // Save the original role for response purposes.
         $originalRole = $data['role'];
+        // If role is "user", map it to "viewer" for database/storage.
         if ($data['role'] === 'user') {
             $data['role'] = 'viewer';
         }
@@ -65,10 +62,13 @@ class UserController extends Controller
 
         // Create the user.
         $user = User::create($data);
+
+        // Attach the role using Laratrust.
+        $user->attachRole($data['role']);
+
         // Override the role attribute for the JSON response.
         $user->role = $originalRole;
 
-        // Return the user wrapped in a "data" key using UserResource.
         return response()->json(['data' => new UserResource($user)], 201);
     }
 
@@ -120,5 +120,49 @@ class UserController extends Controller
         return response()->json(null, 204);
     }
 
-    // The create() and edit() methods are omitted as they're not used in API endpoints.
+    /**
+     * Assign a role to the specified user.
+     */
+    public function assignRole(Request $request, User $user)
+    {
+        // Validate the role.
+        $rules = [
+            'role' => 'required|in:admin,editor,viewer,user'
+        ];
+        $data = $request->validate($rules);
+
+        // Map "user" to "viewer" if necessary.
+        $role = $data['role'];
+        if ($role === 'user') {
+            $role = 'viewer';
+        }
+
+        // Attach the role via Laratrust.
+        $user->attachRole($role);
+
+        return response()->json(['data' => new UserResource($user)], 200);
+    }
+
+    /**
+     * Remove a role from the specified user.
+     */
+    public function removeRole(Request $request, User $user)
+    {
+        // Validate the role.
+        $rules = [
+            'role' => 'required|in:admin,editor,viewer,user'
+        ];
+        $data = $request->validate($rules);
+
+        // Map "user" to "viewer" if necessary.
+        $role = $data['role'];
+        if ($role === 'user') {
+            $role = 'viewer';
+        }
+
+        // Detach the role via Laratrust.
+        $user->detachRole($role);
+
+        return response()->json(['data' => new UserResource($user)], 200);
+    }
 }
