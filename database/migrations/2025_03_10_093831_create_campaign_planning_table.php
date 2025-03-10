@@ -1,0 +1,41 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Ejecuta las migraciones.
+     */
+    public function up()
+    {
+        Schema::create('campaign_plannings', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description');
+            $table->string('email_template_id');
+            $table->string('mailing_list_id');
+            $table->dateTime('scheduled_time');
+            $table->string('time_zone');
+            $table->string('status_status_type');
+            $table->date('creation_date');
+            $table->string('scheduled_by');
+            $table->string('send_from_email');
+            $table->string('send_from_name');
+            $table->string('reply_to_email');
+            // Para el enum de tracking_options se utiliza un string que será casteado a la clase TrackingOptions
+            $table->string('tracking_options');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Revierte las migraciones.
+     */
+    public function down()
+    {
+        Schema::dropIfExists('campaign_plannings');
+    }
+};
