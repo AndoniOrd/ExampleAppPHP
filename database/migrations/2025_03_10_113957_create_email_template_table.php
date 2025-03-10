@@ -15,19 +15,13 @@ return new class extends Migration
             $table->string('subject_line');
             $table->text('html_content');
             $table->text('plain_text_version');
-            $table->string('creator'); // Foreign key to users.id
+            $table->foreignId('creator'); // Foreign key to users.id
             $table->date('creation_date');
             $table->date('last_updated_date');
             $table->string('category');
             $table->enum('status', ['draft', 'active', 'archived'])->default('draft');
             $table->string('preview_image_url')->nullable();
             $table->timestamps(); // Adds created_at and updated_at
-
-            // Foreign key constraint
-            $table->foreign('creator')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('restrict');
 
             // Indexes
             $table->index('status');
