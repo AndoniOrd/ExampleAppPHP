@@ -23,6 +23,12 @@ return new class extends Migration
             $table->string('preview_image_url')->nullable();
             $table->timestamps(); // Adds created_at and updated_at
 
+            // Foreign key constraint
+            $table->foreign('creator')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('restrict');
+
             // Indexes
             $table->index('status');
             $table->index('category');

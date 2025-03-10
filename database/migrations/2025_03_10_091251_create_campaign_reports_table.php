@@ -1,6 +1,4 @@
 <?php
-
-// File: YYYY_MM_DD_HHMMSS_create_campaign_reports_table.php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,7 +7,7 @@ class CreateCampaignReportsTable extends Migration {
     public function up() {
         Schema::create('campaign_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('campaign_id'); // Match BIGINT UNSIGNED
+            $table->foreignId('campaign_planning_id')->constrained('campaign_plannings')->onDelete('cascade');
             $table->integer('total_recipients');
             $table->integer('successful_deliveries');
             $table->integer('hard_bounces')->default(0);
@@ -26,9 +24,6 @@ class CreateCampaignReportsTable extends Migration {
             $table->json('time_based_metrics')->nullable();
             $table->float('engagement_score');
             $table->timestamps();
-
-      
- 
         });
     }
 
