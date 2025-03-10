@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laratrust\Models\LaratrustPermission;
 
 class Permission extends LaratrustPermission
@@ -11,6 +12,8 @@ class Permission extends LaratrustPermission
      *
      * @var array
      */
+
+     use HasFactory;
     protected $fillable = [
         'name',
         'display_name',
