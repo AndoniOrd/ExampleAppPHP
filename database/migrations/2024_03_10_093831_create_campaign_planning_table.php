@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('scheduled_time');
             $table->string('time_zone');
             $table->string('status_status_type');
-            $table->date('creation_date');
+            $table->date('creation_date')->default(DB::raw('CURRENT_DATE'));
             $table->string('scheduled_by');
             $table->string('send_from_email');
             $table->string('send_from_name');
