@@ -53,4 +53,4 @@ class CampaignPlanningFactory extends Factory
             'status_status_type' => $status,
         ]);
     }
-}
+} 

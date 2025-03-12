@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\CampaignPlanningController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MailingListController; 
 use App\Http\Controllers\CampaignReportController; 
@@ -17,7 +18,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+Route::resource('campaign-plannings', CampaignPlanningController::class);
 Route::resource('campaign-reports', CampaignReportController::class);
+
 
 
 

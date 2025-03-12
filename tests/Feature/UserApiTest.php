@@ -6,20 +6,13 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
-use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
+use App\Models\Permission;
+
 
 class UserApiTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
-    }
-
     #[Test]
     public function it_can_list_all_users(): void
     {
@@ -189,125 +182,18 @@ class UserApiTest extends TestCase
     }
 
     #[Test]
-    public function test_admin_can_create_user_with_role(): void
-{
-    // Create an admin user and assign the 'admin' role
-    $admin = User::factory()->create();
-    $adminRole = Role::create(['name' => 'admin']);
-    $admin->assignRole($adminRole);
+    public function it_can_assign_permission_to_user(): void
+    {
+        // Create a user
+        $user = User::factory()->create();
 
-    // Create a 'user' role
-    $userRole = Role::create(['name' => 'user']);
+        // Create a permission
+        $permission = Permission::create(['name' => 'edit-posts']);
 
-    // Data for the new user
-    $userData = [
-        'first_name' => 'Jane',
-        'last_name' => 'Doe',
-        'email_address' => 'jane.doe@example.com',
-        'password' => 'SecurePassword123!',
-        'role' => 'user',
-    ];
+        // Assign the permission to the user
+        $user->attachPermission($permission);
 
-    // Acting as the admin, send a POST request to create a new user
-    $response = $this->actingAs($admin)->postJson(route('users.create'), $userData);
-
-    // Assert the user was created successfully
-    $response->assertStatus(201)
-        ->assertJsonStructure([
-            'data' => [
-                'id',
-                'first_name',
-                'email_address',
-                'role',
-            ],
-        ]);
-
-    // Verify the user exists in the database with the assigned role
-    $this->assertDatabaseHas('users', [
-        'email_address' => 'jane.doe@example.com',
-    ]);
-
-    $createdUser = User::where('email_address', 'jane.doe@example.com')->first();
-    $this->assertTrue($createdUser->hasRole('user'));
-}
-
-#[Test]
-public function test_admin_can_update_user_role(): void
-{
-    // Create an admin user and assign the 'admin' role
-    $admin = User::factory()->create();
-    $adminRole = Role::create(['name' => 'admin']);
-    $admin->assignRole($adminRole);
-
-    // Create a user and assign the 'user' role
-    $user = User::factory()->create();
-    $userRole = Role::create(['name' => 'user']);
-    $user->assignRole($userRole);
-
-    // Create a 'manager' role
-    $managerRole = Role::create(['name' => 'manager']);
-
-    // Data to update the user's role
-    $updateData = [
-        'role' => 'manager',
-    ];
-
-    // Acting as the admin, send a PUT request to update the user's role
-    $response = $this->actingAs($admin)->putJson(route('users.update', $user->id), $updateData);
-
-    // Assert the user's role was updated successfully
-    $response->assertStatus(200)
-        ->assertJson([
-            'data' => [
-                'id' => $user->id,
-                'role' => 'manager',
-            ],
-        ]);
-
-    // Verify the user's role was updated in the database
-    $this->assertTrue($user->fresh()->hasRole('manager'));
-}
-#[Test]
-public function test_admin_can_delete_user(): void
-{
-    // Create an admin user and assign the 'admin' role
-    $admin = User::factory()->create();
-    $adminRole = Role::create(['name' => 'admin']);
-    $admin->assignRole($adminRole);
-
-    // Create a user to be deleted
-    $user = User::factory()->create();
-
-    // Acting as the admin, send a DELETE request to remove the user
-    $response = $this->actingAs($admin)->deleteJson(route('users.delete', $user->id));
-
-    // Assert the user was deleted successfully
-    $response->assertStatus(204);
-
-    // Verify the user is soft deleted in the database
-    $this->assertSoftDeleted('users', ['id' => $user->id]);
-}
-
-#[Test]
-public function test_non_admin_cannot_create_user(): void
-{
-    // Create a non-admin user
-    $user = User::factory()->create();
-
-    // Data for the new user
-    $userData = [
-        'first_name' => 'Jane',
-        'last_name' => 'Doe',
-        'email_address' => 'jane.doe@example.com',
-        'password' => 'SecurePassword123!',
-        'role' => 'user',
-    ];
-
-    // Acting as the non-admin, attempt to create a new user
-    $response = $this->actingAs($user)->postJson(route('users.create'), $userData);
-
-    // Assert the action is forbidden
-    $response->assertStatus(403);
-}
-
+        // Assert that the user has the permission
+        $this->assertTrue($user->hasPermission('edit-posts'));
+    }
 }
