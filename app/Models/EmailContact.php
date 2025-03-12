@@ -9,12 +9,14 @@ class EmailContact extends Model
 {
     use HasFactory;
 
+    protected $table = 'email_contacts'; // Explicit table name
+
     protected $casts = [
         'opt_in_date' => 'date',
         'opt_in_confirmation' => 'boolean',
         'custom_fields' => 'array',
-        'creation_date' => 'date',
-        'last_updated_date' => 'date',
+        'creation_date' => 'datetime', // Changed to datetime
+        'last_updated_date' => 'datetime', // Changed to datetime
     ];
 
     protected $fillable = [
@@ -29,12 +31,4 @@ class EmailContact extends Model
         'creation_date',
         'last_updated_date',
     ];
-
-    // If you need to handle ENUM values
-    protected $enums = [
-        'status' => ['active', 'inactive', 'pending'],
-        'source' => ['web', 'api', 'manual'],
-    ];
-
-    public $timestamps = false; // Since we have custom date columns
 }

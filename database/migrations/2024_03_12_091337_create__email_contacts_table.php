@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('emailContacts', function (Blueprint $table) {
+        Schema::create('email_contacts', function (Blueprint $table) {
             $table->id();
             $table->string('email_address')->unique();
             $table->string('first_name');
@@ -18,13 +18,14 @@ return new class extends Migration
             $table->date('opt_in_date');
             $table->boolean('opt_in_confirmation');
             $table->json('custom_fields')->nullable();
-            $table->date('creation_date');
-            $table->date('last_updated_date');
+            $table->dateTime('creation_date'); // Changed to dateTime
+            $table->dateTime('last_updated_date'); // Changed to dateTime
+            $table->timestamps(); // Added timestamps for consistency
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('emailContacts');
+        Schema::dropIfExists('email_contacts'); // Fixed table name
     }
 };

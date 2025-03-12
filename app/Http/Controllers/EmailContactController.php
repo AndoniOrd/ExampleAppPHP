@@ -15,7 +15,7 @@ class EmailContactController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'email_address' => 'required|email|unique:contacts',
+            'email_address' => 'required|email|unique:email_contacts', // Changed table name
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'status' => 'required|in:active,inactive,pending',
@@ -30,15 +30,15 @@ class EmailContactController extends Controller
         return EmailContact::create($validated);
     }
 
-    public function show(EmailContact $contact)
+    public function show(EmailContact $emailContact) // Fixed parameter name
     {
-        return $contact;
+        return $emailContact;
     }
 
     public function update(Request $request, EmailContact $emailContact)
     {
         $validated = $request->validate([
-            'email_address' => 'email|unique:contacts,email_address,'.$emailContact->id,
+            'email_address' => 'email|unique:email_contacts,email_address,'.$emailContact->id, // Changed table name
             'first_name' => 'string|max:255',
             'last_name' => 'string|max:255',
             'status' => 'in:active,inactive,pending',
