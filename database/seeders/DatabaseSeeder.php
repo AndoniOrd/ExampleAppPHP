@@ -25,5 +25,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             EmailTemplatesSeeder::class,
         ]);
+        
+        $this->call([
+            ListContactRelationshipSeeder::class,
+        ]);
     }
 }

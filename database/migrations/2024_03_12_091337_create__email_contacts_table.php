@@ -26,6 +26,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('email_contacts'); // Fixed table name
+        Schema::dropIfExists('emailContacts');
     }
 };
