@@ -16,11 +16,11 @@ return new class extends Migration {
             // Foreign keys
             $table->foreignId('list_id')->constrained('mailing_lists')->onDelete('cascade');
             
-            // Changed to reference the camelCase table name
+            // Changed to reference the correct snake_case table name
             $table->unsignedBigInteger('contact_id');
             $table->foreign('contact_id')
                   ->references('id')
-                  ->on('emailContacts')
+                  ->on('email_contacts')
                   ->onDelete('cascade');
 
             // Other fields

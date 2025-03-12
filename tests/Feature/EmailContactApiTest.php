@@ -146,15 +146,15 @@ class EmailContactApiTest extends TestCase
     }
 
     #[Test]
-    public function test_it_can_delete_an_email_contact()
-    {
-        $contact = EmailContact::factory()->create();
+public function test_it_can_delete_an_email_contact()
+{
+    $contact = EmailContact::factory()->create();
 
-        $response = $this->deleteJson(route('email-contacts.destroy', $contact->id));
+    $response = $this->deleteJson(route('email-contacts.destroy', $contact->id));
 
-        $response->assertStatus(204);
-        $this->assertDatabaseMissing('contacts', ['id' => $contact->id]);
-    }
+    $response->assertStatus(204);
+    $this->assertDatabaseMissing('email_contacts', ['id' => $contact->id]); // Fixed table name
+}
 
     #[Test]
     public function test_it_validates_enum_values()
