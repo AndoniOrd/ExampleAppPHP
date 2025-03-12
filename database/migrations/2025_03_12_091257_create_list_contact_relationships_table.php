@@ -13,9 +13,15 @@ return new class extends Migration {
         Schema::create('list_contact_relationships', function (Blueprint $table) {
             $table->id(); // Primary key
 
-            // Foreign keys with bigInteger type to match the mailing_lists and email_contacts primary keys
+            // Foreign keys
             $table->foreignId('list_id')->constrained('mailing_lists')->onDelete('cascade');
-            $table->foreignId('contact_id')->constrained('email_contacts')->onDelete('cascade');
+            
+            // Changed to reference the camelCase table name
+            $table->unsignedBigInteger('contact_id');
+            $table->foreign('contact_id')
+                  ->references('id')
+                  ->on('emailContacts')
+                  ->onDelete('cascade');
 
             // Other fields
             $table->date('subscription_date');

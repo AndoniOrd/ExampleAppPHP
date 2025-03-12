@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Contact;
+use App\Models\EmailContact;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EmailContactFactory extends Factory

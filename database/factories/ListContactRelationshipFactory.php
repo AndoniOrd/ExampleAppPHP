@@ -18,6 +18,7 @@ class ListContactRelationshipFactory extends Factory
             'contact_id' => EmailContact::factory(),
             'subscription_date' => $this->faker->date(),
             'status' => $this->faker->randomElement(['subscribed', 'unsubscribed', 'pending']),
+            
         ];
     }
 }

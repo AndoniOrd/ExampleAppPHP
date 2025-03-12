@@ -1,10 +1,12 @@
 <?php
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ListContactRelationship extends Model
 {
+    use HasFactory;
     protected $table = 'list_contact_relationships';
     public $timestamps = false;
     
@@ -23,6 +25,7 @@ class ListContactRelationship extends Model
     
     public function emailContact()
     {
+        // Update the model class name if necessary to match your actual model for emailContacts
         return $this->belongsTo(EmailContact::class, 'contact_id');
     }
 }

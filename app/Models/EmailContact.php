@@ -2,21 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class EmailContact extends Model
 {
     use HasFactory;
-
-    protected $casts = [
-        'opt_in_date' => 'date',
-        'opt_in_confirmation' => 'boolean',
-        'custom_fields' => 'array',
-        'creation_date' => 'date',
-        'last_updated_date' => 'date',
-    ];
-
+    
+    // Updated to use the camelCase table name
+    protected $table = 'emailContacts';
+    public $timestamps = false;
+    
     protected $fillable = [
         'email_address',
         'first_name',
@@ -27,14 +23,22 @@ class EmailContact extends Model
         'opt_in_confirmation',
         'custom_fields',
         'creation_date',
-        'last_updated_date',
+        'last_updated_date'
     ];
-
-    // If you need to handle ENUM values
-    protected $enums = [
-        'status' => ['active', 'inactive', 'pending'],
-        'source' => ['web', 'api', 'manual'],
+    
+    protected $casts = [
+        'custom_fields' => 'array',
+        'opt_in_confirmation' => 'boolean',
     ];
-
-    public $timestamps = false; // Since we have custom date columns
+    
+    public function listRelationships()
+    {
+        return $this->hasMany(ListContactRelationship::class, 'contact_id');
+    }
+    
+    public function mailingLists()
+    {
+        return $this->belongsToMany(MailingList::class, 'list_contact_relationships', 'contact_id', 'list_id')
+            ->withPivot('subscription_date', 'status');
+    }
 }
