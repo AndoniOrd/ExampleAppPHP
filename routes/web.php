@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MailingListController;
 use App\Http\Controllers\CampaignReportController;
 use App\Http\Controllers\EmailContactController; // Add this import
+use App\Http\Controllers\EmailContactFileController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -24,6 +25,9 @@ Route::resource('campaign-reports', CampaignReportController::class);
 
 // Add the new EmailContact resource
 Route::resource('email-contacts', EmailContactController::class);
+
+Route::get('/import-contacts', [EmailContactFileController::class, 'showImportForm'])->name('contacts.import.form');
+Route::post('/import-contacts', [EmailContactFileController::class, 'import'])->name('contacts.import');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
