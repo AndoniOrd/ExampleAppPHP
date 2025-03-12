@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CampaignPlanningController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\MailingListController; 
-use App\Http\Controllers\CampaignReportController; 
-// Ensure MailingListController is imported
+use App\Http\Controllers\MailingListController;
+use App\Http\Controllers\CampaignReportController;
+use App\Http\Controllers\EmailContactController; // Add this import
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -18,11 +18,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+// Existing resources
 Route::resource('campaign-plannings', CampaignPlanningController::class);
 Route::resource('campaign-reports', CampaignReportController::class);
 
-
-
+// Add the new EmailContact resource
+Route::resource('email-contacts', EmailContactController::class);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

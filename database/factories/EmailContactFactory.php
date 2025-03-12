@@ -19,7 +19,7 @@ class EmailContactFactory extends Factory
             'source' => $this->faker->randomElement(['web', 'api', 'manual']),
             'opt_in_date' => $this->faker->date(),
             'opt_in_confirmation' => $this->faker->boolean(),
-            'custom_fields' => json_encode(['key' => $this->faker->word()]),
+            'custom_fields' => ['key' => $this->faker->word()], // Direct array instead of json_encode
             'creation_date' => $this->faker->dateTimeBetween('-1 year'),
             'last_updated_date' => $this->faker->dateTimeBetween('-1 month'),
         ];

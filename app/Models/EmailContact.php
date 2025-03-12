@@ -2,17 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmailContact extends Model
 {
     use HasFactory;
-    
-    // Updated to use the camelCase table name
-    protected $table = 'emailContacts';
-    public $timestamps = false;
-    
+
+    protected $table = 'email_contacts'; // Explicit table name
+
+    protected $casts = [
+        'opt_in_date' => 'date',
+        'opt_in_confirmation' => 'boolean',
+        'custom_fields' => 'array',
+        'creation_date' => 'datetime', // Changed to datetime
+        'last_updated_date' => 'datetime', // Changed to datetime
+    ];
+
     protected $fillable = [
         'email_address',
         'first_name',
@@ -23,22 +29,6 @@ class EmailContact extends Model
         'opt_in_confirmation',
         'custom_fields',
         'creation_date',
-        'last_updated_date'
+        'last_updated_date',
     ];
-    
-    protected $casts = [
-        'custom_fields' => 'array',
-        'opt_in_confirmation' => 'boolean',
-    ];
-    
-    public function listRelationships()
-    {
-        return $this->hasMany(ListContactRelationship::class, 'contact_id');
-    }
-    
-    public function mailingLists()
-    {
-        return $this->belongsToMany(MailingList::class, 'list_contact_relationships', 'contact_id', 'list_id')
-            ->withPivot('subscription_date', 'status');
-    }
 }
