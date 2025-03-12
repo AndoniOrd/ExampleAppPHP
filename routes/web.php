@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CampaignPlanningController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\MailingListController;  // Ensure MailingListController is imported
+use App\Http\Controllers\MailingListController; 
+use App\Http\Controllers\CampaignReportController; 
+// Ensure MailingListController is imported
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -17,6 +19,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::resource('campaign-plannings', CampaignPlanningController::class);
+Route::resource('campaign-reports', CampaignReportController::class);
+
+
 
 
 require __DIR__.'/settings.php';

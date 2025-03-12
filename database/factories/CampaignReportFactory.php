@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\CampaignPlanning;
 use App\Models\CampaignReport;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,15 +20,17 @@ class CampaignReportFactory extends Factory
 
         return [
             // Para la clave foránea, en un entorno de pruebas podrías usar un UUID o vincularlo a otra factory
-            'campaign_ID'              => $this->faker->uuid,
-            'total_recipients'         => $totalRecipients,
-            'successful_deliveries'    => $successfulDeliveries,
-            'bounces'                  => $this->faker->randomElement(['hard', 'soft']),
-            'opens'                    => $this->faker->numberBetween(10, $successfulDeliveries),
-            'clicks'                   => $this->faker->numberBetween(5, 50),
-            'click_to_open_rate'       => $this->faker->randomFloat(2, 0, 1),
+           'campaign_planning_id' => CampaignPlanning::factory(),
+        'total_recipients' => $totalRecipients,
+        'successful_deliveries' => $successfulDeliveries,
+        'hard_bounces' => $this->faker->numberBetween(0, 100),
+        'soft_bounces' => $this->faker->numberBetween(0, 100),
+        'opens_count' => $this->faker->numberBetween(0, $successfulDeliveries), // Corrected
+        'opens_unique' => $this->faker->numberBetween(0, $successfulDeliveries), // Added
+        'clicks_count' => $this->faker->numberBetween(0, 100),                   // Corrected
+        'clicks_unique' => $this->faker->numberBetween(0, 100), 
             'unsubscribes'             => $this->faker->randomFloat(2, 0, 0.1),
-            'complaints_spam_reports'  => $this->faker->randomFloat(2, 0, 0.05),
+           'spam_complaints' => $this->faker->randomFloat(2, 0, 0.05),
             // Simulamos datos en formato JSON para los campos de tipo TEXT
             'device_statistics'        => json_encode([
                                             'desktop' => $this->faker->numberBetween(1, 100),
@@ -40,6 +43,7 @@ class CampaignReportFactory extends Factory
                                             'morning' => $this->faker->numberBetween(1, 100),
                                             'evening' => $this->faker->numberBetween(1, 100)
                                         ]),
+                                        'click_to_open_rate' => $this->faker->randomFloat(2, 0, 1), 
             'engagement_score'         => $this->faker->randomFloat(2, 0, 100),
         ];
     }

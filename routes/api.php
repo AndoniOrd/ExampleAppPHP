@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\CampaignReportController;
+use App\Http\Controllers\EmailTemplatesController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('users', [UserController::class, 'index'])
@@ -21,6 +23,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('permission:delete-users')
         ->name('users.delete');
 });
+
+Route::apiResource('campaign-reports', CampaignReportController::class);
+Route::apiResource('email_templates', EmailTemplatesController::class);
 
 // Login route remains unchanged
 Route::post('/login', function (Request $request) {
