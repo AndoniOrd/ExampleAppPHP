@@ -16,7 +16,7 @@ class CreateCampaignReportsTable extends Migration {
             $table->integer('opens_unique');
             $table->integer('clicks_count');
             $table->integer('clicks_unique');
-            $table->float('click_to_open_rate');
+            $table->float('click_to_open_rate')->nullable(); 
             $table->integer('unsubscribes');
             $table->integer('spam_complaints');
             $table->json('device_statistics')->nullable();

@@ -35,7 +35,7 @@ use Laratrust\Traits\LaratrustUserTrait;
  */
 class User extends Authenticatable implements LaratrustUser
 {
-    use HasFactory, Notifiable, HasRolesAndPermissions, HasApiTokens, LaratrustUserTrait;
+    use HasFactory, Notifiable, HasRolesAndPermissions, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
