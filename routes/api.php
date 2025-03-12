@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CampaignReportController;
 use App\Http\Controllers\EmailTemplatesController;
+use App\Http\Controllers\ListContactRelationshipController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('users', [UserController::class, 'index'])
@@ -26,6 +27,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 Route::apiResource('campaign-reports', CampaignReportController::class);
 Route::apiResource('email_templates', EmailTemplatesController::class);
+Route::apiResource('list-contact-relationships', ListContactRelationshipController::class);
 
 // Login route remains unchanged
 Route::post('/login', function (Request $request) {
