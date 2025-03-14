@@ -20,15 +20,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+// routes/web.php
 Route::get('/enviar-correo-de-prueba', function () {
     $datos = [
         'nombre' => 'Juan Pérez',
         'mensaje' => 'Este es un mensaje de prueba.'
     ];
 
-    Mail::to('[email protected]')->send(new TestEmail($datos));
+    // Use a valid email address (e.g., [email protected])
+    Mail::to('borjaahedo@gmail.com')->send(new TestEmail($datos));
 
-    return '¡Correo de prueba enviado!';
+    return '¡E-MAIL WYSŁANY!';
 });
 
 // Existing resources
