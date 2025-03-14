@@ -9,6 +9,9 @@
         {
             "url": "http://localhost",
             "description": "API Server"
+        },
+        {
+            "url": "/api"
         }
     ],
     "paths": {
@@ -30,7 +33,7 @@
                                     "email_address": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "user@example.com"
+                                        "example": "example@example.com"
                                     },
                                     "password": {
                                         "type": "string",

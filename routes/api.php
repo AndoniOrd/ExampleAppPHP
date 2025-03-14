@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -62,3 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('users', UserApiController::class);
 });
+
+Route::post('/login', [UserApiController::class, 'login']);
+Route::apiResource('users', UserApiController::class)->middleware('auth:sanctum');
+Route::post('/generate-token', [TokenController::class, 'generateToken']);

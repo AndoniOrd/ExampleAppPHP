@@ -26,7 +26,7 @@ class UserApiController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"email_address", "password"},
-     *             @OA\Property(property="email_address", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="email_address", type="string", format="email", example="example@example.com"),
      *             @OA\Property(property="password", type="string", example="password")
      *         )
      *     ),
@@ -37,19 +37,18 @@ class UserApiController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email_address' => 'required|email',
+            'email_address' => 'required|email', // Changed from 'email_address'
             'password' => 'required',
         ]);
-
-        if (!Auth::attempt($request->only('email_address', 'password'))) {
+    
+        if (!Auth::attempt($request->only('email_address', 'password'))) { // Changed from 'email_address'
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-
+    
         return response()->json([
             'token' => $request->user()->createToken('api')->plainTextToken,
         ]);
     }
-
     /**
      * @OA\Get(
      *     path="/api/users",
@@ -95,7 +94,10 @@ class UserApiController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json($user, 201);
+        return response()->json([
+            'user' => $user,
+            'token' => $user->createToken('api')->plainTextToken,
+        ], 201);
     }
 
     /**

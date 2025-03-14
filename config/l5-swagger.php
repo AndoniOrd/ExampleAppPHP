@@ -15,6 +15,7 @@ return [
                 'api' => 'api/documentation',
             ],
             'paths' => [
+                'base' => env('L5_SWAGGER_BASE_PATH', '/api'),
                 /*
                  * Edit to include full URL in ui for assets
                  */

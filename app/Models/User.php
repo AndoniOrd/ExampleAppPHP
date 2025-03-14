@@ -93,4 +93,14 @@ class User extends Authenticatable
     {
         $this->attachPermission($permissionName);
     }
+
+    public function getEmailAttribute()
+{
+    return $this->attributes['email_address'];
+}
+
+public function setEmailAttribute($value)
+{
+    $this->attributes['email_address'] = $value;
+}
 }
