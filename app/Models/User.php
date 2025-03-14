@@ -83,6 +83,11 @@ class User extends Authenticatable implements LaratrustUser
         ];
     }
 
+    public function getAuthIdentifierName()
+    {
+        return 'email_address';
+    }
+
     /**
      * Attach a permission to the user.
      *
