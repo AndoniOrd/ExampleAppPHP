@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laratrust\Models\Role as RoleModel;
+use Spatie\Permission\Traits\HasPermissions;
 
-class Role extends RoleModel
+
+class Role extends  RoleModel
 
 {
     /**

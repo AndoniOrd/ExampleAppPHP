@@ -33,7 +33,7 @@ use Laratrust\Traits\LaratrustUserTrait;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements LaratrustUser
+class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRolesAndPermissions, HasApiTokens;
 
@@ -82,12 +82,7 @@ class User extends Authenticatable implements LaratrustUser
             'password' => 'hashed',
         ];
     }
-
-    public function getAuthIdentifierName()
-    {
-        return 'email_address';
-    }
-
+    
     /**
      * Attach a permission to the user.
      *

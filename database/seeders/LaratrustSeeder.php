@@ -60,19 +60,21 @@ class LaratrustSeeder extends Seeder
         ]);
 
         // Assign permissions to roles
-        $adminRole->attachPermissions([
+        $adminRole->syncPermissions([
             $createUserPerm,
             $editUserPerm,
             $deleteUserPerm,
             $viewUserPerm,
         ]);
 
-        $editorRole->attachPermissions([
+        $editorRole->syncPermissions([
             $editUserPerm,
             $viewUserPerm,
         ]);
 
-        $viewerRole->attachPermission($viewUserPerm);
+        $viewerRole->syncPermissions([
+            $viewUserPerm,
+        ]);
 
         // Create admin user
         $admin = User::create([
