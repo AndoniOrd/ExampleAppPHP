@@ -31,4 +31,13 @@ class EmailContact extends Model
         'creation_date',
         'last_updated_date',
     ];
+
+    /**
+     * The mailing lists that belong to this email contact.
+     */
+    public function mailingLists()
+    {
+        return $this->belongsToMany(MailingList::class, 'list_contact_relationships', 'contact_id', 'list_id')
+                    ->withPivot('subscription_date', 'status');
+    }
 }
