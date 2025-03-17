@@ -26,22 +26,24 @@ class UserApiController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"email_address", "password"},
-     *             @OA\Property(property="email_address", type="string", format="email", example="example@example.com"),
-     *             @OA\Property(property="password", type="string", example="password")
+     *             @OA\Property(property="email_address", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="password", type="string", example="securepassword")
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Login successful"),
+     *     @OA\Response(response=200, description="Login successful", @OA\JsonContent(
+     *         @OA\Property(property="token", type="string", example="your-api-token")
+     *     )),
      *     @OA\Response(response=401, description="Invalid credentials")
      * )
      */
     public function login(Request $request)
     {
         $request->validate([
-            'email_address' => 'required|email', // Changed from 'email_address'
+            'email_address' => 'required|email',
             'password' => 'required',
         ]);
     
-        if (!Auth::attempt($request->only('email_address', 'password'))) { // Changed from 'email_address'
+        if (!Auth::attempt(['email_address' => $request->email_address, 'password' => $request->password])) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
     

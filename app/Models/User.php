@@ -8,7 +8,8 @@ use Illuminate\Notifications\Notifiable;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 use Laravel\Sanctum\HasApiTokens;
-use Laratrust\Traits\LaratrustUserTrait;
+use App\Traits\LaratrustUserTrait; // Correct namespace
+
 
 /**
  * 
@@ -35,7 +36,9 @@ use Laratrust\Traits\LaratrustUserTrait;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRolesAndPermissions, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens;
+    use LaratrustUserTrait;
+
 
     /**
      * The attributes that are mass assignable.
@@ -48,7 +51,6 @@ class User extends Authenticatable
         'email_address',
         'password',
         'phone_number',
-        'role',
         'account_status',
         'creation_date',
         'last_login',
@@ -59,7 +61,7 @@ class User extends Authenticatable
         'company_size',
         'website',
     ];
-
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -81,6 +83,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function username()
+    {
+        return 'email_address';
     }
     
     /**

@@ -26,50 +26,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate request data.
         $rules = [
-            'first_name'     => 'required|string|max:255',
-            'last_name'      => 'required|string|max:255',
-            'email_address'  => 'required|email|unique:users,email_address',
-            'password'       => 'required|string|min:6',
-            'phone_number'   => 'nullable|string|max:20',
-            'role'           => 'required|in:admin,editor,viewer,user',
-            'account_status' => 'required|in:active,inactive,suspended',
-            'creation_date'  => 'nullable|date',
-            'company_name'   => 'nullable|string|max:255',
-            'vat_tax_id'     => 'nullable|string|max:50',
-            'company_address'=> 'nullable|string|max:255',
-            'industry'       => 'nullable|string|max:255',
-            'company_size'   => 'nullable|string',
-            'website'        => 'nullable|url',
+            'name' => 'required|string|max:255',
+            'email_address' => 'required|email|unique:users,email_address', // Changed to email_address
+            'password' => 'required|min:6',
         ];
+    
         $data = $request->validate($rules);
-
-        // Set default creation_date if not provided.
-        if (empty($data['creation_date'])) {
-            $data['creation_date'] = now();
-        }
-
-        // Save the original role for response purposes.
-        $originalRole = $data['role'];
-        // If role is "user", map it to "viewer" for database/storage.
-        if ($data['role'] === 'user') {
-            $data['role'] = 'viewer';
-        }
-
-        // Hash the password.
-        $data['password'] = Hash::make($data['password']);
-
-        // Create the user.
-        $user = User::create($data);
-
-        // Attach the role using Laratrust.
-        $user->attachRole($data['role']);
-
-        // Override the role attribute for the JSON response.
-        $user->role = $originalRole;
-
-        return response()->json(['data' => new UserResource($user)], 201);
+    
+        $user = User::create([
+            'name' => $data['name'],
+            'email_address' => $data['email_address'], // Corrected field
+            'password' => Hash::make($data['password']),
+        ]);
+    
+        return response()->json([
+            'user' => $user,
+            'token' => $user->createToken('api')->plainTextToken,
+        ], 201);
     }
 
     /**

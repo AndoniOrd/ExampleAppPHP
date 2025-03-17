@@ -16,7 +16,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
-        "santigarcor/laratrust": "^8.4",
+        "santigarcor/laratrust": "8.4",
         "spatie/laravel-permission": "^6.16",
         "tightenco/ziggy": "^2.4"
     },
@@ -79,6 +79,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

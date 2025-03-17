@@ -33,11 +33,11 @@
                                     "email_address": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "example@example.com"
+                                        "example": "john.doe@example.com"
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "password"
+                                        "example": "securepassword"
                                     }
                                 },
                                 "type": "object"
@@ -47,7 +47,20 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Login successful"
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "your-api-token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Invalid credentials"
