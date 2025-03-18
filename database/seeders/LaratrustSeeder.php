@@ -77,18 +77,18 @@ class LaratrustSeeder extends Seeder
         ]);
 
         // Create admin user
-        $admin = User::create([
-            'first_name' => 'Admin',
-            'last_name' => 'User',
-            'email_address' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'phone_number' => '123-456-7890',
-            'role' => 'admin',
-            'account_status' => 'active',
-            'creation_date' => now(),
-        ]);
+       // Create admin user
+$admin = User::create([
+    'first_name' => 'Admin',
+    'last_name' => 'User',
+    'email_address' => 'admin@example.com',
+    'password' => Hash::make('password'),
+    'phone_number' => '123-456-7890',
+    'account_status' => 'active',
+    'creation_date' => now(),
+]);
 
-        // Attach admin role to admin user
-        $admin->attachRole($adminRole);
+// Attach admin role to admin user using the roles relationship
+$admin->roles()->attach($adminRole->id);  // This uses Laravel's relationship methods instead
     }
 }

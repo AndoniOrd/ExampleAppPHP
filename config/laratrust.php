@@ -98,9 +98,9 @@ return [
     | The key in the array is the name of the relationship inside the roles and permissions.
     |
     */
-    'user_models' => [
-        'users' => \App\Models\User::class,
-    ],
+   'user_models' => [
+    'users' => \App\Models\User::class,
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -112,18 +112,11 @@ return [
     | to have a different name, you can do it here.
     |
     */
-    'models' => [
-
-        'role' => \App\Models\Role::class,
-
-        'permission' => \App\Models\Permission::class,
-
-        /**
-         * Will be used only if the teams functionality is enabled.
-         */
-        'team' => \App\Models\Team::class,
-    ],
-
+  'models' => [
+    'role' => \App\Models\Role::class,
+    'permission' => \App\Models\Permission::class,
+   // 'team' => \App\Models\Team::class, // Remove if not using teams
+],
     /*
     |--------------------------------------------------------------------------
     | Laratrust Tables

@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model; // Add this line
+use Laratrust\Models\Permission as PermissionModel;
 
-class Permission extends Model // Add "extends Model" here
+class Permission extends PermissionModel
 {
     use HasFactory;
     

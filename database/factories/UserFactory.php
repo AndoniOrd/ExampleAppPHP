@@ -14,14 +14,13 @@ class UserFactory extends Factory
     {
         return [
             'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
-            'email_address' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => bcrypt('password'),
-            'phone_number'     => $this->faker->phoneNumber,
-            'role'             => 'viewer', // default role; override in tests if needed
-            'account_status'   => 'active',
-            'creation_date'    => now(),
+        'last_name' => fake()->lastName(),
+        'email_address' => fake()->unique()->safeEmail(),
+        'email_verified_at' => now(),
+        'password' => bcrypt('password'),
+        'phone_number' => $this->faker->phoneNumber,
+        'account_status' => 'active',
+        'creation_date' => now(),
             'last_login'       => null,
             'company_name'     => $this->faker->company,
             'company_address'  => $this->faker->address,

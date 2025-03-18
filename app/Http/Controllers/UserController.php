@@ -98,45 +98,30 @@ class UserController extends Controller
      * Assign a role to the specified user.
      */
     public function assignRole(Request $request, User $user)
-    {
-        // Validate the role.
-        $rules = [
-            'role' => 'required|in:admin,editor,viewer,user'
-        ];
-        $data = $request->validate($rules);
+{
+    $request->validate([
+        'role' => 'required|exists:roles,name'
+    ]);
 
-        // Map "user" to "viewer" if necessary.
-        $role = $data['role'];
-        if ($role === 'user') {
-            $role = 'viewer';
-        }
+    $user->attachRole($request->role);
 
-        // Attach the role via Laratrust.
-        $user->attachRole($role);
+    return response()->json([
+        'message' => 'Role assigned successfully',
+        'user' => new UserResource($user->load('roles'))
+    ]);
+}
 
-        return response()->json(['data' => new UserResource($user)], 200);
-    }
+public function removeRole(Request $request, User $user)
+{
+    $request->validate([
+        'role' => 'required|exists:roles,name'
+    ]);
 
-    /**
-     * Remove a role from the specified user.
-     */
-    public function removeRole(Request $request, User $user)
-    {
-        // Validate the role.
-        $rules = [
-            'role' => 'required|in:admin,editor,viewer,user'
-        ];
-        $data = $request->validate($rules);
+    $user->detachRole($request->role);
 
-        // Map "user" to "viewer" if necessary.
-        $role = $data['role'];
-        if ($role === 'user') {
-            $role = 'viewer';
-        }
-
-        // Detach the role via Laratrust.
-        $user->detachRole($role);
-
-        return response()->json(['data' => new UserResource($user)], 200);
-    }
+    return response()->json([
+        'message' => 'Role removed successfully',
+        'user' => new UserResource($user->load('roles'))
+    ]);
+}
 }
