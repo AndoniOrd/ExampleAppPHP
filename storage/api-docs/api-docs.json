@@ -93,7 +93,7 @@
                             "schema": {
                                 "required": [
                                     "name",
-                                    "email",
+                                    "email_address",
                                     "password"
                                 ],
                                 "properties": {
@@ -101,7 +101,7 @@
                                         "type": "string",
                                         "example": "John Doe"
                                     },
-                                    "email": {
+                                    "email_address": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john@example.com"

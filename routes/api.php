@@ -14,11 +14,10 @@ Route::post('/login', [UserApiController::class, 'login']);
 Route::post('/generate-token', [TokenController::class, 'generateToken']);
 
 // Authenticated routes (require Sanctum authentication)
-Route::middleware(['auth:sanctum'])->group(function () {
-    // User API routes
-    Route::apiResource('users', UserApiController::class)->only([
-        'index', 'store', 'show', 'update', 'destroy'
-    ]);
+Route::middleware(['auth:sanctum', 'permission:view-user'])->group(function () {
+    Route::apiResource('users', UserApiController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    // Add other routes as needed with appropriate middleware
+});
     
     // Email contacts import
     Route::post('/import-email-contacts', [EmailContactApiController::class, 'import']);
@@ -27,20 +26,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('email_templates', EmailTemplatesController::class);
     Route::apiResource('list-contact-relationships', ListContactRelationshipController::class);
     
-    // Permission-protected user routes
-    Route::prefix('users')->group(function () {
-        Route::get('/', [UserController::class, 'index'])
-            ->middleware('permission:view-users')
-            ->name('users.list');
-            
-        Route::post('/', [UserController::class, 'store'])
-            ->middleware('permission:create-users')
-            ->name('users.create');
-            
-        Route::delete('/{user}', [UserController::class, 'destroy'])
-            ->middleware('permission:delete-users')
-            ->name('users.delete');
-    });
+// Route::prefix('users')->group(function () {
+//     Route::get('/', [UserController::class, 'index'])
+//         ->middleware('permission:view-user')
+//         ->name('users.list');
+        
+//     Route::post('/', [UserController::class, 'store'])
+//         ->middleware('permission:create-users')
+//         ->name('users.create');
+        
+//     Route::delete('/{user}', [UserController::class, 'destroy'])
+//         ->middleware('permission:delete-users')
+//         ->name('users.delete');
+// });
 
-    Route::middleware(['auth', 'role:admin'])->get('/api/users', [UserController::class, 'index']);
-});
+   // Route::middleware(['auth', 'role:admin'])->get('/api/users', [UserController::class, 'index']);

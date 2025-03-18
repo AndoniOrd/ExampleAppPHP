@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Auth;
 use Illuminate\Http\Request;
@@ -48,8 +49,11 @@ class UserApiController extends Controller
         }
     
         return response()->json([
-            'token' => $request->user()->createToken('api')->plainTextToken,
+            'data' => [
+                'token' => $request->user()->createToken('api')->plainTextToken,
+            ]
         ]);
+        
     }
     /**
      * @OA\Get(
@@ -65,41 +69,38 @@ class UserApiController extends Controller
         return response()->json($users);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/users",
-     *     summary="Create a user",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name", "email", "password"},
-     *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(property="password", type="string", example="password")
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="User created successfully")
-     * )
-     */
+  /**
+ * @OA\Post(
+ *     path="/api/users",
+ *     summary="Create a user",
+ *     security={{"bearerAuth":{}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"name", "email_address", "password"},
+ *             @OA\Property(property="name", type="string", example="John Doe"),
+ *             @OA\Property(property="email_address", type="string", format="email", example="john@example.com"),
+ *             @OA\Property(property="password", type="string", example="password")
+ *         )
+ *     ),
+ *     @OA\Response(response=201, description="User created successfully")
+ * )
+ */
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email_address' => 'required|email|unique:users,email_address',
             'password' => 'required|min:6',
         ]);
-
+    
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email_address' => $request->email_address,
             'password' => Hash::make($request->password),
         ]);
-
-        return response()->json([
-            'user' => $user,
-            'token' => $user->createToken('api')->plainTextToken,
-        ], 201);
+    
+        return response()->json(['data' => new UserResource($user)], 201);
     }
 
     /**
