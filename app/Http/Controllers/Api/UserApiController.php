@@ -68,7 +68,16 @@ class UserApiController extends Controller
         return response()->json($users);
     }
 
-  /**
+/**
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
+ * )
+ */
+
+/**
  * @OA\Post(
  *     path="/api/users",
  *     summary="Create a user",
@@ -76,28 +85,34 @@ class UserApiController extends Controller
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"name", "email_address", "password"},
- *             @OA\Property(property="name", type="string", example="John Doe"),
+ *             required={"first_name", "last_name", "email_address", "password"},
+ *             @OA\Property(property="first_name", type="string", example="John"),
+ *             @OA\Property(property="last_name", type="string", example="Doe"),
  *             @OA\Property(property="email_address", type="string", format="email", example="john@example.com"),
  *             @OA\Property(property="password", type="string", example="password")
  *         )
  *     ),
- *     @OA\Response(response=201, description="User created successfully")
+ *     @OA\Response(response=201, description="User created successfully"),
+ *     @OA\Response(response=401, description="Unauthorized - Invalid or missing token"),
+ *     @OA\Response(response=403, description="Forbidden - User does not have permission to create a user")
  * )
  */
 public function store(Request $request)
 {
-
-    $request->validate([
-        'name' => 'required|string|max:255',
+    $validated = $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
         'email_address' => 'required|email|unique:users,email_address',
         'password' => 'required|min:6',
     ]);
 
     $user = User::create([
-        'name' => $request->name,
-        'email_address' => $request->email_address,
-        'password' => Hash::make($request->password),
+        'first_name' => $validated['first_name'],
+        'last_name' => $validated['last_name'],
+        'email_address' => $validated['email_address'],
+        'password' => Hash::make($validated['password']),
+        'account_status' => 'active',
+        'creation_date' => now(),
     ]);
 
     return response()->json(['data' => new UserResource($user)], 201);

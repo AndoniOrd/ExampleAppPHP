@@ -92,14 +92,19 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
+                                    "first_name",
+                                    "last_name",
                                     "email_address",
                                     "password"
                                 ],
                                 "properties": {
-                                    "name": {
+                                    "first_name": {
                                         "type": "string",
-                                        "example": "John Doe"
+                                        "example": "John"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
                                     },
                                     "email_address": {
                                         "type": "string",
@@ -119,6 +124,12 @@
                 "responses": {
                     "201": {
                         "description": "User created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token"
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not have permission to create a user"
                     }
                 },
                 "security": [
