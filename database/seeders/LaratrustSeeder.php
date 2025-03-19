@@ -50,8 +50,8 @@ class LaratrustSeeder extends Seeder
         ]);
     
         $editUserPerm = Permission::create([
-            'name' => 'edit-user',
-            'guard_name' => 'web', // Add this line
+            'name' => 'update-user', 
+            'guard_name' => 'web',
         ]);
     
         $deleteUserPerm = Permission::create([
@@ -66,10 +66,10 @@ class LaratrustSeeder extends Seeder
     
         // Assign permissions to roles
         $adminRole->syncPermissions([
-            $createUserPerm,
-            $editUserPerm,
-            $deleteUserPerm,
-            $viewUserPerm,
+            $createUserPerm,  // create-user
+            $editUserPerm,    // Debe ser update-user (corregido arriba)
+            $deleteUserPerm,  // delete-user
+            $viewUserPerm,    // view-user
         ]);
     
         $editorRole->syncPermissions([

@@ -25,13 +25,14 @@ public function run(): void
         //ContactsTableSeeder::class,
         //EmailContactSeeder::class,
         //EmailTemplatesSeeder::class,
-        LaratrustSeeder::class,
         //ListContactRelationshipSeeder::class,
        // MailingListPermissionSeeder::class,
        // MailingListSeeder::class,
-        UserPermissionSeeder::class,
-        UsersTableSeeder::class,
-        FixPermissionsSeeder::class,
+     
+
+        LaratrustSeeder::class, 
+        FixPermissionsSeeder::class, 
+        UsersTableSeeder::class 
     ]);
 }
 }
