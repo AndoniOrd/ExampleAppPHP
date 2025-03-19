@@ -124,43 +124,59 @@ public function store(Request $request)
         return response()->json($user);
     }
 
+/**
+ * @OA\Put(
+ *     path="/api/users/{id}",
+ *     summary="Update a user",
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="User ID",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(property="first_name", type="string", example="John"),
+ *             @OA\Property(property="last_name", type="string", example="Doe"),
+ *             @OA\Property(property="email_address", type="string", format="email", example="john@example.com"),
+ *             @OA\Property(property="phone_number", type="string", example="123-456-7890"),
+ *             @OA\Property(property="account_status", type="string", example="active"),
+ *             @OA\Property(property="company_name", type="string", example="Acme Corp"),
+ *             @OA\Property(property="company_address", type="string", example="123 Main St"),
+ *             @OA\Property(property="vat_tax_id", type="string", example="TAX12345"),
+ *             @OA\Property(property="industry", type="string", example="Technology"),
+ *             @OA\Property(property="company_size", type="integer", example=100),
+ *             @OA\Property(property="website", type="string", format="url", example="https://example.com")
+ *         )
+ *     ),
+ *     @OA\Response(response=200, description="User updated successfully")
+ * )
+ */
+public function update(Request $request, $id)
+{
+    $user = User::findOrFail($id);
 
-    /**
-     * @OA\Put(
-     *     path="/api/users/{id}",
-     *     summary="Update a user",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="User ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="Jane Doe"),
-     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="User updated successfully")
-     * )
-     */
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        
+    $validated = $request->validate([
+        'first_name' => 'sometimes|string|max:255',
+        'last_name' => 'sometimes|string|max:255',
+        'email_address' => "sometimes|email|unique:users,email_address,{$id}",
+        'phone_number' => 'sometimes|string|max:20',
+        'account_status' => 'sometimes|string|in:active,inactive,suspended',
+        'company_name' => 'sometimes|string|max:255',
+        'company_address' => 'sometimes|string',
+        'vat_tax_id' => 'sometimes|string|max:255',
+        'industry' => 'sometimes|string|max:255',
+        'company_size' => 'sometimes|integer',
+        'website' => 'sometimes|url|max:255',
+    ]);
 
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email_address' => "sometimes|required|email|unique:users,email_address,{$id}",
-        ]);
+    $user->update($validated);
 
-        $user->update($request->only(['name', 'email_address']));
-        return response()->json($user);
-    }
-
+    return response()->json($user);
+}
     /**
      * @OA\Delete(
      *     path="/api/users/{id}",
@@ -180,8 +196,6 @@ public function store(Request $request)
     {
         $user = User::findOrFail($id);
         
-     
-
         $user->delete();
         return response()->json(null, 204);
     }

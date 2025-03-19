@@ -174,14 +174,51 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "name": {
+                                    "first_name": {
                                         "type": "string",
-                                        "example": "Jane Doe"
+                                        "example": "John"
                                     },
-                                    "email": {
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email_address": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "jane@example.com"
+                                        "example": "john@example.com"
+                                    },
+                                    "phone_number": {
+                                        "type": "string",
+                                        "example": "123-456-7890"
+                                    },
+                                    "account_status": {
+                                        "type": "string",
+                                        "example": "active"
+                                    },
+                                    "company_name": {
+                                        "type": "string",
+                                        "example": "Acme Corp"
+                                    },
+                                    "company_address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "vat_tax_id": {
+                                        "type": "string",
+                                        "example": "TAX12345"
+                                    },
+                                    "industry": {
+                                        "type": "string",
+                                        "example": "Technology"
+                                    },
+                                    "company_size": {
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "https://example.com"
                                     }
                                 },
                                 "type": "object"
