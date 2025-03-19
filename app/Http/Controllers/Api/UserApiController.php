@@ -53,7 +53,6 @@ class UserApiController extends Controller
                 'token' => $request->user()->createToken('api')->plainTextToken,
             ]
         ]);
-        
     }
     /**
      * @OA\Get(
@@ -64,7 +63,7 @@ class UserApiController extends Controller
      * )
      */
     public function index()
-    {
+    {       
         $users = User::all();
         return response()->json($users);
     }
@@ -86,22 +85,23 @@ class UserApiController extends Controller
  *     @OA\Response(response=201, description="User created successfully")
  * )
  */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email_address' => 'required|email|unique:users,email_address',
-            'password' => 'required|min:6',
-        ]);
-    
-        $user = User::create([
-            'name' => $request->name,
-            'email_address' => $request->email_address,
-            'password' => Hash::make($request->password),
-        ]);
-    
-        return response()->json(['data' => new UserResource($user)], 201);
-    }
+public function store(Request $request)
+{
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email_address' => 'required|email|unique:users,email_address',
+        'password' => 'required|min:6',
+    ]);
+
+    $user = User::create([
+        'name' => $request->name,
+        'email_address' => $request->email_address,
+        'password' => Hash::make($request->password),
+    ]);
+
+    return response()->json(['data' => new UserResource($user)], 201);
+}
 
     /**
      * @OA\Get(
@@ -123,6 +123,7 @@ class UserApiController extends Controller
         $user = User::findOrFail($id);
         return response()->json($user);
     }
+
 
     /**
      * @OA\Put(
@@ -149,12 +150,14 @@ class UserApiController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        
+
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => "sometimes|required|email|unique:users,email,{$id}",
+            'email_address' => "sometimes|required|email|unique:users,email_address,{$id}",
         ]);
 
-        $user->update($request->only(['name', 'email']));
+        $user->update($request->only(['name', 'email_address']));
         return response()->json($user);
     }
 
@@ -176,6 +179,9 @@ class UserApiController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        
+     
+
         $user->delete();
         return response()->json(null, 204);
     }

@@ -31,6 +31,7 @@ public function run(): void
        // MailingListSeeder::class,
         UserPermissionSeeder::class,
         UsersTableSeeder::class,
+        FixPermissionsSeeder::class,
     ]);
 }
 }
