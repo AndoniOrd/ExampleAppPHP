@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('role_user', function (Blueprint $table) {
-            $table->timestamps();
+        Schema::table('roles', function (Blueprint $table) {
+            $table->string('display_name')->nullable();
         });
     }
     
     public function down()
     {
-        Schema::table('role_user', function (Blueprint $table) {
-            $table->dropTimestamps();
+        Schema::table('roles', function (Blueprint $table) {
+            $table->dropColumn('display_name');
         });
     }
     

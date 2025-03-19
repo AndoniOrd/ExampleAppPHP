@@ -19,6 +19,9 @@ Route::middleware(['auth:sanctum', 'permission:view-user'])->group(function () {
     // Add other routes as needed with appropriate middleware
 });
     
+Route::get('/users', [UserController::class, 'index'])
+    ->middleware('permission:view-users'); // or another permission name
+    
     // Email contacts import
     Route::post('/import-email-contacts', [EmailContactApiController::class, 'import']);
     
