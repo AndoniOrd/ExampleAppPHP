@@ -27,6 +27,29 @@ use App\Enums\TrackingOptions;
  * @property-read \App\Models\MailingList|null $mailingList
  * @property-read \App\Models\User|null $scheduledBy
  */
+
+ /**
+ * @OA\Schema(
+ *     schema="CampaignPlanning",
+ *     title="Campaign Planning",
+ *     description="Campaign Planning model",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Spring Marketing Campaign"),
+ *     @OA\Property(property="description", type="string", nullable=true, example="Campaign for spring products"),
+ *     @OA\Property(property="email_template_id", type="integer", example=5),
+ *     @OA\Property(property="mailing_list_id", type="integer", example=3),
+ *     @OA\Property(property="scheduled_time", type="string", format="date-time", example="2025-04-15 10:00:00"),
+ *     @OA\Property(property="time_zone", type="string", example="America/New_York"),
+ *     @OA\Property(property="status_status_type", type="string", enum={"draft", "scheduled", "processing", "completed"}, example="scheduled"),
+ *     @OA\Property(property="scheduled_by", type="integer", example=10),
+ *     @OA\Property(property="send_from_email", type="string", format="email", example="marketing@example.com"),
+ *     @OA\Property(property="send_from_name", type="string", example="Marketing Team"),
+ *     @OA\Property(property="reply_to_email", type="string", format="email", example="support@example.com"),
+ *     @OA\Property(property="tracking_options", type="string", example="open_click"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-03-01 12:00:00"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-03-10 15:30:00")
+ * )
+ */
 class CampaignPlanning extends Model
 {
     use HasFactory;

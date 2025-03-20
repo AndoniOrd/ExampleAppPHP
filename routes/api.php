@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CampaignPlanningApiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\UserController;
@@ -31,4 +32,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('email_templates', EmailTemplatesController::class);
     Route::apiResource('list-contact-relationships', ListContactRelationshipController::class);
     Route::post('/import-email-contacts', [EmailContactApiController::class, 'import']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('campaign-plannings', CampaignPlanningApiController::class);
+    });
 });

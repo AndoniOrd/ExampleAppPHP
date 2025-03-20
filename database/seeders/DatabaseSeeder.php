@@ -20,7 +20,7 @@ public function run(): void
     $this->call([
         AllPermissionSeeder::class, // This already calls UserPermissionSeeder and MailingListPermissionSeeder
         // Remove BasePermissionSeeder::class from here
-       // CampaignPlanningSeeder::class,
+        CampaignPlanningSeeder::class,
         //CampaignReportsSeeder::class,
         //ContactsTableSeeder::class,
         //EmailContactSeeder::class,
