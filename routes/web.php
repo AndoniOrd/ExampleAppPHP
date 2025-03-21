@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CampaignPlanningController;
@@ -19,6 +20,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+// routes/web.php
+Route::get('/enviar-correo-de-prueba', function () {
+    $datos = [
+        'nombre' => 'Juan Pérez',
+        'mensaje' => 'Este es un mensaje de prueba.'
+    ];
+
+    // Use a valid email address (e.g., [email protected])
+    Mail::to('borjaahedo@gmail.com')->send(new TestEmail($datos));
+
+    return '¡E-MAIL WYSŁANY!';
+});
+
 // Existing resources
 Route::resource('campaign-plannings', CampaignPlanningController::class);
 Route::resource('campaign-reports', CampaignReportController::class);
@@ -29,5 +43,5 @@ Route::resource('email-contacts', EmailContactController::class);
 Route::get('/import-contacts', [EmailContactFileController::class, 'showImportForm'])->name('contacts.import.form');
 Route::post('/import-contacts', [EmailContactFileController::class, 'import'])->name('contacts.import');
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
