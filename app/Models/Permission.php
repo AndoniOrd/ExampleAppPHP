@@ -3,17 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Laratrust\Models\LaratrustPermission;
+use Laratrust\Models\Permission as PermissionModel;
 
-class Permission extends LaratrustPermission
+class Permission extends PermissionModel
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-
-     use HasFactory;
+    use HasFactory;
+    
     protected $fillable = [
         'name',
         'display_name',
