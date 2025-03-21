@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Laratrust\Models\Role;
 
 class UsersTableSeeder extends Seeder
 {
@@ -16,16 +16,15 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
+        // Create the user
+        $admin = User::create([
             'first_name'     => 'John',
             'last_name'      => 'Doe',
-            'email_address'  => 'john.doe' . uniqid() . '@example.com',
+            'email_address'  => 'john.doe@example.com',
             'password'       => Hash::make('securepassword'),
             'phone_number'   => '123-456-7890',
-            'role'           => 'admin',
             'account_status' => 'active',
             'creation_date'  => now(),
-            'last_login'     => now(),
             'company_name'   => 'Doe Enterprises',
             'company_address'=> '123 Business Rd, City, Country',
             'vat_tax_id'     => 'VAT123456789',
@@ -33,6 +32,9 @@ class UsersTableSeeder extends Seeder
             'company_size'   => 50,
             'website'        => 'https://doeenterprises.com',
         ]);
-    }
     
+        $adminRole = Role::where('name', 'admin')->first();
+        // Use the standard Laravel relationship method
+        $admin->roles()->attach($adminRole->id);
+    }
 }

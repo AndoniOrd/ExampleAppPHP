@@ -14,7 +14,8 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'email_address' => $this->email_address,
             'phone_number' => $this->phone_number,
-            'role' => $this->role,
+            'roles' => $this->roles->pluck('name'),
+            'permissions' => $this->permissions->pluck('name'),
             'account_status' => $this->account_status,
             'creation_date' => $this->creation_date,
             'company_name' => $this->company_name,
@@ -25,7 +26,6 @@ class UserResource extends JsonResource
             'website' => $this->website,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'deleted_at' => $this->deleted_at,
         ];
     }
 }
