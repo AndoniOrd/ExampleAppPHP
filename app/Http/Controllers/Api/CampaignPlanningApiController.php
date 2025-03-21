@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CampaignPlanning;
-use App\Enums\TrackingOptions;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\CampaignPlanningStoreRequest;
+use App\Http\Requests\CampaignPlanningUpdateRequest;
+use App\Http\Resources\CampaignPlanningIndexResource;
+use App\Http\Resources\CampaignPlanningResource;
 
 /**
  * @OA\Tag(
@@ -156,12 +157,11 @@ class CampaignPlanningApiController extends Controller
  *     )
  * )
  */
-public function index() {
-    $campaignPlannings = CampaignPlanning::paginate(10);
-    return response()->json($campaignPlannings);
+public function index()
+{
+    $campaignPlannings = CampaignPlanning::orderBy('id', 'asc')->get();
+    return CampaignPlanningIndexResource::collection($campaignPlannings);
 }
-
-
  /**
  * @OA\Post(
  *     path="/api/campaign-plannings",
@@ -203,38 +203,16 @@ public function index() {
  *     )
  * )
  */
-    public function store(Request $request)
-    {
-        $trackingOptions = array_column(TrackingOptions::cases(), 'value');
+public function store(CampaignPlanningStoreRequest $request)
+{
+    $data = $request->validated();
+    $campaignPlanning = CampaignPlanning::create($data);
+    return (new CampaignPlanningResource($campaignPlanning))
+            ->response()
+            ->setStatusCode(201);
+}
 
-        $rules = [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'email_template_id' => 'required|exists:email_templates,id',
-            'mailing_list_id' => 'required|exists:mailing_lists,id',
-            'scheduled_time' => 'required|date',
-            'time_zone' => ['required', 'timezone'],
-            'status_status_type' => 'required|in:draft,scheduled,processing,completed',
-            'scheduled_by' => 'required|exists:users,id',
-            'send_from_email' => 'required|email|max:255',
-            'send_from_name' => 'required|string|max:255',
-            'reply_to_email' => 'required|email|max:255',
-            'tracking_options' => ['required', Rule::in($trackingOptions)],
-        ];
 
-        $data = $request->validate($rules);
-
-        $campaignPlanning = CampaignPlanning::create($data);
-
-        return response()->json([
-            'data' => [
-                'id' => $campaignPlanning->id,
-                'name' => $campaignPlanning->name,
-                'status' => $campaignPlanning->status_status_type,
-                'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
-            ]
-        ], 201);
-    }
 
     /**
  * @OA\Get(
@@ -266,21 +244,11 @@ public function index() {
  *     )
  * )
  */
-    public function show(int $id)
-    {
-        $campaignPlanning = CampaignPlanning::findOrFail($id);
-
-        return response()->json([
-            'data' => [
-                'id' => $campaignPlanning->id,
-                'name' => $campaignPlanning->name,
-                'status' => $campaignPlanning->status_status_type,
-                'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
-                'send_from' => "{$campaignPlanning->send_from_name} <{$campaignPlanning->send_from_email}>",
-            ]
-        ]);
-    }
-
+public function show(int $id)
+{
+    $campaignPlanning = CampaignPlanning::findOrFail($id);
+    return new CampaignPlanningResource($campaignPlanning);
+}
    /**
  * @OA\Put(
  *     path="/api/campaign-plannings/{id}",
@@ -328,39 +296,15 @@ public function index() {
  *     )
  * )
  */
-    public function update(Request $request, int $id)
-    {
-        $campaignPlanning = CampaignPlanning::findOrFail($id);
-        $trackingOptions = array_column(TrackingOptions::cases(), 'value');
+public function update(CampaignPlanningUpdateRequest $request, int $id)
+{
+    $campaignPlanning = CampaignPlanning::findOrFail($id);
+    $data = $request->validated();
+    $campaignPlanning->update($data);
+    $campaignPlanning->refresh();
 
-        $rules = [
-            'name' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'email_template_id' => 'nullable|exists:email_templates,id',
-            'mailing_list_id' => 'nullable|exists:mailing_lists,id',
-            'scheduled_time' => 'nullable|date',
-            'time_zone' => 'nullable|timezone',
-            'status_status_type' => 'nullable|in:draft,scheduled,processing,completed',
-            'scheduled_by' => 'nullable|exists:users,id',
-            'send_from_email' => 'nullable|email|max:255',
-            'send_from_name' => 'nullable|string|max:255',
-            'reply_to_email' => 'nullable|email|max:255',
-            'tracking_options' => ['nullable', Rule::in($trackingOptions)],
-        ];
-
-        $data = $request->validate($rules);
-        $campaignPlanning->update($data);
-        $campaignPlanning->refresh();
-
-        return response()->json([
-            'data' => [
-                'id' => $campaignPlanning->id,
-                'name' => $campaignPlanning->name,
-                'status' => $campaignPlanning->status_status_type,
-                'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
-            ]
-        ]);
-    }
+    return new CampaignPlanningResource($campaignPlanning);
+}
 
     /**
      * @OA\Delete(
