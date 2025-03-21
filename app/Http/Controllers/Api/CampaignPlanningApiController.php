@@ -160,6 +160,7 @@ class CampaignPlanningApiController extends Controller
 public function index()
 {
     $campaignPlannings = CampaignPlanning::orderBy('id', 'asc')->get();
+
     return CampaignPlanningIndexResource::collection($campaignPlannings);
 }
  /**
@@ -207,6 +208,7 @@ public function store(CampaignPlanningStoreRequest $request)
 {
     $data = $request->validated();
     $campaignPlanning = CampaignPlanning::create($data);
+
     return (new CampaignPlanningResource($campaignPlanning))
             ->response()
             ->setStatusCode(201);
@@ -247,6 +249,7 @@ public function store(CampaignPlanningStoreRequest $request)
 public function show(int $id)
 {
     $campaignPlanning = CampaignPlanning::findOrFail($id);
+
     return new CampaignPlanningResource($campaignPlanning);
 }
    /**
@@ -328,6 +331,7 @@ public function update(CampaignPlanningUpdateRequest $request, int $id)
     {
         $campaignPlanning = CampaignPlanning::findOrFail($id);
         $campaignPlanning->delete();
+        
         return response()->noContent();
     }
 }
