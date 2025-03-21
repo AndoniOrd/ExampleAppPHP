@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'activecampaign' => [
+        'url' => env('ACTIVE_CAMPAIGN_URL'),
+        'key' => env('ACTIVE_CAMPAIGN_API_KEY'),
+        'list_id' => env('ACTIVE_CAMPAIGN_LIST_ID'),
+    ],
+
 ];
