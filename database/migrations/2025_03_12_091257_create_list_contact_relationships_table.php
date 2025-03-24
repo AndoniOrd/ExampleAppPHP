@@ -11,21 +11,51 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('list_contact_relationships', function (Blueprint $table) {
-            $table->id(); // Primary key
-
-            // Foreign keys
-            $table->foreignId('list_id')->constrained('mailing_lists')->onDelete('cascade');
+            $table->id();
             
-            // Changed to reference the correct snake_case table name
-            $table->unsignedBigInteger('contact_id');
-            $table->foreign('contact_id')
-                  ->references('id')
-                  ->on('email_contacts')
-                  ->onDelete('cascade');
+            // Foreign key to mailing_lists table
+            $table->foreignId('list_id')
+                ->constrained('mailing_lists')
+                ->onDelete('cascade')
+                ->comment('Reference to mailing list');
+            
+            // Foreign key to email_contacts table
+            $table->foreignId('contact_id')
+                ->constrained('email_contacts')
+                ->onDelete('cascade')
+                ->comment('Reference to email contact');
 
-            // Other fields
-            $table->date('subscription_date');
-            $table->enum('status', ['subscribed', 'unsubscribed', 'pending'])->default('subscribed');
+            // Subscription details
+            $table->dateTime('subscription_date')
+                ->default(now())
+                ->comment('When the contact was added to the list');
+                
+            $table->enum('status', ['subscribed', 'unsubscribed', 'pending', 'bounced'])
+                ->default('subscribed')
+                ->comment('Current subscription status');
+                
+            $table->dateTime('unsubscribed_at')
+                ->nullable()
+                ->comment('When the contact unsubscribed');
+                
+            $table->string('source')
+                ->nullable()
+                ->comment('How the contact was added to the list');
+                
+            $table->json('meta')
+                ->nullable()
+                ->comment('Additional metadata about the relationship');
+
+            // Indexes for better performance
+            $table->index(['list_id', 'contact_id']);
+            $table->index('status');
+            $table->index('unsubscribed_at');
+
+            // Timestamps
+            $table->timestamps();
+            
+            // Composite unique key to prevent duplicates
+            $table->unique(['list_id', 'contact_id']);
         });
     }
 

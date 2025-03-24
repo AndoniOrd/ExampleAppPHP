@@ -23,7 +23,7 @@ public function run(): void
         CampaignPlanningSeeder::class,
         //CampaignReportsSeeder::class,
         //ContactsTableSeeder::class,
-        //EmailContactSeeder::class,
+        EmailContactSeeder::class,
         //EmailTemplatesSeeder::class,
         //ListContactRelationshipSeeder::class,
        // MailingListPermissionSeeder::class,

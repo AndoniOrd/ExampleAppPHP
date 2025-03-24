@@ -75,6 +75,7 @@ class CampaignPlanning extends Model
         'creation_date' => 'date',
         'tracking_options' => TrackingOptions::class,
     ];
+    
 
     public function emailTemplate()
     {
@@ -90,4 +91,6 @@ class CampaignPlanning extends Model
     {
         return $this->belongsTo(User::class, 'scheduled_by');
     }
+
+    
 }
