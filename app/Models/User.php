@@ -47,4 +47,14 @@ class User extends Authenticatable implements LaratrustUser
     {
         return 'email_address';
     }
+    public function getEmailAttribute()
+    {
+        return $this->email_address;
+    }
+
+    // Si usas autenticación con email, también define esto:
+    public function getAuthIdentifierName()
+    {
+        return 'email_address';
+    }
 }

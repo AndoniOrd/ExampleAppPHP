@@ -63,6 +63,9 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+            'fields' => [ // <-- Añade esta sección
+                'email' => 'email_address',
+            ],
         ],
 
         // 'users' => [
