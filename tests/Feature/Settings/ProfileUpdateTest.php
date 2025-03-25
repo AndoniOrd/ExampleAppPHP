@@ -43,7 +43,7 @@ class ProfileUpdateTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()
+    public function test_email_verification_status_is_unchanged_when_the_email_is_unchanged()
     {
         $user = User::factory()->create();
 

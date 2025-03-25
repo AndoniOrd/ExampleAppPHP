@@ -26,7 +26,7 @@ class CampaignService
                 ->map(function ($subscriber) {
                     return [
                         'email' => $subscriber->email,
-                        'first_name' => $subscriber->first_name,
+                        'name' => $subscriber->name,
                         'last_name' => $subscriber->last_name,
                         'subscriber_id' => $subscriber->id,
                         // Add any other fields you need
@@ -91,9 +91,9 @@ class CampaignService
         // Replace common placeholders
         $replacements = [
             '{{email}}' => $subscriber['email'],
-            '{{first_name}}' => $subscriber['first_name'] ?? '',
+            '{{name}}' => $subscriber['name'] ?? '',
             '{{last_name}}' => $subscriber['last_name'] ?? '',
-            '{{full_name}}' => trim(($subscriber['first_name'] ?? '') . ' ' . ($subscriber['last_name'] ?? '')),
+            '{{full_name}}' => trim(($subscriber['name'] ?? '') . ' ' . ($subscriber['last_name'] ?? '')),
             // Add more placeholders as needed
         ];
         
@@ -122,7 +122,7 @@ class CampaignService
                 return false;
             }
             
-            $campaign->status_status_type = 'completed';
+            $campaign->status_type = 'completed';
             $campaign->save();
             
             return true;

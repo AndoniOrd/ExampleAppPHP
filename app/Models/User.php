@@ -14,9 +14,9 @@ class User extends Authenticatable implements LaratrustUser
     use HasFactory, Notifiable, HasApiTokens, HasRolesAndPermissions;
 
     protected $fillable = [
-        'first_name',
+        'name',
         'last_name',
-        'email_address',
+        'email',
         'password',
         'phone_number',
         'account_status',
@@ -45,6 +45,6 @@ class User extends Authenticatable implements LaratrustUser
 
     public function username()
     {
-        return 'email_address';
+        return 'email';
     }
 }

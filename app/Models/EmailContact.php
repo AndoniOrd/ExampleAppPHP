@@ -20,8 +20,8 @@ class EmailContact extends Model
     ];
 
     protected $fillable = [
-        'email_address',
-        'first_name',
+        'email',
+        'name',
         'last_name',
         'status',
         'source',

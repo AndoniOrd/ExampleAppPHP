@@ -61,7 +61,7 @@
                                                         "type": "string",
                                                         "example": "America/New_York"
                                                     },
-                                                    "status_status_type": {
+                                                    "status_type": {
                                                         "type": "string",
                                                         "example": "scheduled"
                                                     },
@@ -126,7 +126,7 @@
                                     "mailing_list_id",
                                     "scheduled_time",
                                     "time_zone",
-                                    "status_status_type",
+                                    "status_type",
                                     "scheduled_by",
                                     "send_from_email",
                                     "send_from_name",
@@ -160,14 +160,9 @@
                                         "type": "string",
                                         "example": "America/New_York"
                                     },
-                                    "status_status_type": {
+                                    "status_type": {
                                         "type": "string",
-                                        "enum": [
-                                            "draft",
-                                            "scheduled",
-                                            "processing",
-                                            "completed"
-                                        ],
+                                        "enum": ["draft", "scheduled", "processing", "completed"],
                                         "example": "scheduled"
                                     },
                                     "scheduled_by": {
@@ -348,14 +343,9 @@
                                         "type": "string",
                                         "example": "America/New_York"
                                     },
-                                    "status_status_type": {
+                                    "status_type": {
                                         "type": "string",
-                                        "enum": [
-                                            "draft",
-                                            "scheduled",
-                                            "processing",
-                                            "completed"
-                                        ],
+                                        "enum": ["draft", "scheduled", "processing", "completed"],
                                         "example": "scheduled"
                                     },
                                     "scheduled_by": {
@@ -463,12 +453,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email_address",
-                                    "password"
-                                ],
+                                "required": ["email", "password"],
                                 "properties": {
-                                    "email_address": {
+                                    "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john.doe@example.com"
@@ -529,14 +516,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "first_name",
-                                    "last_name",
-                                    "email_address",
-                                    "password"
-                                ],
+                                "required": ["name", "last_name", "email", "password"],
                                 "properties": {
-                                    "first_name": {
+                                    "name": {
                                         "type": "string",
                                         "example": "John"
                                     },
@@ -544,7 +526,7 @@
                                         "type": "string",
                                         "example": "Doe"
                                     },
-                                    "email_address": {
+                                    "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john@example.com"
@@ -623,7 +605,7 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "first_name": {
+                                    "name": {
                                         "type": "string",
                                         "example": "John"
                                     },
@@ -631,7 +613,7 @@
                                         "type": "string",
                                         "example": "Doe"
                                     },
-                                    "email_address": {
+                                    "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john@example.com"

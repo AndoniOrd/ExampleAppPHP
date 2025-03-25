@@ -29,8 +29,8 @@ class Contact extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'email_address',
-        'first_name',
+        'email',
+        'name',
         'last_name',
         'status',
         'source',
@@ -42,9 +42,12 @@ class Contact extends Model
     ];
 
     public function mailingLists()
-    {
-        return $this->belongsToMany(MailingList::class);
-    }
+{
+    return $this->belongsToMany(MailingList::class, 'contact_mailing_list', 'contact_id', 'mailing_list_id')
+        ->using(ContactMailingList::class)
+        ->withPivot('status', 'subscription_date')
+        ->withTimestamps();
+}
     protected function casts(): array
     {
         return [

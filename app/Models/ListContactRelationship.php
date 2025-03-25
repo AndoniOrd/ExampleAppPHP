@@ -16,6 +16,17 @@ class ListContactRelationship extends Model
         'subscription_date',
         'status',
     ];
+
+    public function definition()
+{
+    return [
+        'list_id' => MailingList::factory(),
+        'contact_id' => EmailContact::factory(),
+        'status' => 'subscribed', // Explicit status
+        'subscription_date' => now(),
+    ];
+}
+
     
     // Define inverse relationships if you need direct access.
     public function mailingList()

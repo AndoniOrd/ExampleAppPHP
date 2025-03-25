@@ -19,7 +19,7 @@ class CampaignPlanningIndexResource extends JsonResource
             'mailing_list_id'     => $this->mailing_list_id,
             'scheduled_time'      => $this->scheduled_time->toDateTimeString(),
             'time_zone'           => $this->time_zone,
-            'status_status_type'  => $this->status_status_type,
+            'status_type'  => $this->status_type,
             'scheduled_by'        => $this->scheduled_by,
             'send_from_email'     => $this->send_from_email,
             'send_from_name'      => $this->send_from_name,

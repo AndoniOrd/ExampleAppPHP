@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Database\Factories\EmailContactFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\EmailContact;
+
 
 class MailingList extends Model
 {
@@ -39,18 +42,12 @@ class MailingList extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function contacts(): BelongsToMany
+    public function contacts()
     {
-        return $this->belongsToMany(
-            EmailContact::class,
-            'list_contact_relationships',  // Pivot table name
-            'list_id',                    // Foreign key on pivot table
-            'contact_id'                   // Related key on pivot table
-        )->withPivot([
-            'subscription_date',
-            'status',
-            'unsubscribed_at'
-        ])->withTimestamps();
+        return $this->belongsToMany(Contact::class, 'contact_mailing_list', 'mailing_list_id', 'contact_id')
+            ->using(ContactMailingList::class)
+            ->withPivot('status', 'subscription_date')
+            ->withTimestamps();
     }
 
     /**

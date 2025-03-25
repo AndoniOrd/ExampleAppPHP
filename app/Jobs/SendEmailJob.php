@@ -2,14 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Mail\CampaignEmail;
-use App\Mail\CampaignMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -17,70 +14,46 @@ class SendEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * The email data.
-     *
-     * @var array
-     */
-    protected $data;
+    protected $emailData;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param array $data
-     * @return void
-     */
-    public function __construct(array $data)
+    public function __construct(array $emailData)
     {
-        $this->data = $data;
+        $this->emailData = $emailData;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
         try {
-            // Get the provider information
-            $provider = $this->data['provider'];
-            
-            // Configure the mail settings for this specific email
-            Config::set('mail.default', $provider['mailer']);
-            Config::set('mail.mailers.smtp.host', $provider['host']);
-            Config::set('mail.mailers.smtp.port', $provider['port']);
-            Config::set('mail.mailers.smtp.username', $provider['username']);
-            Config::set('mail.mailers.smtp.password', $provider['password']);
-            Config::set('mail.from.address', $provider['from_address']);
-            Config::set('mail.from.name', $provider['from_name']);
-            
-            // Send the email
-            Mail::to($this->data['email'])
-                ->send(new CampaignEmail([
-                    'subject' => $this->data['subject'],
-                    'template' => $this->data['template'],
-                    'data' => $this->data['data'],
-                ]));
-                
-            // Log the successful send
-            Log::info('Email sent successfully', [
-                'campaign_id' => $this->data['campaign_id'],
-                'contact_id' => $this->data['contact_id'],
-                'provider' => $provider['name'],
+            // Extensive logging for debugging
+            Log::channel('daily')->info('Sending Email', [
+                'campaign_id' => $this->emailData['campaign_id'],
+                'contact_id' => $this->emailData['contact_id'],
+                'email' => $this->emailData['email']
             ]);
-            
+
+            // Use Laravel's Mail facade with more comprehensive configuration
+            Mail::send('emails.campaign', $this->emailData['data'], function($message) {
+                $message->to($this->emailData['email'], $this->emailData['name'])
+                    ->subject($this->emailData['subject'])
+                    ->from(
+                        $this->emailData['provider']['from_address'], 
+                        $this->emailData['provider']['from_name']
+                    );
+            });
+
+            Log::channel('daily')->info('Email sent successfully', [
+                'email' => $this->emailData['email']
+            ]);
         } catch (\Exception $e) {
-            // Log any errors
-            Log::error('Failed to send email', [
-                'campaign_id' => $this->data['campaign_id'] ?? null,
-                'contact_id' => $this->data['contact_id'] ?? null,
-                'provider' => $provider['name'] ?? null,
+            // Comprehensive error logging
+            Log::channel('daily')->error('Email sending failed', [
+                'email' => $this->emailData['email'],
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-            
-            // You could retry the job here if needed
-            $this->release(30); // Release the job back to the queue after 30 seconds
+
+            // Optionally re-throw to trigger job failure
+            throw $e;
         }
     }
 }

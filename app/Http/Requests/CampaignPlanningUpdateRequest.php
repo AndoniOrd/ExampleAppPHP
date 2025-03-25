@@ -24,7 +24,7 @@ class CampaignPlanningUpdateRequest extends FormRequest
             'mailing_list_id' => 'nullable|exists:mailing_lists,id',
             'scheduled_time' => 'nullable|date',
             'time_zone' => 'nullable|timezone',
-            'status_status_type' => 'nullable|in:draft,scheduled,processing,completed',
+            'status_type' => 'nullable|in:draft,scheduled,processing,completed',
             'scheduled_by' => 'nullable|exists:users,id',
             'send_from_email' => 'nullable|email|max:255',
             'send_from_name' => 'nullable|string|max:255',

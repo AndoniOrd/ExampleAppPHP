@@ -24,7 +24,7 @@ class CampaignPlanningStoreRequest extends FormRequest
             'mailing_list_id' => 'required|exists:mailing_lists,id',
             'scheduled_time' => 'required|date',
             'time_zone' => ['required', 'timezone'],
-            'status_status_type' => 'required|in:draft,scheduled,processing,completed',
+            'status_type' => 'required|in:draft,scheduled,processing,completed',
             'scheduled_by' => 'required|exists:users,id',
             'send_from_email' => 'required|email|max:255',
             'send_from_name' => 'required|string|max:255',

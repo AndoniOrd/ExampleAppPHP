@@ -28,9 +28,9 @@ class UserApiTest extends TestCase
                 'data' => [
                     '*' => [
                         'id',
-                        'first_name',
+                        'name',
                         'last_name',
-                        'email_address',
+                        'email',
                         'role',
                         'account_status'
                     ]
@@ -43,9 +43,9 @@ class UserApiTest extends TestCase
     public function it_can_create_a_user(): void
     {
         $userData = [
-            'first_name' => 'John',
+            'name' => 'John',
             'last_name' => 'Doe',
-            'email_address' => 'john.doe@example.com',
+            'email' => 'john.doe@example.com',
             'password' => 'SecurePassword123!',
             'phone_number' => '+1234567890',
             'role' => 'user',
@@ -60,14 +60,14 @@ class UserApiTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'id',
-                    'first_name',
-                    'email_address',
+                    'name',
+                    'email',
                     'role'
                 ]
             ]);
 
         $this->assertDatabaseHas('users', [
-            'email_address' => 'john.doe@example.com',
+            'email' => 'john.doe@example.com',
             'company_name' => 'Test Corp'
         ]);
     }
@@ -79,9 +79,9 @@ class UserApiTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
-                'first_name',
+                'name',
                 'last_name',
-                'email_address',
+                'email',
                 'password'
             ]);
     }
@@ -90,11 +90,11 @@ class UserApiTest extends TestCase
     public function it_validates_email_format(): void
     {
         $response = $this->postJson('/api/users', [
-            'email_address' => 'invalid-email'
+            'email' => 'invalid-email'
         ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors('email_address');
+            ->assertJsonValidationErrors('email');
     }
 
     #[Test]
@@ -108,7 +108,7 @@ class UserApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'id' => $user->id,
-                    'email_address' => $user->email_address
+                    'email' => $user->email
                 ]
             ]);
     }
@@ -119,7 +119,7 @@ class UserApiTest extends TestCase
         $user = User::factory()->create();
 
         $updateData = [
-            'first_name' => 'Updated',
+            'name' => 'Updated',
             'last_name' => 'Name',
             'company_size' => 'medium'
         ];
@@ -129,7 +129,7 @@ class UserApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'first_name' => 'Updated',
+                    'name' => 'Updated',
                     'company_size' => 'medium'
                 ]
             ]);
@@ -168,17 +168,17 @@ class UserApiTest extends TestCase
     public function it_enforces_unique_email(): void
     {
         $role = Role::factory()->create();
-       $user = User::factory()->create(['email_address' => 'duplicate@example.com']);
+       $user = User::factory()->create(['email' => 'duplicate@example.com']);
        $user->addRole($role);
 
         $response = $this->actingAs($user)->getJson('/api/users', [
-            'email_address' => 'duplicate@example.com'
+            'email' => 'duplicate@example.com'
         ]);
 
         dd($response->json());
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors('email_address');
+            ->assertJsonValidationErrors('email');
     }
 
     #[Test]

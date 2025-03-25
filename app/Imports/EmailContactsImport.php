@@ -12,14 +12,14 @@ class EmailContactsImport implements ToModel, WithHeadingRow
      * Map each row of the Excel file to a new EmailContact.
      *
      * Expected Excel headers:
-     * email_address, first_name, last_name, status, source, 
+     * email, name, last_name, status, source, 
      * opt_in_date, opt_in_confirmation, custom_fields, creation_date, last_updated_date
      */
     public function model(array $row)
     {
         return new EmailContact([
-            'email_address'       => $row['email_address'] ?? null,
-            'first_name'          => $row['first_name'] ?? null,
+            'email'       => $row['email'] ?? null,
+            'name'          => $row['name'] ?? null,
             'last_name'           => $row['last_name'] ?? null,
             'status'              => $row['status'] ?? 'active',
             'source'              => $row['source'] ?? null,

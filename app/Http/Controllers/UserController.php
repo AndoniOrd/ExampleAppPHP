@@ -27,7 +27,7 @@ class UserController extends Controller
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'email_address' => 'required|email|unique:users,email_address', // Changed to email_address
+            'email' => 'required|email|unique:users,email', // Changed to email
             'password' => 'required|min:6',
         ];
     
@@ -35,7 +35,7 @@ class UserController extends Controller
     
         $user = User::create([
             'name' => $data['name'],
-            'email_address' => $data['email_address'], // Corrected field
+            'email' => $data['email'], // Corrected field
             'password' => Hash::make($data['password']),
         ]);
     
@@ -61,7 +61,7 @@ class UserController extends Controller
     {
         // For updates, only require these fields per your test.
         $rules = [
-            'first_name'   => 'required|string|max:255',
+            'name'   => 'required|string|max:255',
             'last_name'    => 'required|string|max:255',
             'company_size' => 'nullable|string',
         ];

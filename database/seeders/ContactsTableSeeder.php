@@ -12,11 +12,11 @@ class ContactsTableSeeder extends Seeder
     public function run()
     {
         Contact::create([
-            'email_address' => 'john.doe@example.com',
-            'first_name' => 'John',
+            'email' => 'john.doe@example.com',
+            'name' => 'John',
             'last_name' => 'Doe',
             'status' => 'subscribed',
-            'source' => 'web',
+            'source' => 'website', // Changed from 'web' to 'website'
             'opt_in_date' => Carbon::now(),
             'opt_in_confirmation' => true,
             'custom_fields' => json_encode(['referral' => 'newsletter']),

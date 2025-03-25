@@ -14,7 +14,7 @@ use App\Enums\TrackingOptions;
  * @property string $mailing_list_id
  * @property \Illuminate\Support\Carbon $scheduled_time
  * @property string $time_zone
- * @property string $status_status_type
+ * @property string $status_type
  * @property \Illuminate\Support\Carbon $creation_date
  * @property string $scheduled_by
  * @property string $send_from_email
@@ -40,7 +40,7 @@ use App\Enums\TrackingOptions;
  *     @OA\Property(property="mailing_list_id", type="integer", example=3),
  *     @OA\Property(property="scheduled_time", type="string", format="date-time", example="2025-04-15 10:00:00"),
  *     @OA\Property(property="time_zone", type="string", example="America/New_York"),
- *     @OA\Property(property="status_status_type", type="string", enum={"draft", "scheduled", "processing", "completed"}, example="scheduled"),
+ *     @OA\Property(property="status_type", type="string", enum={"draft", "scheduled", "processing", "completed"}, example="scheduled"),
  *     @OA\Property(property="scheduled_by", type="integer", example=10),
  *     @OA\Property(property="send_from_email", type="string", format="email", example="marketing@example.com"),
  *     @OA\Property(property="send_from_name", type="string", example="Marketing Team"),
@@ -61,7 +61,7 @@ class CampaignPlanning extends Model
         'mailing_list_id',
         'scheduled_time',
         'time_zone',
-        'status_status_type',
+        'status_type',
         'creation_date',
         'scheduled_by',
         'send_from_email',

@@ -26,8 +26,8 @@ class UserApiController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"email_address", "password"},
-     *             @OA\Property(property="email_address", type="string", format="email", example="john.doe@example.com"),
+     *             required={"email", "password"},
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
      *             @OA\Property(property="password", type="string", example="securepassword")
      *         )
      *     ),
@@ -40,11 +40,11 @@ class UserApiController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email_address' => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
     
-        if (!Auth::attempt(['email_address' => $request->email_address, 'password' => $request->password])) {
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
     
@@ -85,10 +85,10 @@ class UserApiController extends Controller
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             required={"first_name", "last_name", "email_address", "password"},
- *             @OA\Property(property="first_name", type="string", example="John"),
+ *             required={"name", "last_name", "email", "password"},
+ *             @OA\Property(property="name", type="string", example="John"),
  *             @OA\Property(property="last_name", type="string", example="Doe"),
- *             @OA\Property(property="email_address", type="string", format="email", example="john@example.com"),
+ *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
  *             @OA\Property(property="password", type="string", example="password")
  *         )
  *     ),
@@ -100,16 +100,16 @@ class UserApiController extends Controller
 public function store(Request $request)
 {
     $validated = $request->validate([
-        'first_name' => 'required|string|max:255',
+        'name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
-        'email_address' => 'required|email|unique:users,email_address',
+        'email' => 'required|email|unique:users,email',
         'password' => 'required|min:6',
     ]);
 
     $user = User::create([
-        'first_name' => $validated['first_name'],
+        'name' => $validated['name'],
         'last_name' => $validated['last_name'],
-        'email_address' => $validated['email_address'],
+        'email' => $validated['email'],
         'password' => Hash::make($validated['password']),
         'account_status' => 'active',
         'creation_date' => now(),
@@ -154,9 +154,9 @@ public function store(Request $request)
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             @OA\Property(property="first_name", type="string", example="John"),
+ *             @OA\Property(property="name", type="string", example="John"),
  *             @OA\Property(property="last_name", type="string", example="Doe"),
- *             @OA\Property(property="email_address", type="string", format="email", example="john@example.com"),
+ *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
  *             @OA\Property(property="phone_number", type="string", example="123-456-7890"),
  *             @OA\Property(property="account_status", type="string", example="active"),
  *             @OA\Property(property="company_name", type="string", example="Acme Corp"),
@@ -175,9 +175,9 @@ public function update(Request $request, $id)
     $user = User::findOrFail($id);
 
     $validated = $request->validate([
-        'first_name' => 'sometimes|string|max:255',
+        'name' => 'sometimes|string|max:255',
         'last_name' => 'sometimes|string|max:255',
-        'email_address' => "sometimes|email|unique:users,email_address,{$id}",
+        'email' => "sometimes|email|unique:users,email,{$id}",
         'phone_number' => 'sometimes|string|max:20',
         'account_status' => 'sometimes|string|in:active,inactive,suspended',
         'company_name' => 'sometimes|string|max:255',
