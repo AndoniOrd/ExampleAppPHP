@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('email_contacts', function (Blueprint $table) {
             $table->string('source', 50)->change();
             $table->id();
-            $table->string('email_address')->unique();
-            $table->string('first_name');
+            $table->string('email')->unique();
+            $table->string('name');
             $table->string('last_name');
             $table->enum('status', ['active', 'inactive', 'pending']);
             //$table->enum('source', ['web', 'api', 'manual']);

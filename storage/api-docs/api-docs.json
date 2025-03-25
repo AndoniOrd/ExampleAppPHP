@@ -464,11 +464,11 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "email_address",
+                                    "email",
                                     "password"
                                 ],
                                 "properties": {
-                                    "email_address": {
+                                    "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john.doe@example.com"
@@ -530,13 +530,13 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "first_name",
+                                    "name",
                                     "last_name",
-                                    "email_address",
+                                    "email",
                                     "password"
                                 ],
                                 "properties": {
-                                    "first_name": {
+                                    "name": {
                                         "type": "string",
                                         "example": "John"
                                     },
@@ -544,7 +544,7 @@
                                         "type": "string",
                                         "example": "Doe"
                                     },
-                                    "email_address": {
+                                    "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john@example.com"
@@ -623,7 +623,7 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "first_name": {
+                                    "name": {
                                         "type": "string",
                                         "example": "John"
                                     },
@@ -631,7 +631,7 @@
                                         "type": "string",
                                         "example": "Doe"
                                     },
-                                    "email_address": {
+                                    "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "john@example.com"

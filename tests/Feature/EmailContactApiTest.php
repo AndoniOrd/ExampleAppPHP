@@ -23,8 +23,8 @@ class EmailContactApiTest extends TestCase
             ->assertJsonStructure([
                 '*' => [
                     'id',
-                    'email_address',
-                    'first_name',
+                    'email',
+                    'name',
                     'last_name',
                     'status',
                     'source',
@@ -42,8 +42,8 @@ class EmailContactApiTest extends TestCase
     public function test_it_can_create_an_email_contact()
     {
         $contactData = [
-            'email_address' => 'test@example.com',
-            'first_name' => 'John',
+            'email' => 'test@example.com',
+            'name' => 'John',
             'last_name' => 'Doe',
             'status' => 'active',
             'source' => 'web',
@@ -59,14 +59,14 @@ class EmailContactApiTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonStructure([
                 'id',
-                'email_address',
-                'first_name',
+                'email',
+                'name',
                 'last_name',
                 'status'
             ]);
 
         $this->assertDatabaseHas('email_contacts', [
-            'email_address' => 'test@example.com',
+            'email' => 'test@example.com',
             'status' => 'active'
         ]);
     }
@@ -78,8 +78,8 @@ class EmailContactApiTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
-                'email_address',
-                'first_name',
+                'email',
+                'name',
                 'last_name',
                 'status',
                 'source',
@@ -100,7 +100,7 @@ class EmailContactApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'id' => $contact->id,
-                'email_address' => $contact->email_address
+                'email' => $contact->email
             ]);
     }
 
@@ -109,8 +109,8 @@ class EmailContactApiTest extends TestCase
     {
         $contact = EmailContact::factory()->create();
         $updateData = [
-            'first_name' => 'Updated',
-            'email_address' => 'updated@example.com',
+            'name' => 'Updated',
+            'email' => 'updated@example.com',
             'status' => 'inactive'
         ];
 
@@ -118,15 +118,15 @@ class EmailContactApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'first_name' => 'Updated',
-                'email_address' => 'updated@example.com',
+                'name' => 'Updated',
+                'email' => 'updated@example.com',
                 'status' => 'inactive'
             ]);
 
         // Change this line to use 'email_contacts' instead of 'contacts'
         $this->assertDatabaseHas('email_contacts', [
             'id' => $contact->id,
-            'first_name' => 'Updated'
+            'name' => 'Updated'
         ]);
     }
 
@@ -138,11 +138,11 @@ class EmailContactApiTest extends TestCase
         $contact2 = EmailContact::factory()->create();
 
         $response = $this->putJson(route('email-contacts.update', $contact1->id), [
-            'email_address' => $contact2->email_address
+            'email' => $contact2->email
         ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors('email_address');
+            ->assertJsonValidationErrors('email');
     }
 
     #[Test]

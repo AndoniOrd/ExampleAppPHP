@@ -12,8 +12,8 @@ class EmailContactFactory extends Factory
     public function definition()
     {
         return [
-            'email_address' => $this->faker->unique()->safeEmail(),
-            'first_name' => $this->faker->firstName(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
             'status' => $this->faker->randomElement(['active', 'inactive', 'pending']),
             'source' => $this->faker->randomElement(['web', 'api', 'manual']),

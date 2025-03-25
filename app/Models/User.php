@@ -9,14 +9,15 @@ use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 use Laravel\Sanctum\HasApiTokens;
 
+
 class User extends Authenticatable implements LaratrustUser
 {
     use HasFactory, Notifiable, HasApiTokens, HasRolesAndPermissions;
 
     protected $fillable = [
-        'first_name',
+        'name',
         'last_name',
-        'email_address',
+        'email',
         'password',
         'phone_number',
         'account_status',
@@ -45,16 +46,6 @@ class User extends Authenticatable implements LaratrustUser
 
     public function username()
     {
-        return 'email_address';
-    }
-    public function getEmailAttribute()
-    {
-        return $this->email_address;
-    }
-
-    // Si usas autenticación con email, también define esto:
-    public function getAuthIdentifierName()
-    {
-        return 'email_address';
+        return 'email';
     }
 }

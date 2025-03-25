@@ -31,8 +31,8 @@ class ContactFactory extends Factory
         $lastUpdatedDate = fake()->dateTimeBetween($optInDate, 'now')->format('Y-m-d');
 
         return [
-            'email_address' => fake()->unique()->safeEmail(),
-            'first_name' => fake()->firstName(),
+            'email' => fake()->unique()->safeEmail(),
+            'name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'status' => fake()->randomElement(ContactStatusEnum::values()),
             'source' => fake()->randomElement(SourceEnum::values()),

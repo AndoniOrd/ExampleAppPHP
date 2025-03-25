@@ -78,7 +78,7 @@ class ActiveCampaignService
                     if (!empty($contact['email']) && ($contact['status'] == 1)) {
                         $emails[] = [
                             'email' => $contact['email'],
-                            'first_name' => $contact['firstName'] ?? '',
+                            'name' => $contact['firstName'] ?? '',
                             'last_name' => $contact['lastName'] ?? '',
                             'contact_id' => $contact['id']
                         ];

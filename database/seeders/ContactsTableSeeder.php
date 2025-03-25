@@ -12,8 +12,8 @@ class ContactsTableSeeder extends Seeder
     public function run()
     {
         Contact::create([
-            'email_address' => 'john.doe@example.com',
-            'first_name' => 'John',
+            'email' => 'john.doe@example.com',
+            'name' => 'John',
             'last_name' => 'Doe',
             'status' => 'subscribed',
             'source' => 'web',

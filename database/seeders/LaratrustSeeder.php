@@ -90,9 +90,9 @@ class LaratrustSeeder extends Seeder
 
         // Crear usuario administrador
         $admin = User::create([
-            'first_name' => 'Admin',
+            'name' => 'Admin',
             'last_name' => 'User',
-            'email_address' => 'admin@example.com',
+            'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '123-456-7890',
             'account_status' => 'active',
