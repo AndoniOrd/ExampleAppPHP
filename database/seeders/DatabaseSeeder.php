@@ -22,17 +22,18 @@ public function run(): void
         // Remove BasePermissionSeeder::class from here
         CampaignPlanningSeeder::class,
         //CampaignReportsSeeder::class,
-        //ContactsTableSeeder::class,
-        //EmailContactSeeder::class,
-        //EmailTemplatesSeeder::class,
-        //ListContactRelationshipSeeder::class,
-       // MailingListPermissionSeeder::class,
-       // MailingListSeeder::class,
+        ContactsTableSeeder::class,
+        EmailContactSeeder::class,
+        EmailTemplatesSeeder::class,
+        ListContactRelationshipSeeder::class,
+        MailingListPermissionSeeder::class,
+        MailingListSeeder::class,
      
 
         LaratrustSeeder::class, 
         FixPermissionsSeeder::class, 
-        UsersTableSeeder::class 
+        UsersTableSeeder::class,
+        ContactMailingListSeeder::class,
     ]);
 }
 }

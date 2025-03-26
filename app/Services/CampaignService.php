@@ -122,7 +122,7 @@ class CampaignService
                 return false;
             }
             
-            $campaign->status_status_type = 'completed';
+            $campaign->status_type = 'completed';
             $campaign->save();
             
             return true;

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->text('description');
             $table->string('email_template_id');
             $table->string('mailing_list_id');
-            $table->dateTime('scheduled_time');
+            $table->timestamp('scheduled_time');
             $table->string('time_zone');
-            $table->string('status_status_type');
+            $table->string('status_type');
             $table->date('creation_date')->default(DB::raw('CURRENT_DATE'));
             $table->string('scheduled_by');
             $table->string('send_from_email');

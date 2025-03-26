@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://my-default-host.com",
+            "url": "http://localhost",
             "description": "API Server"
         },
         {
@@ -61,7 +61,7 @@
                                                         "type": "string",
                                                         "example": "America/New_York"
                                                     },
-                                                    "status_status_type": {
+                                                    "status_type": {
                                                         "type": "string",
                                                         "example": "scheduled"
                                                     },
@@ -126,7 +126,7 @@
                                     "mailing_list_id",
                                     "scheduled_time",
                                     "time_zone",
-                                    "status_status_type",
+                                    "status_type",
                                     "scheduled_by",
                                     "send_from_email",
                                     "send_from_name",
@@ -160,14 +160,9 @@
                                         "type": "string",
                                         "example": "America/New_York"
                                     },
-                                    "status_status_type": {
+                                    "status_type": {
                                         "type": "string",
-                                        "enum": [
-                                            "draft",
-                                            "scheduled",
-                                            "processing",
-                                            "completed"
-                                        ],
+                                        "enum": ["draft", "scheduled", "processing", "completed"],
                                         "example": "scheduled"
                                     },
                                     "scheduled_by": {
@@ -348,14 +343,9 @@
                                         "type": "string",
                                         "example": "America/New_York"
                                     },
-                                    "status_status_type": {
+                                    "status_type": {
                                         "type": "string",
-                                        "enum": [
-                                            "draft",
-                                            "scheduled",
-                                            "processing",
-                                            "completed"
-                                        ],
+                                        "enum": ["draft", "scheduled", "processing", "completed"],
                                         "example": "scheduled"
                                     },
                                     "scheduled_by": {
@@ -463,10 +453,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
+                                "required": ["email", "password"],
                                 "properties": {
                                     "email": {
                                         "type": "string",
@@ -529,12 +516,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "name",
-                                    "last_name",
-                                    "email",
-                                    "password"
-                                ],
+                                "required": ["name", "last_name", "email", "password"],
                                 "properties": {
                                     "name": {
                                         "type": "string",

@@ -7,122 +7,53 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Services\EmailSenderService;
 use Illuminate\Support\Facades\Log;
-use App\Services\CampaignService;
+use Illuminate\Support\Facades\Mail;
 
 class SendEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * The email data.
-     *
-     * @var array
-     */
     protected $emailData;
 
-    /**
-     * The email provider data.
-     *
-     * @var object
-     */
-    protected $provider;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries = 3;
-
-    /**
-     * Create a new job instance.
-     *
-     * @param array $emailData
-     * @param object $provider
-     * @return void
-     */
-    public function __construct(array $emailData, $provider)
+    public function __construct(array $emailData)
     {
         $this->emailData = $emailData;
-        $this->provider = $provider;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @param EmailSenderService $senderService
-     * @param CampaignService $campaignService
-     * @return void
-     */
-    public function handle(EmailSenderService $senderService, CampaignService $campaignService)
+    public function handle()
     {
         try {
-            Log::info('Attempting to send email', [
-                'email' => $this->emailData['email'],
-                'provider' => $this->provider->name,
-                'campaign_id' => $this->emailData['campaign_id'] ?? null
+            // Extensive logging for debugging
+            Log::channel('daily')->info('Sending Email', [
+                'campaign_id' => $this->emailData['campaign_id'],
+                'contact_id' => $this->emailData['contact_id'],
+                'email' => $this->emailData['email']
             ]);
 
-            // Configure tracking options if available
-            $trackingOptions = [];
-            if (isset($this->emailData['tracking_options'])) {
-                $trackingOptions = json_decode($this->emailData['tracking_options'], true) ?? [];
-            }
+            // Use Laravel's Mail facade with more comprehensive configuration
+            Mail::send('emails.campaign', $this->emailData['data'], function($message) {
+                $message->to($this->emailData['email'], $this->emailData['name'])
+                    ->subject($this->emailData['subject'])
+                    ->from(
+                        $this->emailData['provider']['from_address'], 
+                        $this->emailData['provider']['from_name']
+                    );
+            });
 
-            // Send the email
-            $result = $senderService->send(
-                $this->emailData['email'],
-                $this->emailData['subject'],
-                $this->emailData['content'],
-                $this->provider,
-                [
-                    'from_email' => $this->emailData['from_email'] ?? null,
-                    'from_name' => $this->emailData['from_name'] ?? null,
-                    'reply_to' => $this->emailData['reply_to'] ?? null,
-                    'tracking_options' => $trackingOptions
-                ]
-            );
-
-            if ($result) {
-                Log::info('Email sent successfully', [
-                    'email' => $this->emailData['email'],
-                    'campaign_id' => $this->emailData['campaign_id'] ?? null
-                ]);
-                
-                // Log this email as sent in your email_sent_logs table if needed
-                // $this->logEmailSent();
-            } else {
-                throw new \Exception('Email sending failed');
-            }
+            Log::channel('daily')->info('Email sent successfully', [
+                'email' => $this->emailData['email']
+            ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send email', [
+            // Comprehensive error logging
+            Log::channel('daily')->error('Email sending failed', [
                 'email' => $this->emailData['email'],
-                'provider' => $this->provider->name,
-                'campaign_id' => $this->emailData['campaign_id'] ?? null,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-            
+
+            // Optionally re-throw to trigger job failure
             throw $e;
         }
-    }
-    
-    /**
-     * Handle a job failure.
-     *
-     * @param \Throwable $exception
-     * @return void
-     */
-    public function failed(\Throwable $exception)
-    {
-        Log::error('Email job failed', [
-            'email' => $this->emailData['email'] ?? 'unknown',
-            'campaign_id' => $this->emailData['campaign_id'] ?? null,
-            'error' => $exception->getMessage()
-        ]);
-        
-        // You might want to log this failure in a dedicated table
-        // or notify someone about the failure
     }
 }

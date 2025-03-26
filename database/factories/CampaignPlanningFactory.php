@@ -23,7 +23,7 @@ class CampaignPlanningFactory extends Factory
             'mailing_list_id' => MailingList::factory(),
             'scheduled_time' => Carbon::now()->addDays(7),
             'time_zone' => fake()->timezone,
-            'status_status_type' => fake()->randomElement(['draft', 'scheduled', 'processing', 'completed']),
+            'status_type' => fake()->randomElement(['draft', 'scheduled', 'processing', 'completed']),
             'creation_date' => Carbon::now(),
             'scheduled_by' => User::factory(),
             'send_from_email' => fake()->companyEmail(),
@@ -50,7 +50,7 @@ class CampaignPlanningFactory extends Factory
     public function withStatus(string $status): static
     {
         return $this->state(fn (array $attributes) => [
-            'status_status_type' => $status,
+            'status_type' => $status,
         ]);
     }
 } 

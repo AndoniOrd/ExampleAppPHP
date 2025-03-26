@@ -32,7 +32,7 @@ class CampaignPlanningController extends Controller
             'mailing_list_id' => 'required|exists:mailing_lists,id',
             'scheduled_time' => 'required|date',
             'time_zone' => ['required', 'timezone'],
-            'status_status_type' => 'required|in:draft,scheduled,processing,completed',
+            'status_type' => 'required|in:draft,scheduled,processing,completed',
             'scheduled_by' => 'required|exists:users,id',
             'send_from_email' => 'required|email|max:255',
             'send_from_name' => 'required|string|max:255',
@@ -48,7 +48,7 @@ class CampaignPlanningController extends Controller
             'data' => [
                 'id' => $campaignPlanning->id,
                 'name' => $campaignPlanning->name,
-                'status' => $campaignPlanning->status_status_type,
+                'status' => $campaignPlanning->status_type,
                 'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
             ]
         ], 201);
@@ -65,7 +65,7 @@ class CampaignPlanningController extends Controller
             'data' => [
                 'id' => $campaignPlanning->id,
                 'name' => $campaignPlanning->name,
-                'status' => $campaignPlanning->status_status_type,
+                'status' => $campaignPlanning->status_type,
                 'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
                 'send_from' => "{$campaignPlanning->send_from_name} <{$campaignPlanning->send_from_email}>",
             ]
@@ -87,7 +87,7 @@ class CampaignPlanningController extends Controller
             'mailing_list_id' => 'nullable|exists:mailing_lists,id',
             'scheduled_time' => 'nullable|date',
             'time_zone' => 'nullable|timezone',
-            'status_status_type' => 'nullable|in:draft,scheduled,processing,completed',
+            'status_type' => 'nullable|in:draft,scheduled,processing,completed',
             'scheduled_by' => 'nullable|exists:users,id',
             'send_from_email' => 'nullable|email|max:255',
             'send_from_name' => 'nullable|string|max:255',
@@ -103,7 +103,7 @@ class CampaignPlanningController extends Controller
             'data' => [
                 'id' => $campaignPlanning->id,
                 'name' => $campaignPlanning->name,
-                'status' => $campaignPlanning->status_status_type,
+                'status' => $campaignPlanning->status_type,
                 'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
             ]
         ]);

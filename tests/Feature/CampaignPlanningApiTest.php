@@ -34,7 +34,7 @@ class CampaignPlanningApiTest extends TestCase
                         'mailing_list_id',
                         'scheduled_time',
                         'time_zone',
-                        'status_status_type',
+                        'status_type',
                         'scheduled_by',
                         'send_from_email',
                         'send_from_name',
@@ -60,7 +60,7 @@ class CampaignPlanningApiTest extends TestCase
             'mailing_list_id' => $mailingList->id,
             'scheduled_time' => Carbon::now()->addWeek()->toDateTimeString(),
             'time_zone' => 'America/New_York',
-            'status_status_type' => 'draft',
+            'status_type' => 'draft',
             'scheduled_by' => $user->id,
             'send_from_email' => 'noreply@example.com',
             'send_from_name' => 'Marketing Team',
@@ -82,7 +82,7 @@ class CampaignPlanningApiTest extends TestCase
 
         $this->assertDatabaseHas('campaign_plannings', [
             'name' => 'Summer Campaign',
-            'status_status_type' => 'draft'
+            'status_type' => 'draft'
         ]);
     }
 
@@ -98,7 +98,7 @@ class CampaignPlanningApiTest extends TestCase
                 'mailing_list_id',
                 'scheduled_time',
                 'time_zone',
-                'status_status_type',
+                'status_type',
                 'scheduled_by',
                 'send_from_email',
                 'send_from_name',
@@ -119,7 +119,7 @@ class CampaignPlanningApiTest extends TestCase
                 'data' => [
                     'id' => $campaignPlanning->id,
                     'name' => $campaignPlanning->name,
-                    'status' => $campaignPlanning->status_status_type,
+                    'status' => $campaignPlanning->status_type,
                     'scheduled_time' => $campaignPlanning->scheduled_time->toDateTimeString(),
                 ]
             ]);
@@ -134,7 +134,7 @@ class CampaignPlanningApiTest extends TestCase
         $updateData = [
             'name' => 'Updated Campaign Name',
             'email_template_id' => $newTemplate->id,
-            'status_status_type' => 'scheduled'
+            'status_type' => 'scheduled'
         ];
 
         $response = $this->putJson("/campaign-plannings/{$campaignPlanning->id}", $updateData);
@@ -151,7 +151,7 @@ class CampaignPlanningApiTest extends TestCase
         $this->assertDatabaseHas('campaign_plannings', [
             'id' => $campaignPlanning->id,
             'email_template_id' => $newTemplate->id,
-            'status_status_type' => 'scheduled'
+            'status_type' => 'scheduled'
         ]);
     }
 
