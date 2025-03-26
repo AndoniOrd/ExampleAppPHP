@@ -16,25 +16,44 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        // Create the user
+        // Create admin user
         $admin = User::create([
-            'name'     => 'John',
-            'last_name'      => 'Doe',
-            'email'  => 'john.doe@example.com',
-            'password'       => Hash::make('securepassword'),
-            'phone_number'   => '123-456-7890',
+            'name'          => 'Andoni',
+            'last_name'     => 'Ordonez',
+            'email'        => 'andoniordonez755@gmail.com',
+            'password'     => Hash::make('abcd*1234'),
+            'phone_number'  => '123-456-7890',
             'account_status' => 'active',
-            'creation_date'  => now(),
-            'company_name'   => 'Doe Enterprises',
-            'company_address'=> '123 Business Rd, City, Country',
-            'vat_tax_id'     => 'VAT123456789',
-            'industry'       => 'Software Development',
-            'company_size'   => 50,
-            'website'        => 'https://doeenterprises.com',
+            'creation_date' => now(),
+            'company_name'  => 'Doe Enterprises',
+            'company_address' => '123 Business Rd, City, Country',
+            'vat_tax_id'    => 'VAT123456789',
+            'industry'      => 'Software Development',
+            'company_size'  => 50,
+            'website'       => 'https://doeenterprises.com',
         ]);
-    
+
         $adminRole = Role::where('name', 'admin')->first();
-        // Use the standard Laravel relationship method
         $admin->roles()->attach($adminRole->id);
+
+        // Create regular user
+        $user = User::create([
+            'name'          => 'John',
+            'last_name'     => 'Doe',
+            'email'         => 'john.doe@example.com',
+            'password'      => Hash::make('securepassword'),
+            'phone_number'  => '987-654-3210',
+            'account_status' => 'active',
+            'creation_date' => now(),
+            'company_name'  => 'John Doe Co.',
+            'company_address' => '456 Main St, Townsville, Country',
+            'vat_tax_id'    => 'VAT987654321',
+            'industry'      => 'Consulting',
+            'company_size'  => 10,
+            'website'       => 'https://johndoe.com',
+        ]);
+
+        $userRole = Role::where('name', 'user')->first();
+        $user->roles()->attach($userRole->id);
     }
 }
