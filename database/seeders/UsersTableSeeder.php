@@ -16,12 +16,30 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
+        // Ensure roles exist first with guard_name
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web'
+        ], [
+            'display_name' => 'Administrator',
+            'description' => 'System administrator with full privileges'
+        ]);
+
+        $userRole = Role::firstOrCreate([
+            'name' => 'user',
+            'guard_name' => 'web'
+        ], [
+            'display_name' => 'Regular User',
+            'description' => 'Standard application user'
+        ]);
+
+        // Rest of your user creation code remains the same
         // Create admin user
         $admin = User::create([
             'name'          => 'Andoni',
             'last_name'     => 'Ordonez',
-            'email'        => 'andoniordonez755@gmail.com',
-            'password'     => Hash::make('abcd*1234'),
+            'email'         => 'andoniordonez755@gmail.com',
+            'password'      => Hash::make('abcd*1234'),
             'phone_number'  => '123-456-7890',
             'account_status' => 'active',
             'creation_date' => now(),
@@ -33,7 +51,6 @@ class UsersTableSeeder extends Seeder
             'website'       => 'https://doeenterprises.com',
         ]);
 
-        $adminRole = Role::where('name', 'admin')->first();
         $admin->roles()->attach($adminRole->id);
 
         // Create regular user
@@ -53,7 +70,6 @@ class UsersTableSeeder extends Seeder
             'website'       => 'https://johndoe.com',
         ]);
 
-        $userRole = Role::where('name', 'user')->first();
         $user->roles()->attach($userRole->id);
     }
 }
