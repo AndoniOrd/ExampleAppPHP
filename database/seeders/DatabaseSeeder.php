@@ -34,6 +34,8 @@ public function run(): void
         FixPermissionsSeeder::class, 
         UsersTableSeeder::class,
         ContactMailingListSeeder::class,
+        DictionarySeeder::class,
+        //StatusDictionarySeeder::class
     ]);
 }
 }

@@ -26,6 +26,7 @@ class MailingList extends Model
         'status'
     ];
 
+
     /**
      * The attributes that should be cast.
      *
@@ -36,7 +37,6 @@ class MailingList extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
-
     /**
      * The email contacts that belong to this mailing list.
      * 
@@ -105,5 +105,12 @@ class MailingList extends Model
     public function removeContact(EmailContact $contact)
     {
         return $this->emailContacts()->detach($contact->id);
+    }
+
+    public function emailContacts()
+    {
+        return $this->belongsToMany(EmailContact::class, 'email_contact_mailing_list')
+            ->withPivot('status', 'subscribed_at', 'unsubscribed_at')
+            ->withTimestamps();
     }
 }
