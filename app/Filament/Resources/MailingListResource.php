@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 class MailingListResource extends Resource
 {
     protected static ?string $model = MailingList::class;
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -44,7 +45,7 @@ class MailingListResource extends Resource
                     ->label('Contacts'),
             ])
             ->filters([
-                //
+                // Filters can be added here
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

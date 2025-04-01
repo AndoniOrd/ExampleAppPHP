@@ -50,11 +50,9 @@ public static function table(Table $table): Table
             ->sortable(),
         Tables\Columns\TextColumn::make('value')
             ->searchable(),
-        // Añade un badge con color para el value si es un status
         Tables\Columns\TextColumn::make('value')
             ->badge()
             ->color(function (DictionaryItem $record) {
-                // Asume que estás trabajando con el diccionario de STATUS
                 if ($record->dictionary->name === 'STATUS') {
                     return match($record->value) {
                         'subscribed' => 'success',

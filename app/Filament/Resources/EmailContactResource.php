@@ -3,8 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmailContactResource\Pages;
-use App\Filament\Resources\EmailContactResource\RelationManagers;
 use App\Models\EmailContact;
+use App\Models\MailingList;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,8 +14,7 @@ use Filament\Tables\Table;
 class EmailContactResource extends Resource
 {
     protected static ?string $model = EmailContact::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-envelope';
 
     public static function form(Form $form): Form
     {
@@ -32,8 +31,7 @@ class EmailContactResource extends Resource
                     ->relationship('mailingLists', 'name')
                     ->multiple()
                     ->preload()
-                    ->searchable()
-                    ->required(),
+                    ->searchable(),
             ]);
     }
 
@@ -47,20 +45,16 @@ class EmailContactResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
-                // Changed from mailingList.name to mailingLists.name
                 Tables\Columns\TextColumn::make('mailingLists.name')
-                    ->badge()  // Optional: shows items as badges
-                    ->separator(',')  // Separate multiple entries with commas
-                    ->label('Mailing Lists')
-                    ->searchable()
-                    ->sortable(),
+                    ->badge()
+                    ->separator(','),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Filters can be added here
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -75,7 +69,7 @@ class EmailContactResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Relation managers can be added here
         ];
     }
 

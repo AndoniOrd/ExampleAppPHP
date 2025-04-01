@@ -3,46 +3,80 @@
 namespace App\Filament\Resources\EmailContactResource\Pages;
 
 use App\Filament\Resources\EmailContactResource;
-use Filament\Resources\Pages\ListRecords;
-use Filament\Tables\Actions\Action;
+use App\Imports\EmailContactsImport;
+use App\Mail\ImportErrorsNotification;
+use Filament\Actions;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListEmailContacts extends ListRecords
 {
     protected static string $resource = EmailContactResource::class;
 
-    protected function getTableActions(): array
+    protected function getHeaderActions(): array
     {
         return [
-            Action::make('import')
+            Actions\CreateAction::make(),
+            Actions\Action::make('import')
                 ->label('Import Contacts')
+                ->icon('heroicon-o-arrow-up-tray')
                 ->form([
                     FileUpload::make('file')
-                        ->label('CSV File')
-                        ->acceptedFileTypes(['text/csv', 'text/plain'])
-                        ->required(),
+                        ->label('Contacts File (CSV/Excel)')
+                        ->acceptedFileTypes([
+                            'text/csv',
+                            'application/vnd.ms-excel',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                        ])
+                        ->required()
+                        ->maxSize(10240)
+                        ->storeFiles(false), // Add this line
+                    Select::make('mailingLists')
+                        ->label('Add to Mailing Lists')
+                        ->options(\App\Models\MailingList::pluck('name', 'id'))
+                        ->multiple()
+                        ->searchable(),
                 ])
-                ->action(function (array $data): void {
-                    if ($data['file']) {
-                        $path = $data['file']->getRealPath();
-                        if (($handle = fopen($path, 'r')) !== false) {
-                            while (($row = fgetcsv($handle)) !== false) {
-                                // Adjust the parsing based on your CSV structure.
-                                // For example, assume the CSV has columns: email,name,last_name,...
-                                \App\Models\EmailContact::create([
-                                    'email'     => $row[0],
-                                    'name'      => $row[1] ?? null,
-                                    'last_name' => $row[2] ?? null,
-                                    // add other fields as needed
-                                ]);
-                            }
-                            fclose($handle);
-                            $this->notify('success', 'Contacts imported successfully!');
-                        } else {
-                            $this->notify('danger', 'Unable to open the file.');
+                ->action(function (array $data) {
+                    $import = new EmailContactsImport($data['mailingLists'] ?? []);
+
+                    try {
+                        // Get the temporary uploaded file path
+                        $filePath = $data['file']->getRealPath();
+                        
+                        Excel::import($import, $filePath);
+
+                        $successCount = $import->getSuccessCount();
+                        $errorCount = $import->getTotalErrors();
+
+                        Notification::make()
+                            ->title('Import Completed')
+                            ->body("Successfully imported {$successCount} contacts" . 
+                                  ($errorCount > 0 ? " with {$errorCount} errors" : ''))
+                            ->success()
+                            ->send();
+
+                        if ($errorCount > 0) {
+                            Mail::to(config('mail.admin_email'))
+                                ->send(new ImportErrorsNotification([
+                                    'existing' => $import->getExistingEmails(),
+                                    'invalid' => $import->getInvalidEmails(),
+                                    'empty' => $import->getEmptyData(),
+                                ]));
                         }
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Import Failed')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
                     }
-                }),
+                })
         ];
     }
 }
