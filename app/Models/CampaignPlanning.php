@@ -7,28 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Enums\TrackingOptions;
 
 /**
- * @property int $id
- * @property string $name
- * @property string $description
- * @property string $email_template_id
- * @property string $mailing_list_id
- * @property \Illuminate\Support\Carbon $scheduled_time
- * @property string $time_zone
- * @property string $status_type
- * @property \Illuminate\Support\Carbon $creation_date
- * @property string $scheduled_by
- * @property string $send_from_email
- * @property string $send_from_name
- * @property string $reply_to_email
- * @property TrackingOptions $tracking_options
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\EmailTemplates|null $emailTemplate
- * @property-read \App\Models\MailingList|null $mailingList
- * @property-read \App\Models\User|null $scheduledBy
- */
-
- /**
  * @OA\Schema(
  *     schema="CampaignPlanning",
  *     title="Campaign Planning",
@@ -76,7 +54,6 @@ class CampaignPlanning extends Model
         'tracking_options' => TrackingOptions::class,
     ];
     
-
     public function emailTemplate()
     {
         return $this->belongsTo(EmailTemplates::class, 'email_template_id');
@@ -92,5 +69,11 @@ class CampaignPlanning extends Model
         return $this->belongsTo(User::class, 'scheduled_by');
     }
 
-    
+    /**
+     * Get all events associated with this campaign planning.
+     */
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'campaign_planning_id');
+    }
 }

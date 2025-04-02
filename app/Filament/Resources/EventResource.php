@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Models\CampaignPlanning;
 
 class EventResource extends Resource
 {
@@ -25,17 +26,26 @@ class EventResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->label('Title')
+                Forms\Components\TextInput::make('name')
+                    ->label('Campaign name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->label('Description')
-                    ->required(),
-                Forms\Components\DatePicker::make('date')
-                    ->label('Date')
-                    ->required(),
-                // Adicione outros campos conforme necessário
+                Forms\Components\Grid::make()
+                    ->schema([
+                        Forms\Components\DateTimePicker::make('starts_at')
+                            ->label('Starting date')
+                            ->required(),
+                        Forms\Components\DateTimePicker::make('ends_at')
+                            ->label('Finishing date')
+                            ->required(),
+                    ]),
+                // Fixed: Added full namespace for Select component
+                Forms\Components\Select::make('campaign_planning_id')
+                    ->label('Campaign Planning')
+                    ->options(CampaignPlanning::all()->pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->placeholder('Select a campaign planning'),
             ]);
     }
 
@@ -44,13 +54,16 @@ class EventResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Title')
+                    ->label('Campaign name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Date')
+                Tables\Columns\TextColumn::make('starts_at')
+                    ->label('Starting Date')
                     ->date()
                     ->searchable(),
-                // Adicione outras colunas conforme necessário
+                Tables\Columns\TextColumn::make('ends_at')
+                    ->label('Finishing Date')
+                    ->date()
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

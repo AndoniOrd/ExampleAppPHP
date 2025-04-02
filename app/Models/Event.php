@@ -17,7 +17,8 @@ class Event extends Model
         'description',
         'color',
         'starts_at',
-        'ends_at'
+        'ends_at',
+        'campaign_planning_id', // Add this to allow mass assignment
     ];
 
     protected $casts = [
@@ -32,4 +33,12 @@ class Event extends Model
     // {
     //     return 'uuid';
     // }
+
+    /**
+     * Get the campaign planning associated with this event.
+     */
+    public function campaignPlanning()
+    {
+        return $this->belongsTo(CampaignPlanning::class, 'campaign_planning_id');
+    }
 }

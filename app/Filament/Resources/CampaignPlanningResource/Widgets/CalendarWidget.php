@@ -12,6 +12,9 @@ use Saade\FilamentFullCalendar\Actions\ViewAction;
 use Filament\Forms;
 use App\Models\Event;
 use App\Filament\Resources\EventResource;
+use Filament\Forms\Components\Select;
+use App\Models\CampaignPlanning;
+
 
 
 class CalendarWidget extends FullCalendarWidget
@@ -23,9 +26,9 @@ class CalendarWidget extends FullCalendarWidget
         return [
             'firstDay' => 1,
             'headerToolbar' => [
-                'left'   => 'prev,next today',
+                'left' => 'prev,next today',
                 'center' => 'title',
-                'right'  => 'dayGridMonth,timeGridWeek,timeGridDay',
+                'right' => 'dayGridMonth,timeGridWeek,timeGridDay',
             ],
         ];
     }
@@ -54,15 +57,23 @@ class CalendarWidget extends FullCalendarWidget
     {
         return [
             Forms\Components\TextInput::make('name')
-                ->label('Nombre del Evento')
+                ->label('Campaign name')
                 ->required(),
+
+            Select::make('campaign_planning_id')
+                ->label('Campaign Planning')
+                ->options(CampaignPlanning::all()->pluck('name', 'id'))
+                ->searchable()
+                ->required()
+                ->placeholder('Select a campaign planning'),
+
             Forms\Components\Grid::make()
                 ->schema([
                     Forms\Components\DateTimePicker::make('starts_at')
-                        ->label('Fecha de Inicio')
+                        ->label('Starting date')
                         ->required(),
                     Forms\Components\DateTimePicker::make('ends_at')
-                        ->label('Fecha de Fin')
+                        ->label('Finishing date')
                         ->required(),
                 ]),
         ];
@@ -75,7 +86,7 @@ class CalendarWidget extends FullCalendarWidget
                 ->mountUsing(function (Forms\Form $form, array $arguments) {
                     $form->fill([
                         'starts_at' => $arguments['start'] ?? now(),
-                        'ends_at'   => $arguments['end'] ?? now()->addHour(),
+                        'ends_at' => $arguments['end'] ?? now()->addHour(),
                     ]);
                 }),
         ];
@@ -87,9 +98,9 @@ class CalendarWidget extends FullCalendarWidget
             EditAction::make()
                 ->mountUsing(function (Event $record, Forms\Form $form, array $arguments) {
                     $form->fill([
-                        'name'      => $record->name,
+                        'name' => $record->name,
                         'starts_at' => $arguments['event']['start'] ?? $record->starts_at,
-                        'ends_at'   => $arguments['event']['end'] ?? $record->ends_at,
+                        'ends_at' => $arguments['event']['end'] ?? $record->ends_at,
                     ]);
                 }),
             DeleteAction::make(),
