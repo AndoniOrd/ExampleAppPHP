@@ -43,5 +43,14 @@ Route::resource('email-contacts', EmailContactController::class);
 Route::get('/import-contacts', [EmailContactFileController::class, 'showImportForm'])->name('contacts.import.form');
 Route::post('/import-contacts', [EmailContactFileController::class, 'import'])->name('contacts.import');
 
+Route::get('/test-email', function() {
+    try {
+        Mail::to('admin@admin.com')->send(new \App\Mail\TestEmail());
+        return 'Email sent successfully';
+    } catch (\Exception $e) {
+        return 'Error: '.$e->getMessage();
+    }
+});
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

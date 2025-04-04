@@ -75,6 +75,7 @@ class EmailContactsImport implements ToModel, WithHeadingRow, WithValidation, Sk
                 'reason' => 'Email already exists'
             ];
 
+            // Still add to mailing lists if needed, even though it's an existing contact
             if (!empty($this->mailingListIds)) {
                 $existingContact->mailingLists()->syncWithoutDetaching($this->mailingListIds);
             }
