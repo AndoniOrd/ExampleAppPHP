@@ -14,8 +14,7 @@ use App\Models\Event;
 use App\Filament\Resources\EventResource;
 use Filament\Forms\Components\Select;
 use App\Models\CampaignPlanning;
-
-
+use Filament\Forms\Components\Toggle;
 
 class CalendarWidget extends FullCalendarWidget
 {
@@ -76,6 +75,15 @@ class CalendarWidget extends FullCalendarWidget
                         ->label('Finishing date')
                         ->required(),
                 ]),
+
+            Toggle::make('status_type')
+                ->label('Active Status')
+                ->onColor('success')
+                ->offColor('danger')
+                ->inline(false)
+                ->default(true)
+                ->formatStateUsing(fn($state) => $state === 'active')
+                ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive'),
         ];
     }
 

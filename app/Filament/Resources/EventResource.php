@@ -46,7 +46,17 @@ class EventResource extends Resource
                     ->searchable()
                     ->required()
                     ->placeholder('Select a campaign planning'),
+
+                Toggle::make('status_type')
+                    ->label('Active Status')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->inline(false)
+                    ->default(true)
+                    ->formatStateUsing(fn($state) => $state === 'active')
+                    ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive'),
             ]);
+
     }
 
     public static function table(Table $table): Table
