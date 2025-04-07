@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,7 +21,7 @@ return new class extends Migration
             $table->timestamp('scheduled_time');
             $table->string('time_zone');
             $table->string('status_type')->default('active');
-            $table->date('creation_date')->default(DB::raw('CURRENT_DATE'));
+            $table->date('creation_date')->default(DB::raw('(CURRENT_DATE)'));
             $table->string('scheduled_by');
             $table->string('send_from_email');
             $table->string('send_from_name');

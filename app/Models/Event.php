@@ -18,7 +18,8 @@ class Event extends Model
         'color',
         'starts_at',
         'ends_at',
-        'campaign_planning_id', // Add this to allow mass assignment
+        'status_type',
+        'campaign_planning_id',
     ];
 
     protected $casts = [

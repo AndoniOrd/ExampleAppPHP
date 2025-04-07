@@ -47,7 +47,7 @@ class EventResource extends Resource
                     ->required()
                     ->placeholder('Select a campaign planning'),
 
-                Toggle::make('status_type')
+                Forms\Components\Toggle::make('status_type')
                     ->label('Active Status')
                     ->onColor('success')
                     ->offColor('danger')
