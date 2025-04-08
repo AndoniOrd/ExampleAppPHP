@@ -35,6 +35,7 @@ public function run(): void
         UsersTableSeeder::class,
         ContactMailingListSeeder::class,
         DictionarySeeder::class,
+        ProvidersSeeder::class,
         //StatusDictionarySeeder::class
     ]);
 }

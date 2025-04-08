@@ -77,10 +77,11 @@ class CampaignPlanning extends Model
     ];
     
 
-    public function emailTemplate()
-    {
-        return $this->belongsTo(EmailTemplates::class, 'email_template_id');
-    }
+ 
+public function emailTemplate()
+{
+    return $this->belongsTo(EmailTemplate::class, 'email_template_id');
+}
 
     public function mailingList()
     {
