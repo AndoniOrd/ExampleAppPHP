@@ -14,7 +14,7 @@ return new class extends Migration {
             
             $table->string('name');
             $table->dateTime('starts_at');
-            $table->dateTime('ends_at');
+            $table->dateTime('ends_at')->nullable();
             
             // Add nullable fields for better flexibility
             $table->text('description')->nullable();

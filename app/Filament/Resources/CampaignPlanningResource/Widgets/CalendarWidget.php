@@ -29,6 +29,15 @@ class CalendarWidget extends FullCalendarWidget
                 'center' => 'title',
                 'right' => 'dayGridMonth,timeGridWeek,timeGridDay',
             ],
+            'selectable' => true,
+            'selectMirror' => true,
+            // Bloqueamos la selección de rangos: solo se permite un único punto de tiempo
+            'selectAllow' => <<<JS
+                function(selectInfo) {
+                    // Si la diferencia en minutos es 0 (o menor) se entiende que se seleccionó un solo instante.
+                    return moment(selectInfo.end).diff(moment(selectInfo.start), 'minutes') <= 0;
+                }
+            JS,
         ];
     }
 
@@ -40,12 +49,12 @@ class CalendarWidget extends FullCalendarWidget
             ->get()
             ->map(function (Event $event) {
                 return EventData::make()
-                    ->id($event->id) // Changed from uuid to id (assuming your model uses standard IDs)
+                    ->id($event->id)
                     ->title($event->name)
                     ->start($event->starts_at)
                     ->end($event->ends_at)
                     ->url(
-                        url: EventResource::getUrl(name: 'view', parameters: ['record' => $event]),
+                        url: EventResource::getUrl('view', ['record' => $event]),
                         shouldOpenUrlInNewTab: true
                     );
             })
@@ -71,8 +80,10 @@ class CalendarWidget extends FullCalendarWidget
                     Forms\Components\DateTimePicker::make('starts_at')
                         ->label('Starting date')
                         ->required(),
+                    // Se fuerza que ends_at sea igual a starts_at, por lo que se deshabilita su edición.
                     Forms\Components\DateTimePicker::make('ends_at')
                         ->label('Finishing date')
+                        ->disabled()
                         ->required(),
                 ]),
 
@@ -92,9 +103,13 @@ class CalendarWidget extends FullCalendarWidget
         return [
             CreateAction::make()
                 ->mountUsing(function (Forms\Form $form, array $arguments) {
+                    $start = $arguments['start'] ?? now();
                     $form->fill([
-                        'starts_at' => $arguments['start'] ?? now(),
-                        'ends_at' => $arguments['end'] ?? now()->addHour(),
+                        'starts_at' => $start,
+                        // Forzamos que la fecha de fin sea la misma que la de inicio
+                        'ends_at' => $start,
+                        // Al crear se establece el evento como activo por defecto
+                        'status_type' => true,
                     ]);
                 }),
         ];
@@ -107,8 +122,9 @@ class CalendarWidget extends FullCalendarWidget
                 ->mountUsing(function (Event $record, Forms\Form $form, array $arguments) {
                     $form->fill([
                         'name' => $record->name,
+                        // Al editar, se utiliza la fecha de inicio del evento
                         'starts_at' => $arguments['event']['start'] ?? $record->starts_at,
-                        'ends_at' => $arguments['event']['end'] ?? $record->ends_at,
+                        'ends_at' => $arguments['event']['start'] ?? $record->starts_at,
                     ]);
                 }),
             DeleteAction::make(),

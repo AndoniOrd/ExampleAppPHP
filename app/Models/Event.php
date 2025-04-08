@@ -29,15 +29,17 @@ class Event extends Model
         // 'deleted_at' => 'datetime',
     ];
 
-    // Uncomment if using UUID as primary key
-    // public function getRouteKeyName()
-    // {
-    //     return 'uuid';
-    // }
+    protected static function boot()
+    {
+        parent::boot();
 
-    /**
-     * Get the campaign planning associated with this event.
-     */
+        // Auto-set ends_at when creating event
+        static::creating(function ($model) {
+            if (!$model->ends_at) {
+                $model->ends_at = $model->starts_at;
+            }
+        });
+    }
     public function campaignPlanning()
     {
         return $this->belongsTo(CampaignPlanning::class, 'campaign_planning_id');

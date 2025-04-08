@@ -7,12 +7,12 @@ use App\Filament\Resources\EventResource\Pages\EditEvent;
 use App\Filament\Resources\EventResource\Pages\ListEvents;
 use App\Filament\Resources\EventResource\Pages\ViewEvent;
 use App\Models\Event;
+use App\Models\CampaignPlanning;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use App\Models\CampaignPlanning;
 
 class EventResource extends Resource
 {
@@ -34,19 +34,26 @@ class EventResource extends Resource
                     ->schema([
                         Forms\Components\DateTimePicker::make('starts_at')
                             ->label('Starting date')
-                            ->required(),
+                            ->required()
+                            ->reactive() // Para reaccionar a cambios
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                // Actualizamos ends_at para que sea igual a starts_at
+                                $set('ends_at', $state);
+                            }),
+                        // Campo ends_at: se muestra pero deshabilitado; se fuerza su deshidratación para que se incluya en el envío
                         Forms\Components\DateTimePicker::make('ends_at')
                             ->label('Finishing date')
-                            ->required(),
+                            ->disabled()
+                            ->dehydrated(true)
+                            ->required()
+                            ->default(fn() => now()),
                     ]),
-                // Fixed: Added full namespace for Select component
                 Forms\Components\Select::make('campaign_planning_id')
                     ->label('Campaign Planning')
                     ->options(CampaignPlanning::all()->pluck('name', 'id'))
                     ->searchable()
                     ->required()
                     ->placeholder('Select a campaign planning'),
-
                 Forms\Components\Toggle::make('status_type')
                     ->label('Active Status')
                     ->onColor('success')
@@ -56,7 +63,6 @@ class EventResource extends Resource
                     ->formatStateUsing(fn($state) => $state === 'active')
                     ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive'),
             ]);
-
     }
 
     public static function table(Table $table): Table
@@ -70,9 +76,12 @@ class EventResource extends Resource
                     ->label('Starting Date')
                     ->date()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('ends_at')
-                    ->label('Finishing Date')
-                    ->date()
+                Tables\Columns\BadgeColumn::make('status_type')
+                    ->label('Status')
+                    ->colors([
+                        'success' => fn($state): bool => strtolower($state) === 'active',
+                        'danger' => fn($state): bool => strtolower($state) !== 'active',
+                    ])
                     ->searchable(),
             ])
             ->actions([
@@ -83,6 +92,7 @@ class EventResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
+
 
     public static function getPages(): array
     {
