@@ -29,6 +29,14 @@ class ProviderResource extends Resource
                             ->required()
                             ->default(true),
                     ]),
+
+                    Forms\Components\TextInput::make('from_address')
+                    ->required()
+                    ->email()
+                    ->label('From Address'),
+                Forms\Components\TextInput::make('from_name')
+                    ->required()
+                    ->label('From Name'),
                 
                 Forms\Components\Section::make('SMTP Configuration')
                     ->columns(2)

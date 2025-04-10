@@ -22,7 +22,9 @@ class Provider extends Model
         'imap_port',
         'imap_encryption',
         'imap_username',
-        'imap_password'
+        'imap_password',
+        'from_address',
+        'from_name'
     ];
 
     protected $casts = [

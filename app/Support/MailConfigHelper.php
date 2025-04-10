@@ -2,8 +2,10 @@
 
 namespace App\Support;
 
+use Exception;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class MailConfigHelper
 {
@@ -149,5 +151,42 @@ public static function isMailConfigured(): bool
         }
     }
     return true;
+}
+
+// In MailConfigHelper.php, add connection testing:
+public static function testConnection($config)
+{
+    try {
+        // Debug the connection parameters
+        Log::info('Testing SMTP connection with:', [
+            'host' => $config['host'],
+            'port' => $config['port'],
+            'encryption' => $config['encryption'] ?? 'none'
+        ]);
+        
+        // Create transport with correct protocol
+        $transport = new EsmtpTransport(
+            $config['host'], 
+            $config['port'], 
+            $config['encryption'] === 'ssl' ? true : ($config['encryption'] === 'tls' ? false : null)
+        );
+        
+        // Set credentials
+        $transport->setUsername($config['username']);
+        $transport->setPassword($config['password']);
+        
+        // Try to establish connection
+        $transport->start();
+        Log::info('SMTP connection successful');
+        return true;
+    } catch (Exception $e) {
+        Log::error('SMTP connection test failed', [
+            'error' => $e->getMessage(),
+            'host' => $config['host'],
+            'port' => $config['port'],
+            'encryption' => $config['encryption'] ?? 'none'
+        ]);
+        return false;
+    }
 }
 }

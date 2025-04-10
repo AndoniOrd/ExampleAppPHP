@@ -11,22 +11,23 @@ class EmailTemplatesFactory extends Factory
 {
     protected $model = EmailTemplates::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
-            'name'                 => $this->faker->sentence(3),
-            'description'          => $this->faker->paragraph,
-            'subject_line'         => $this->faker->sentence,
-            'html_content'         => $this->faker->randomHtml(2, 3),
-            'plain_text_version'   => $this->faker->text,
-            // Create a related user and use its id as the creator
-            'creator'              => User::factory()->create()->id,
-            'creation_date'        => $this->faker->date(),
-            'last_updated_date'    => $this->faker->date(),
-            'category'             => $this->faker->word,
-            // Assuming your EmailTemplateStatus enum has an ACTIVE option; adjust as needed
-            'status'               => EmailTemplateStatus::ACTIVE,
-            'preview_image_url'    => $this->faker->imageUrl(640, 480, 'abstract', true),
+            'name' => $this->faker->sentence,
+            'description' => $this->faker->paragraph,
+            'subject_line' => $this->faker->sentence,
+            'html_content' => $this->faker->randomHtml(),
+            'plain_text_version' => $this->faker->paragraph,
+            'creator' => 1,
+            'creation_date' => now(),
+            'last_updated_date' => now(),
+            'category' => 'general',
+            'status' => 'active',
+            'preview_image_url' => $this->faker->imageUrl,
+            'from_address' => $this->faker->email,
+            'from_name' => $this->faker->name,
         ];
     }
+    
 }

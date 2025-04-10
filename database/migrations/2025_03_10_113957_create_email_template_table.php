@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->string('preview_image_url')->nullable();
             $table->timestamps();
+            $table->string('from_address')->notNull();
+            $table->string('from_name')->notNull();
+
         });
     }
 

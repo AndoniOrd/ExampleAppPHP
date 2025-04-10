@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -22,38 +23,74 @@ class SendEmailJob implements ShouldQueue
     }
 
     public function handle()
-    {
-        try {
-            // Extensive logging for debugging
-            Log::channel('daily')->info('Sending Email', [
-                'campaign_id' => $this->emailData['campaign_id'],
-                'contact_id' => $this->emailData['contact_id'],
-                'email' => $this->emailData['email']
-            ]);
+{
+    try {
+        $provider = $this->emailData['provider'];
 
-            // Use Laravel's Mail facade with more comprehensive configuration
-            Mail::send('emails.campaign', $this->emailData['data'], function($message) {
-                $message->to($this->emailData['email'], $this->emailData['name'])
-                    ->subject($this->emailData['subject'])
-                    ->from(
-                        $this->emailData['provider']['from_address'], 
-                        $this->emailData['provider']['from_name']
-                    );
-            });
-
-            Log::channel('daily')->info('Email sent successfully', [
-                'email' => $this->emailData['email']
-            ]);
-        } catch (\Exception $e) {
-            // Comprehensive error logging
-            Log::channel('daily')->error('Email sending failed', [
-                'email' => $this->emailData['email'],
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            // Optionally re-throw to trigger job failure
-            throw $e;
+        // Verify and provide fallbacks for critical email fields
+        $fromAddress = $provider['from_address'] ?? null;
+        if (empty($fromAddress)) {
+            // Fall back to .env configuration
+            $fromAddress = config('mail.from.address');
+            
+            // If still empty, use a hard-coded fallback
+            if (empty($fromAddress)) {
+                $fromAddress = 'noreply@example.com';
+                Log::warning('Using hardcoded fallback email address', ['job_id' => $this->job->getJobId()]);
+            }
         }
+        
+        $fromName = $provider['from_name'] ?? config('mail.from.name', 'System');
+
+        // Dynamically configure the mailer
+        Config::set('mail.mailers.smtp', [
+            'transport' => 'smtp',
+            'host' => $provider['host'] ?? config('mail.mailers.smtp.host'),
+            'port' => $provider['port'] ?? config('mail.mailers.smtp.port'),
+            'encryption' => $provider['encryption'] ?? config('mail.mailers.smtp.encryption'),
+            'username' => $provider['username'] ?? config('mail.mailers.smtp.username'),
+            'password' => $provider['password'] ?? config('mail.mailers.smtp.password'),
+            'timeout' => null,
+            'auth_mode' => null,
+        ]);
+        
+        Config::set('mail.from', [
+            'address' => $fromAddress,
+            'name' => $fromName,
+        ]);
+
+        // Send the email with verified from address
+        Mail::send($this->emailData['template'], $this->emailData['data'], function ($message) use ($fromAddress, $fromName) {
+            // Make sure recipient email exists
+            if (empty($this->emailData['email'])) {
+                throw new \Exception('Recipient email address is missing');
+            }
+            
+            $message->to($this->emailData['email'], $this->emailData['name'] ?? null)
+                    ->subject($this->emailData['subject'] ?? 'No Subject')
+                    ->from($fromAddress, $fromName);
+        });
+
+        Log::channel('daily')->info('Email sent successfully', [
+            'email' => $this->emailData['email']
+        ]);
+    } catch (\Exception $e) {
+        Log::channel('daily')->error('Email sending failed', [
+            'email' => $this->emailData['email'] ?? 'unknown',
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        throw $e;
     }
+}
+
+    public function failed(\Throwable $exception)
+{
+    Log::channel('daily')->critical('Email job failed', [
+        'email' => $this->emailData['email'],
+        'exception' => $exception->getMessage(),
+        'trace' => $exception->getTraceAsString()
+    ]);
+}
 }
