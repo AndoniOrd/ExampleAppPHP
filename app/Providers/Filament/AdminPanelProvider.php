@@ -17,6 +17,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Vormkracht10\FilamentMails\Facades\FilamentMails;
 use Vormkracht10\FilamentMails\FilamentMailsPlugin;
 
@@ -57,8 +58,47 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             // Add Filament Mails routes
-            ->routes(fn () => FilamentMails::routes())
+            ->routes(fn() => FilamentMails::routes())
             // Register the Filament Mails plugin
-            ->plugin(FilamentMailsPlugin::make());
+            ->plugin(FilamentMailsPlugin::make())
+            // Register the Filament Full Calendar plugin
+            ->plugin(
+                FilamentFullCalendarPlugin::make()
+                    ->schedulerLicenseKey(env('FILAMENT_FULL_CALENDAR_LICENSE_KEY') ?: '')
+                    ->selectable(true) // Permite seleccionar días o franjas horarias al hacer clic y arrastrar.
+                    ->editable(true)   // Permite arrastrar y redimensionar eventos.
+                    ->timezone(config('app.timezone')) // Usa la zona horaria definida en tu app o cámbiala según tus necesidades.
+                    ->locale(config('app.locale'))     // Usa el locale definido en tu app o cámbialo según corresponda.
+                    ->plugins(
+                        [
+                            'interaction',  // Interacciones de arrastrar/soltar, etc.
+                            'dayGrid',
+                            'timeGrid',
+                            'list',
+                            'multiMonth',
+                            'scrollGrid',
+                            'timeline',
+                            'adaptive',
+                            'resource',
+                            'resourceDayGrid',
+                            'resourceTimeline',
+                            'resourceTimeGrid',
+                            'rrule',
+                            'moment',
+                            'momentTimezone'
+                        ],
+                        true // Si deseas fusionar estos plugins con los predeterminados, o false para reemplazarlos.
+                    )
+                    ->config([
+                        // Configuraciones adicionales del calendario según la documentación de FullCalendar.
+                        'firstDay' => 1,
+                        'headerToolbar' => [
+                            'left' => 'prev,next today',
+                            'center' => 'title',
+                            'right' => 'dayGridMonth,timeGridWeek,timeGridDay',
+                        ],
+                        // Puedes agregar más configuraciones aquí según tus necesidades.
+                    ])
+            );
     }
 }

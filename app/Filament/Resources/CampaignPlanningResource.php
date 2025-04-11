@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CampaignPlanningResource\Pages;
+use App\Filament\Resources\CampaignPlanningResource\RelationManagers;
 use App\Models\CampaignPlanning;
 use App\Models\EmailTemplate;
 use App\Enums\TrackingOptions;
@@ -12,19 +13,21 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CampaignPlanningResource extends Resource
 {
     protected static ?string $model = CampaignPlanning::class;
 
+    // Retain marketing-specific navigation settings from borja_api branch.
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
-
     protected static ?string $navigationGroup = 'Marketing';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                // Campaign Details Section with email template preview functionality.
                 Forms\Components\Section::make('Campaign Details')
                     ->schema([
                         Forms\Components\TextInput::make('name')
@@ -65,20 +68,18 @@ class CampaignPlanningResource extends Resource
                                     ->visible(fn (Forms\Get $get) => $get('email_template_id') !== null)
                                     ->modalContent(function (Forms\Get $get) {
                                         $templateId = $get('email_template_id');
-                                        
                                         if (!$templateId) {
                                             return 'No template selected';
                                         }
                                         
                                         $emailTemplate = EmailTemplate::find($templateId);
-                                        
                                         if (!$emailTemplate) {
                                             return 'Template not found';
                                         }
 
                                         return view('filament.resources.email-template-preview', [
                                             'emailTemplate' => $emailTemplate,
-                                            'showCode' => false
+                                            'showCode' => false,
                                         ]);
                                     })
                             ),
@@ -89,6 +90,7 @@ class CampaignPlanningResource extends Resource
                             ->preload(),
                     ])->columns(2),
 
+                // Schedule Information Section
                 Forms\Components\Section::make('Schedule Information')
                     ->schema([
                         Forms\Components\DateTimePicker::make('scheduled_time')
@@ -113,6 +115,7 @@ class CampaignPlanningResource extends Resource
                             ->preload(),
                     ])->columns(2),
 
+                // Sender Information Section
                 Forms\Components\Section::make('Sender Information')
                     ->schema([
                         Forms\Components\TextInput::make('send_from_email')
@@ -183,7 +186,7 @@ class CampaignPlanningResource extends Resource
                                 $data['scheduled_until'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('scheduled_time', '<=', $date),
                             );
-                    })
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -200,17 +203,20 @@ class CampaignPlanningResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Register relation managers here if needed.
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCampaignPlannings::route('/'),
-            'create' => Pages\CreateCampaignPlanning::route('/create'),
-            'view' => Pages\ViewCampaignPlanning::route('/{record}'),
-            'edit' => Pages\EditCampaignPlanning::route('/{record}/edit'),
+            // Traditional list view
+            'index'    => Pages\ListCampaignPlannings::route('/'),
+            // Additional calendar view for a different perspective
+            'calendar' => Pages\CalendarPage::route('/calendar'),
+            'create'   => Pages\CreateCampaignPlanning::route('/create'),
+            'view'     => Pages\ViewCampaignPlanning::route('/{record}'),
+            'edit'     => Pages\EditCampaignPlanning::route('/{record}/edit'),
         ];
     }
 }

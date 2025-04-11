@@ -1,5 +1,5 @@
 <?php
-// App\Filament\Resources\CampaignPlanningResource\Pages\ListCampaignPlannings.php
+
 namespace App\Filament\Resources\CampaignPlanningResource\Pages;
 
 use App\Filament\Resources\CampaignPlanningResource;
@@ -17,3 +17,4 @@ class ListCampaignPlannings extends ListRecords
         ];
     }
 }
+

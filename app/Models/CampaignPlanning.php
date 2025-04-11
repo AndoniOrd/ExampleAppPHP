@@ -7,28 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Enums\TrackingOptions;
 
 /**
- * @property int $id
- * @property string $name
- * @property string $description
- * @property string $email_template_id
- * @property string $mailing_list_id
- * @property \Illuminate\Support\Carbon $scheduled_time
- * @property string $time_zone
- * @property string $status_type
- * @property \Illuminate\Support\Carbon $creation_date
- * @property string $scheduled_by
- * @property string $send_from_email
- * @property string $send_from_name
- * @property string $reply_to_email
- * @property TrackingOptions $tracking_options
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\EmailTemplates|null $emailTemplate
- * @property-read \App\Models\MailingList|null $mailingList
- * @property-read \App\Models\User|null $scheduledBy
- */
-
- /**
  * @OA\Schema(
  *     schema="CampaignPlanning",
  *     title="Campaign Planning",
@@ -40,7 +18,7 @@ use App\Enums\TrackingOptions;
  *     @OA\Property(property="mailing_list_id", type="integer", example=3),
  *     @OA\Property(property="scheduled_time", type="string", format="date-time", example="2025-04-15 10:00:00"),
  *     @OA\Property(property="time_zone", type="string", example="America/New_York"),
- *     @OA\Property(property="status_type", type="string", enum={"draft", "scheduled", "processing", "completed"}, example="scheduled"),
+ *     @OA\Property(property="status_type", type="string", enum={"active", "inactive"}, example="active"),
  *     @OA\Property(property="scheduled_by", type="integer", example=10),
  *     @OA\Property(property="send_from_email", type="string", format="email", example="marketing@example.com"),
  *     @OA\Property(property="send_from_name", type="string", example="Marketing Team"),
@@ -71,17 +49,36 @@ class CampaignPlanning extends Model
     ];
 
     protected $casts = [
-        'scheduled_time' => 'datetime',
-        'creation_date' => 'date',
-        'tracking_options' => TrackingOptions::class,
+        'scheduled_time'    => 'datetime',
+        'creation_date'     => 'date',
+        'tracking_options'  => TrackingOptions::class,
+        // Removed the boolean cast for status_type since we're using active/inactive strings.
+        // 'status_type'    => 'boolean',
     ];
-    
 
- 
-public function emailTemplate()
-{
-    return $this->belongsTo(EmailTemplate::class, 'email_template_id');
-}
+    // Set default attribute for status_type to "active"
+    protected $attributes = [
+        'status_type' => 'active',
+    ];
+
+    // Accessor and Mutator for status_type
+    public function getStatusTypeAttribute($value): bool
+    {
+        return $value === 'active';
+    }
+
+    public function setStatusTypeAttribute($value): void
+    {
+        $this->attributes['status_type'] = $value ? 'active' : 'inactive';
+    }
+
+    // Relationship methods
+
+    // Using the EmailTemplate relationship from borja_api branch
+    public function emailTemplate()
+    {
+        return $this->belongsTo(EmailTemplate::class, 'email_template_id');
+    }
 
     public function mailingList()
     {
@@ -93,17 +90,22 @@ public function emailTemplate()
         return $this->belongsTo(User::class, 'scheduled_by');
     }
 
+    // Relationship from borja_api: contacts via mailing list, filtering on subscribed status.
     public function contacts()
-{
-    return $this->hasManyThrough(
-        Contact::class,
-        MailingList::class,
-        'id', // Foreign key on mailing_lists table
-        'id', // Foreign key on contacts table
-        'mailing_list_id', // Local key on campaign_plannings table
-        'id' // Local key on mailing_lists table
-    )->wherePivot('status', 'subscribed');
-}
+    {
+        return $this->hasManyThrough(
+            Contact::class,
+            MailingList::class,
+            'id',         // Foreign key on mailing_lists table
+            'id',         // Foreign key on contacts table
+            'mailing_list_id', // Local key on campaign_plannings table
+            'id'          // Local key on mailing_lists table
+        )->wherePivot('status', 'subscribed');
+    }
 
-    
+    // Relationship from ramaCalendario: events associated with campaign planning.
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'campaign_planning_id');
+    }
 }

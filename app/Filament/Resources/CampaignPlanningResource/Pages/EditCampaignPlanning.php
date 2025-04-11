@@ -18,3 +18,4 @@ class EditCampaignPlanning extends EditRecord
         ];
     }
 }
+
