@@ -2,22 +2,15 @@
 
 namespace App\Models;
 
-use Database\Factories\EmailContactFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\EmailContact;
 
-
 class MailingList extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'name',
         'description',
@@ -26,11 +19,6 @@ class MailingList extends Model
         'status'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
         'is_public' => 'boolean',
         'created_at' => 'datetime',
@@ -38,34 +26,32 @@ class MailingList extends Model
     ];
 
     /**
+     * @deprecated Use emailContacts() instead
+     */
+    public function contacts()
+    {
+        // You can either remove this method or keep it with a deprecation notice
+        // that logs a warning when used
+        \Log::warning('The contacts() relationship is deprecated. Use emailContacts() instead.');
+        
+        // Forward to the correct relationship to maintain backward compatibility
+        return $this->emailContacts();
+    }
+
+    /**
      * The email contacts that belong to this mailing list.
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function contacts()
+    public function emailContacts()
     {
-        return $this->belongsToMany(Contact::class, 'contact_mailing_list', 'mailing_list_id', 'contact_id')
-            ->using(ContactMailingList::class)
-            ->withPivot('status', 'subscription_date')
+        return $this->belongsToMany(EmailContact::class, 'email_contact_mailing_list')
+            ->withPivot('status', 'subscribed_at', 'unsubscribed_at')
             ->withTimestamps();
     }
 
-    /**
-     * Scope for active mailing lists
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
-    /**
-     * Scope for public mailing lists
-     */
-    public function scopePublic($query)
-    {
-        return $query->where('is_public', true);
-    }
-
+    // Keep your other existing methods
+    
     /**
      * Get only subscribed contacts
      */

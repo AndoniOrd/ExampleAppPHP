@@ -20,13 +20,17 @@ return new class extends Migration
             $table->string('mailing_list_id');
             $table->timestamp('scheduled_time');
             $table->string('time_zone');
+<<<<<<< HEAD
             $table->string('status_type')->default('active');
             $table->date('creation_date')->default(DB::raw('(CURRENT_DATE)'));
+=======
+            $table->string('status_type');
+            $table->date('creation_date');
+>>>>>>> borja_api
             $table->string('scheduled_by');
             $table->string('send_from_email');
             $table->string('send_from_name');
             $table->string('reply_to_email');
-            // Para el enum de tracking_options se utiliza un string que será casteado a la clase TrackingOptions
             $table->string('tracking_options');
             $table->timestamps();
         });

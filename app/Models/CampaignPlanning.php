@@ -55,6 +55,7 @@ class CampaignPlanning extends Model
         'status_type' => 'boolean', // Cast to boolean for the toggle
     ];
 
+<<<<<<< HEAD
     protected $attributes = [
         'status_type' => true, // Default to active (true)
     ];
@@ -75,6 +76,13 @@ class CampaignPlanning extends Model
     {
         return $this->belongsTo(EmailTemplates::class, 'email_template_id');
     }
+=======
+ 
+public function emailTemplate()
+{
+    return $this->belongsTo(EmailTemplate::class, 'email_template_id');
+}
+>>>>>>> borja_api
 
     public function mailingList()
     {
@@ -86,8 +94,24 @@ class CampaignPlanning extends Model
         return $this->belongsTo(User::class, 'scheduled_by');
     }
 
+<<<<<<< HEAD
     public function events()
     {
         return $this->hasMany(Event::class, 'campaign_planning_id');
     }
+=======
+    public function contacts()
+{
+    return $this->hasManyThrough(
+        Contact::class,
+        MailingList::class,
+        'id', // Foreign key on mailing_lists table
+        'id', // Foreign key on contacts table
+        'mailing_list_id', // Local key on campaign_plannings table
+        'id' // Local key on mailing_lists table
+    )->wherePivot('status', 'subscribed');
+}
+
+    
+>>>>>>> borja_api
 }

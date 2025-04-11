@@ -113,4 +113,15 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+   /*
+    |--------------------------------------------------------------------------
+    | Admin Email Address
+    |--------------------------------------------------------------------------
+    |
+    | The email address used for sending admin notifications,
+    | including import error reports.
+    |
+    */
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+
 ];

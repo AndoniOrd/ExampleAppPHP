@@ -9,14 +9,14 @@ class EmailContact extends Model
 {
     use HasFactory;
 
-    protected $table = 'email_contacts'; // Explicit table name
+    protected $table = 'email_contacts';
 
     protected $casts = [
         'opt_in_date' => 'date',
         'opt_in_confirmation' => 'boolean',
         'custom_fields' => 'array',
-        'creation_date' => 'datetime', // Changed to datetime
-        'last_updated_date' => 'datetime', // Changed to datetime
+        'creation_date' => 'datetime',
+        'last_updated_date' => 'datetime',
     ];
 
     protected $fillable = [
@@ -32,12 +32,10 @@ class EmailContact extends Model
         'last_updated_date',
     ];
 
-    /**
-     * The mailing lists that belong to this email contact.
-     */
     public function mailingLists()
     {
-        return $this->belongsToMany(MailingList::class, 'list_contact_relationships', 'contact_id', 'list_id')
-                    ->withPivot('subscription_date', 'status');
+        return $this->belongsToMany(MailingList::class, 'email_contact_mailing_list')
+            ->withPivot('status', 'subscribed_at', 'unsubscribed_at')
+            ->withTimestamps();
     }
 }

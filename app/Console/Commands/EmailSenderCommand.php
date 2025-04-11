@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Jobs\SendEmailJob;
 use App\Models\CampaignPlanning;
+use App\Models\Provider;
+use App\Helpers\MailConfigHelper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -16,21 +18,28 @@ class EmailSenderCommand extends Command
 
     public function handle()
     {
-        // Use environment configuration for SMTP settings
-        $provider = [
-            'name' => config('mail.default', 'mailtrap'),
-            'mailer' => config('mail.mailers.smtp.transport', 'smtp'),
-            'host' => config('mail.mailers.smtp.host'),
-            'port' => config('mail.mailers.smtp.port'),
-            'username' => config('mail.mailers.smtp.username'),
-            'password' => config('mail.mailers.smtp.password'),
+        $activeProviders = Provider::where('active', true)
+    ->whereNotNull('smtp_host')
+    ->whereNotNull('smtp_port')
+    ->get();
+
+        $fallbackConfig = [
+            'smtp_host' => config('mail.mailers.smtp.host'),
+            'smtp_port' => config('mail.mailers.smtp.port'),
+            'smtp_encryption' => config('mail.mailers.smtp.encryption'),
+            'smtp_username' => config('mail.mailers.smtp.username'),
+            'smtp_password' => config('mail.mailers.smtp.password'),
             'from_address' => config('mail.from.address'),
-            'from_name' => config('mail.from.name', config('app.name')),
+            'from_name' => config('mail.from.name'),
         ];
 
-        $this->info("Using email provider: {$provider['name']}");
+        if ($activeProviders->isEmpty()) {
+            $this->info("No active providers found, using .env configuration.");
+            $providers = collect([(object) array_merge(['name' => 'Fallback'], $fallbackConfig)]);
+        } else {
+            $providers = $activeProviders;
+        }
 
-        // Retrieve scheduled campaigns more robustly
         $campaigns = CampaignPlanning::with(['mailingList.contacts'])
             ->where('status_type', 'scheduled')
             ->where('scheduled_time', '<=', Carbon::now())
@@ -47,7 +56,7 @@ class EmailSenderCommand extends Command
         foreach ($campaigns as $campaign) {
             try {
                 $campaign->update(['status_type' => 'processing']);
-                $this->processCampaign($campaign, $provider, $totalEmailsDispatched);
+                $this->processCampaign($campaign, $providers, $totalEmailsDispatched);
             } catch (\Exception $e) {
                 Log::error("Campaign processing failed", [
                     'campaign_id' => $campaign->id,
@@ -62,7 +71,7 @@ class EmailSenderCommand extends Command
         return Command::SUCCESS;
     }
 
-    protected function processCampaign($campaign, $provider, &$totalEmailsDispatched)
+    protected function processCampaign($campaign, $providers, &$totalEmailsDispatched)
     {
         $mailingList = $campaign->mailingList;
         if (!$mailingList) {
@@ -70,10 +79,11 @@ class EmailSenderCommand extends Command
             return;
         }
 
-        $contacts = $mailingList->contacts()
+        $contacts = $mailingList->emailContacts()
             ->wherePivot('status', 'subscribed')
+            ->wherePivotNull('unsubscribed_at')
             ->whereNotNull('email')
-            ->where('email', 'regexp', '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$')
+            ->where('email', 'regexp', '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
             ->get();
 
         if ($contacts->isEmpty()) {
@@ -84,57 +94,116 @@ class EmailSenderCommand extends Command
         $this->info("Dispatching {$contacts->count()} emails for campaign: {$campaign->name}");
 
         foreach ($contacts as $contact) {
-            SendEmailJob::dispatch([
-                'campaign_id' => $campaign->id,
-                'contact_id' => $contact->id,
-                'provider' => $provider,
-                'email' => $contact->email,
-                'name' => $contact->name ?? 'Subscriber',
-                'subject' => optional($campaign->emailTemplate)->subject ?? $campaign->name,
-                'template' => 'emails.campaign',
-                'data' => [
-                    'campaign_name' => $campaign->name,
-                    'contact_name' => $contact->name ?? 'Valued Customer',
-                ]
-            ]);
+            $retryCount = 0;
+            $sent = false;
 
-            $totalEmailsDispatched++;
+            do {
+                $provider = $providers->first();
+
+                if (empty($provider->smtp_host)) {
+                    Log::error("Provider has no SMTP host configured", [
+                        'provider_name' => $provider->name ?? 'Unknown'
+                    ]);
+                    $retryCount++;
+                    continue;
+                }
+
+                $config = [
+                    'host' => $provider->smtp_host,
+                    'port' => (int) $provider->smtp_port,
+                    'encryption' => $provider->smtp_encryption,
+                    'username' => $provider->smtp_username,
+                    'password' => $provider->smtp_password,
+                ];
+
+                if (\App\Support\MailConfigHelper::testConnection($config)) {
+                    $providerData = [
+                        'host' => $provider->smtp_host,
+                        'port' => (int)$provider->smtp_port,
+                        'encryption' => $provider->smtp_encryption,
+                        'username' => $provider->smtp_username,
+                        'password' => $provider->smtp_password,
+                        'from_address' => $provider->from_address ?? config('mail.from.address'),
+                        'from_name' => $provider->from_name ?? config('mail.from.name'),
+                    ];
+
+                    Log::info("Using provider", [
+                        'provider_name' => $provider->name,
+                        'host' => $providerData['host'],
+                        'port' => $providerData['port']
+                    ]);
+
+                    SendEmailJob::dispatch([
+                        'campaign_id' => $campaign->id,
+                        'contact_id' => $contact->id,
+                        'provider' => $providerData,
+                        'contact_email' => $contact->email,
+                        'contact_name' => $contact->name,
+                        'subject' => optional($campaign->emailTemplate)->subject ?? $campaign->name,
+                        'template' => 'emails.campaign',
+                        'data' => [
+                            'campaign_name' => $campaign->name,
+                            'contact_name' => $contact->name ?? 'Valued Customer',
+                            'contact_email' => $contact->email,
+                            'unsubscribe_link' => $campaign->tracking_options !== 'none'
+                                ? route('unsubscribe', [
+                                    'contact' => $contact->id,
+                                    'campaign' => $campaign->id
+                                  ])
+                                : null
+                        ]
+                    ]);
+
+                    $sent = true;
+                    $totalEmailsDispatched++;
+                } else {
+                    $retryCount++;
+                    Log::warning("Invalid provider {$provider->name}, retrying ({$retryCount}/3)");
+                }
+
+            } while (!$sent && $retryCount < 3);
+
+            if (!$sent) {
+                Log::error("Failed to send to {$contact->email} after 3 attempts");
+            }
         }
+
+        $this->info("ACTIVE PROVIDERS:");
+        foreach ($providers as $p) {
+            $this->info(" - {$p->name} ({$p->smtp_host}:{$p->smtp_port})");
+        }
+
+        $this->info("Processing {$contacts->count()} contacts...");
 
         $campaign->update(['status_type' => 'completed']);
     }
 
     public function debugMailingListContacts($mailingList)
-{
-    // Verbose debugging of mailing list and contacts
-    $this->info("Debugging Mailing List: {$mailingList->name} (ID: {$mailingList->id})");
+    {
+        $this->info("Debugging Mailing List: {$mailingList->name} (ID: {$mailingList->id})");
 
-    // Check direct relationship query
-    $directContacts = $mailingList->contacts;
-    $this->info("Direct contacts count: " . $directContacts->count());
+        $directContacts = $mailingList->emailContacts;
+        $this->info("Direct contacts count: " . $directContacts->count());
 
-    // Check relationship method
-    $relationshipMethodContacts = $mailingList->contacts();
-    $this->info("Relationship method contacts query: " . $relationshipMethodContacts->toSql());
+        $relationshipMethodContacts = $mailingList->emailContacts();
+        $this->info("Relationship method contacts query: " . $relationshipMethodContacts->toSql());
 
-    // Attempt to fetch contacts with verbose conditions
-    $filteredContacts = $mailingList->contacts()
-        ->wherePivot('status', 'subscribed')
-        ->whereNotNull('email')
-        ->where('email', 'LIKE', '%@%')
-        ->toSql();
-    
-    $this->info("Filtered contacts SQL: " . $filteredContacts);
+        $filteredContacts = $mailingList->emailContacts()
+            ->wherePivot('status', 'subscribed')
+            ->whereNotNull('email')
+            ->where('email', 'LIKE', '%@%')
+            ->toSql();
 
-    // Manually check pivot table entries
-    $pivotEntries = \DB::table('contact_mailing_list')
-        ->where('mailing_list_id', $mailingList->id)
-        ->get();
-    
-    $this->info("Pivot table entries count: " . $pivotEntries->count());
-    
-    foreach ($pivotEntries as $entry) {
-        $this->info("Pivot Entry Debug: " . json_encode($entry));
+        $this->info("Filtered contacts SQL: " . $filteredContacts);
+
+        $pivotEntries = \DB::table('email_contact_mailing_list')
+            ->where('mailing_list_id', $mailingList->id)
+            ->get();
+
+        $this->info("Pivot table entries count: " . $pivotEntries->count());
+
+        foreach ($pivotEntries as $entry) {
+            $this->info("Pivot Entry Debug: " . json_encode($entry));
+        }
     }
-}
 }

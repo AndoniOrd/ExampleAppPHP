@@ -1,14 +1,30 @@
-{{-- resources/views/emails/campaign.blade.php --}}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ $campaign_name }} Campaign</title>
+    <meta charset="utf-8">
+    <title>{{ $subject ?? 'Campaign Email' }}</title>
 </head>
 <body>
-    <h1>Hello {{ $contact_name }}!</h1>
+    <h1>{{ $campaign_name ?? 'Our Campaign' }}</h1>
     
-    <p>This is a test email for the campaign: {{ $campaign_name }}</p>
+    <p>Hello {{ $contact_name ?? 'there' }},</p>
     
-    <p>If you wish to unsubscribe, please click here.</p>
+    <div>
+        <!-- Your email content goes here -->
+        <p>Thank you for subscribing to our newsletter.</p>
+        
+        <!-- Properly structured conditional for unsubscribe link -->
+        @if(isset($unsubscribe_link) && $unsubscribe_link)
+            <p>
+                <a href="{{ $unsubscribe_link }}">Unsubscribe</a> from this mailing list.
+            </p>
+        @endif
+        
+        <!-- No extra endifs here -->
+    </div>
+    
+    <footer>
+        <p>© {{ date('Y') }} Your Company. All rights reserved.</p>
+    </footer>
 </body>
 </html>

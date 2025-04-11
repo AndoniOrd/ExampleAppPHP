@@ -11,28 +11,22 @@ return new class extends Migration
         Schema::create('email_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description')->nullable();
-            $table->string('subject_line');
-            $table->text('html_content');
-            $table->text('plain_text_version');
-            $table->foreignId('creator'); // Foreign key to users.id
-            $table->date('creation_date');
-            $table->date('last_updated_date');
-            $table->string('category');
-            $table->enum('status', ['draft', 'active', 'archived'])->default('draft');
+            $table->string('subject_line')->nullable();
+            $table->string('subject')->nullable(); // Adding this as alternate naming convention
+            $table->text('description')->nullable(); // Make description nullable
+            $table->longText('html_content')->nullable();
+            $table->longText('content')->nullable(); // Adding this as alternate naming convention
+            $table->longText('plain_text_version')->nullable();
+            $table->unsignedBigInteger('creator')->nullable();
+            $table->date('creation_date')->nullable();
+            $table->date('last_updated_date')->nullable();
+            $table->string('category')->nullable();
+            $table->string('status')->nullable();
             $table->string('preview_image_url')->nullable();
-            $table->timestamps(); // Adds created_at and updated_at
+            $table->timestamps();
+            $table->string('from_address')->notNull();
+            $table->string('from_name')->notNull();
 
-            // Foreign key constraint
-            $table->foreign('creator')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('restrict');
-
-            // Indexes
-            $table->index('status');
-            $table->index('category');
-            $table->index('creation_date');
         });
     }
 
