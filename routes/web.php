@@ -52,5 +52,24 @@ Route::get('/test-email', function() {
     }
 });
 
+Route::get('/test-smtp', function() {
+    $provider = App\Models\Provider::first();
+    
+    $result = App\Support\MailConfigHelper::testConnection([
+        'host' => $provider->smtp_host,
+        'port' => $provider->smtp_port,
+        'encryption' => $provider->smtp_encryption,
+        'username' => $provider->smtp_username,
+        'password' => $provider->smtp_password,
+    ]);
+
+    dd($result ? 'Connection successful' : 'Connection failed');
+});
+
+Route::get('/unsubscribe/{contact}/{campaign}', function ($contactId, $campaignId) {
+    // Handle unsubscribe logic here
+    return "You have been unsubscribed from this campaign";
+})->name('unsubscribe');
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -18,7 +18,10 @@ class EmailSenderCommand extends Command
 
     public function handle()
     {
-        $activeProviders = Provider::where('active', true)->get();
+        $activeProviders = Provider::where('active', true)
+    ->whereNotNull('smtp_host')
+    ->whereNotNull('smtp_port')
+    ->get();
 
         $fallbackConfig = [
             'smtp_host' => config('mail.mailers.smtp.host'),
@@ -76,8 +79,9 @@ class EmailSenderCommand extends Command
             return;
         }
 
-        $contacts = $mailingList->contacts()
+        $contacts = $mailingList->emailContacts()
             ->wherePivot('status', 'subscribed')
+            ->wherePivotNull('unsubscribed_at')
             ->whereNotNull('email')
             ->where('email', 'regexp', '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
             ->get();
@@ -94,43 +98,59 @@ class EmailSenderCommand extends Command
             $sent = false;
 
             do {
-                $provider = $providers->random();
+                $provider = $providers->first();
+
+                if (empty($provider->smtp_host)) {
+                    Log::error("Provider has no SMTP host configured", [
+                        'provider_name' => $provider->name ?? 'Unknown'
+                    ]);
+                    $retryCount++;
+                    continue;
+                }
+
                 $config = [
                     'host' => $provider->smtp_host,
-                    'port' => $provider->smtp_port,
-                    'encryption' => $provider->smtp_encryption,  // Make sure this is correctly passed
+                    'port' => (int) $provider->smtp_port,
+                    'encryption' => $provider->smtp_encryption,
                     'username' => $provider->smtp_username,
                     'password' => $provider->smtp_password,
                 ];
 
                 if (\App\Support\MailConfigHelper::testConnection($config)) {
-                    $fromAddress = $provider->from_address ?? config('mail.from.address');
+                    $providerData = [
+                        'host' => $provider->smtp_host,
+                        'port' => (int)$provider->smtp_port,
+                        'encryption' => $provider->smtp_encryption,
+                        'username' => $provider->smtp_username,
+                        'password' => $provider->smtp_password,
+                        'from_address' => $provider->from_address ?? config('mail.from.address'),
+                        'from_name' => $provider->from_name ?? config('mail.from.name'),
+                    ];
 
-                    if (empty($fromAddress)) {
-                        $this->warn("Provider {$provider->name} has no from address, skipping.");
-                        break;
-                    }
+                    Log::info("Using provider", [
+                        'provider_name' => $provider->name,
+                        'host' => $providerData['host'],
+                        'port' => $providerData['port']
+                    ]);
 
                     SendEmailJob::dispatch([
                         'campaign_id' => $campaign->id,
                         'contact_id' => $contact->id,
-                        'provider' => [
-                            'name' => $provider->name,
-                            'host' => $provider->smtp_host,
-                            'port' => $provider->smtp_port,
-                            'encryption' => $provider->smtp_encryption,
-                            'username' => $provider->smtp_username,
-                            'password' => $provider->smtp_password,
-                            'from_address' => $fromAddress,
-                            'from_name' => $provider->from_name ?? config('mail.from.name'),
-                        ],
-                        'email' => $contact->email,
-                        'name' => $contact->name ?? 'Subscriber',
+                        'provider' => $providerData,
+                        'contact_email' => $contact->email,
+                        'contact_name' => $contact->name,
                         'subject' => optional($campaign->emailTemplate)->subject ?? $campaign->name,
                         'template' => 'emails.campaign',
                         'data' => [
                             'campaign_name' => $campaign->name,
                             'contact_name' => $contact->name ?? 'Valued Customer',
+                            'contact_email' => $contact->email,
+                            'unsubscribe_link' => $campaign->tracking_options !== 'none'
+                                ? route('unsubscribe', [
+                                    'contact' => $contact->id,
+                                    'campaign' => $campaign->id
+                                  ])
+                                : null
                         ]
                     ]);
 
@@ -140,12 +160,20 @@ class EmailSenderCommand extends Command
                     $retryCount++;
                     Log::warning("Invalid provider {$provider->name}, retrying ({$retryCount}/3)");
                 }
+
             } while (!$sent && $retryCount < 3);
 
             if (!$sent) {
                 Log::error("Failed to send to {$contact->email} after 3 attempts");
             }
         }
+
+        $this->info("ACTIVE PROVIDERS:");
+        foreach ($providers as $p) {
+            $this->info(" - {$p->name} ({$p->smtp_host}:{$p->smtp_port})");
+        }
+
+        $this->info("Processing {$contacts->count()} contacts...");
 
         $campaign->update(['status_type' => 'completed']);
     }
@@ -154,13 +182,13 @@ class EmailSenderCommand extends Command
     {
         $this->info("Debugging Mailing List: {$mailingList->name} (ID: {$mailingList->id})");
 
-        $directContacts = $mailingList->contacts;
+        $directContacts = $mailingList->emailContacts;
         $this->info("Direct contacts count: " . $directContacts->count());
 
-        $relationshipMethodContacts = $mailingList->contacts();
+        $relationshipMethodContacts = $mailingList->emailContacts();
         $this->info("Relationship method contacts query: " . $relationshipMethodContacts->toSql());
 
-        $filteredContacts = $mailingList->contacts()
+        $filteredContacts = $mailingList->emailContacts()
             ->wherePivot('status', 'subscribed')
             ->whereNotNull('email')
             ->where('email', 'LIKE', '%@%')
@@ -168,7 +196,7 @@ class EmailSenderCommand extends Command
 
         $this->info("Filtered contacts SQL: " . $filteredContacts);
 
-        $pivotEntries = \DB::table('contact_mailing_list')
+        $pivotEntries = \DB::table('email_contact_mailing_list')
             ->where('mailing_list_id', $mailingList->id)
             ->get();
 

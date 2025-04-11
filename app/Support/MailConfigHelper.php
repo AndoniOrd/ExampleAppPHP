@@ -157,10 +157,15 @@ public static function isMailConfigured(): bool
 public static function testConnection($config)
 {
     try {
+        if (empty($config['host'])) {
+            \Log::error('SMTP host is empty in connection test');
+            return false;
+        }
+        
         // Debug the connection parameters
         Log::info('Testing SMTP connection with:', [
             'host' => $config['host'],
-            'port' => $config['port'],
+            'port' => $config['port'] ?? 'Not set',
             'encryption' => $config['encryption'] ?? 'none'
         ]);
         
@@ -172,8 +177,13 @@ public static function testConnection($config)
         );
         
         // Set credentials
-        $transport->setUsername($config['username']);
-        $transport->setPassword($config['password']);
+        if (!empty($config['username'])) {
+            $transport->setUsername($config['username']);
+        }
+        
+        if (!empty($config['password'])) {
+            $transport->setPassword($config['password']);
+        }
         
         // Try to establish connection
         $transport->start();
@@ -182,8 +192,8 @@ public static function testConnection($config)
     } catch (Exception $e) {
         Log::error('SMTP connection test failed', [
             'error' => $e->getMessage(),
-            'host' => $config['host'],
-            'port' => $config['port'],
+            'host' => $config['host'] ?? 'Not set',
+            'port' => $config['port'] ?? 'Not set',
             'encryption' => $config['encryption'] ?? 'none'
         ]);
         return false;
