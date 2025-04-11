@@ -12,11 +12,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use JsonException;
 
-
-class CalendarResource extends JsonException
-
+class CampaignPlanningResource extends Resource
 {
     protected static ?string $model = CampaignPlanning::class;
 
@@ -45,39 +42,45 @@ class CalendarResource extends JsonException
                                 Forms\Components\TextInput::make('name')
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('subject_line')
+                                Forms\Components\TextInput::make('subject')
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\RichEditor::make('html_content')
+                                Forms\Components\RichEditor::make('content')
                                     ->required()
                                     ->columnSpanFull(),
-                                Forms\Components\Textarea::make('plain_text_version')
-                                    ->required()
-                                    ->columnSpanFull(),
-                                Forms\Components\Hidden::make('creator')
-                                    ->default(auth()->id()),
-                                Forms\Components\Hidden::make('creation_date')
-                                    ->default(now()->format('Y-m-d')),
-                                Forms\Components\Hidden::make('last_updated_date')
-                                    ->default(now()->format('Y-m-d')),
-                                Forms\Components\Hidden::make('category')
-                                    ->default('marketing'),
-                                Forms\Components\Hidden::make('status')
-                                    ->default('active'),
                             ])
                             ->suffixAction(
                                 Forms\Components\Actions\Action::make('view_template')
                                     ->icon('heroicon-m-eye')
                                     ->label('Preview')
-                                    ->url(function (Forms\Get $get) {
-                                        $templateId = $get('email_template_id');
-                                        if (!$templateId) {
-                                            return null;
-                                        }
-                                        return route('filament.admin.resources.email-templates.preview', ['record' => $templateId]);
+                                    ->requiresConfirmation(false)
+                                    ->modalHeading('Email Template Preview')
+                                    ->modalDescription('Preview of the selected email template')
+                                    ->modalSubmitAction(false)
+                                    ->modalCancelAction(false)
+                                    ->modalWidth('xl')
+                                    ->action(function () {
+                                        // Modal is shown
                                     })
-                                    ->openUrlInNewTab()
                                     ->visible(fn (Forms\Get $get) => $get('email_template_id') !== null)
+                                    ->modalContent(function (Forms\Get $get) {
+                                        $templateId = $get('email_template_id');
+                                        
+                                        if (!$templateId) {
+                                            return 'No template selected';
+                                        }
+                                        
+                                        $emailTemplate = EmailTemplate::find($templateId);
+                                        
+                                        if (!$emailTemplate) {
+                                            return 'Template not found';
+                                        }
+
+                                        return view('filament.resources.email-template-preview', [
+                                            'emailTemplate' => $emailTemplate,
+                                            'showCode' => false
+                                        ]);
+                                    })
                             ),
                         Forms\Components\Select::make('mailing_list_id')
                             ->relationship('mailingList', 'name')
@@ -135,5 +138,79 @@ class CalendarResource extends JsonException
             ]);
     }
 
-    // Rest of the class remains the same
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('emailTemplate.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('mailingList.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('scheduled_time')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status_type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'draft' => 'gray',
+                        'scheduled' => 'warning',
+                        'processing' => 'info',
+                        'completed' => 'success',
+                    }),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status_type')
+                    ->options([
+                        'draft' => 'Draft',
+                        'scheduled' => 'Scheduled',
+                        'processing' => 'Processing',
+                        'completed' => 'Completed',
+                    ]),
+                Tables\Filters\Filter::make('scheduled_time')
+                    ->form([
+                        Forms\Components\DatePicker::make('scheduled_from'),
+                        Forms\Components\DatePicker::make('scheduled_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['scheduled_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('scheduled_time', '>=', $date),
+                            )
+                            ->when(
+                                $data['scheduled_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('scheduled_time', '<=', $date),
+                            );
+                    })
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListCampaignPlannings::route('/'),
+            'create' => Pages\CreateCampaignPlanning::route('/create'),
+            'view' => Pages\ViewCampaignPlanning::route('/{record}'),
+            'edit' => Pages\EditCampaignPlanning::route('/{record}/edit'),
+        ];
+    }
 }

@@ -209,7 +209,7 @@ public function store(CampaignPlanningStoreRequest $request)
     $data = $request->validated();
     $campaignPlanning = CampaignPlanning::create($data);
 
-    return (new CalendarResource($campaignPlanning))
+    return (new Calendar($campaignPlanning))
             ->response()
             ->setStatusCode(201);
 }
