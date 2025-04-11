@@ -6,7 +6,10 @@ use App\Filament\Resources\CalendarResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateCampaignPlanning extends CreateRecord
+class CreateCalendar extends CreateRecord
 {
     protected static string $resource = CalendarResource::class;
 }
+
+
+

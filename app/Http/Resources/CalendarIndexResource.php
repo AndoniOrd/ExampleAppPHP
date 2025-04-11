@@ -30,3 +30,5 @@ class CalendarIndexResource extends JsonResource
         ];
     }
 }
+
+

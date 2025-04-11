@@ -16,6 +16,7 @@ class CalendarPage extends BasePage
     protected static string $view = 'pages.calendar-page';
     protected static string $resource = CalendarResource::class;
 
+    
     // Registra los widgets
     protected function getHeaderWidgets(): array
     {

@@ -4,16 +4,18 @@ namespace App\Filament\Resources\CalendarResource\Pages;
 
 use App\Filament\Resources\CalendarResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ListRecords;
 
-class EditCampaignPlanning extends EditRecord
+class ListCalendar extends ListRecords
 {
     protected static string $resource = CalendarResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\CreateAction::make(),
         ];
     }
 }
+
+
