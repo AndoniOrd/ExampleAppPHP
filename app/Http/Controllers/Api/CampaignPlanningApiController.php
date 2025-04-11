@@ -7,7 +7,7 @@ use App\Models\CampaignPlanning;
 use App\Http\Requests\CampaignPlanningStoreRequest;
 use App\Http\Requests\CampaignPlanningUpdateRequest;
 use App\Http\Resources\CampaignPlanningIndexResource;
-use App\Http\Resources\CampaignPlanningResource;
+use App\Http\Resources\CalendarResource;
 
 /**
  * @OA\Tag(
@@ -209,7 +209,7 @@ public function store(CampaignPlanningStoreRequest $request)
     $data = $request->validated();
     $campaignPlanning = CampaignPlanning::create($data);
 
-    return (new CampaignPlanningResource($campaignPlanning))
+    return (new CalendarResource($campaignPlanning))
             ->response()
             ->setStatusCode(201);
 }
@@ -250,7 +250,7 @@ public function show(int $id)
 {
     $campaignPlanning = CampaignPlanning::findOrFail($id);
 
-    return new CampaignPlanningResource($campaignPlanning);
+    return new CalendarResource($campaignPlanning);
 }
    /**
  * @OA\Put(
@@ -306,7 +306,7 @@ public function update(CampaignPlanningUpdateRequest $request, int $id)
     $campaignPlanning->update($data);
     $campaignPlanning->refresh();
 
-    return new CampaignPlanningResource($campaignPlanning);
+    return new CalendarResource($campaignPlanning);
 }
 
     /**

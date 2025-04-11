@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\CampaignPlanningResource\Pages;
+namespace App\Filament\Resources\CalendarResource\Pages;
 
-use App\Filament\Resources\CampaignPlanningResource;
+use App\Filament\Resources\CalendarResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditCampaignPlanning extends EditRecord
 {
-    protected static string $resource = CampaignPlanningResource::class;
+    protected static string $resource = CalendarResource::class;
 
     protected function getHeaderActions(): array
     {

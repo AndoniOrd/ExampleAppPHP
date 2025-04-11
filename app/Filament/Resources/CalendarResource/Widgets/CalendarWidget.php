@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CampaignPlanningResource\Widgets;
+namespace App\Filament\Resources\CalendarResource\Widgets;
 
 use Illuminate\Database\Eloquent\Model;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;

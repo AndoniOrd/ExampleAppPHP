@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CampaignPlanningResource\Pages;
-use App\Filament\Resources\CampaignPlanningResource\RelationManagers;
+use App\Filament\Resources\CalendarResource\Pages;
+use App\Filament\Resources\CalendarResource\RelationManagers;
 use App\Models\CampaignPlanning;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,9 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CampaignPlanningResource extends Resource
+class CalendarResource extends Resource
 {
-    protected static ?string $model = CampaignPlanning::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

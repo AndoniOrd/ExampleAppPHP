@@ -1,20 +1,20 @@
 <?php
 
-// app/Filament/Resources/CampaignPlanningResource/Pages/CalendarPage.php
+// app/Filament/Resources/CalendarResource/Pages/CalendarPage.php
 
-namespace App\Filament\Resources\CampaignPlanningResource\Pages;
+namespace App\Filament\Resources\CalendarResource\Pages;
 
 use Filament\Pages\Page;
 use Filament\Widgets\Widget;
 use Filament\Resources\Pages\Page as BasePage;
-use App\Filament\Resources\CampaignPlanningResource;
-use App\Filament\Resources\CampaignPlanningResource\Widgets\CalendarWidget;
+use App\Filament\Resources\CalendarResource;
+use App\Filament\Resources\CalendarResource\Widgets\CalendarWidget;
 
 class CalendarPage extends BasePage
 {
     // Configuración básica
     protected static string $view = 'pages.calendar-page';
-    protected static string $resource = CampaignPlanningResource::class;
+    protected static string $resource = CalendarResource::class;
 
     // Registra los widgets
     protected function getHeaderWidgets(): array
