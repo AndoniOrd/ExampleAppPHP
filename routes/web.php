@@ -71,5 +71,16 @@ Route::get('/unsubscribe/{contact}/{campaign}', function ($contactId, $campaignI
     return "You have been unsubscribed from this campaign";
 })->name('unsubscribe');
 
+Route::get('/received-emails', [App\Http\Controllers\ReceivedEmailController::class, 'index'])
+    ->name('received-emails.index');
+Route::get('/received-emails/{receivedEmail}', [App\Http\Controllers\ReceivedEmailController::class, 'show'])
+    ->name('received-emails.show');
+Route::post('/received-emails/{receivedEmail}/toggle-read', [App\Http\Controllers\ReceivedEmailController::class, 'toggleRead'])
+    ->name('received-emails.toggle-read');
+Route::delete('/received-emails/{receivedEmail}', [App\Http\Controllers\ReceivedEmailController::class, 'destroy'])
+    ->name('received-emails.destroy');
+Route::post('/received-emails/batch', [App\Http\Controllers\ReceivedEmailController::class, 'batch'])
+    ->name('received-emails.batch');
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

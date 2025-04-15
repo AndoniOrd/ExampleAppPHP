@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
                  ->everyFifteenMinutes()
                  ->withoutOverlapping()
                  ->appendOutputTo(storage_path('logs/email-campaign.log'));
+
+                 $schedule->command('emails:fetch')->everyTenMinutes();
     }
 
     /**
@@ -37,6 +39,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
+        
         $this->load(__DIR__.'/Commands');
         require base_path('routes/console.php');
     }
