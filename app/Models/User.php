@@ -8,9 +8,10 @@ use Illuminate\Notifications\Notifiable;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 use Laravel\Sanctum\HasApiTokens;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-
-class User extends Authenticatable implements LaratrustUser
+class User extends Authenticatable implements LaratrustUser, FilamentUser
 {
     use HasFactory, Notifiable, HasApiTokens, HasRolesAndPermissions;
 
@@ -47,5 +48,10 @@ class User extends Authenticatable implements LaratrustUser
     public function username()
     {
         return 'email';
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true; // Adjust this logic as needed
     }
 }

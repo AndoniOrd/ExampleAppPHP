@@ -34,7 +34,9 @@ class EmailTemplate extends Model
         'last_updated_date',
         'category',
         'status',
-        'preview_image_url'
+        'preview_image_url',
+        'from_name',
+        'from_address'
     ];
 
     protected $casts = [

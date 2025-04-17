@@ -24,12 +24,34 @@ class MailingListResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                DateTimePicker::make('creation_date')
+                Forms\Components\DateTimePicker::make('creation_date')
                     ->default(now())
                     ->required(),
+                // Add other required fields from your database table
+                Forms\Components\TextInput::make('description')
+                    ->required(),
+                Forms\Components\Select::make('created_by')
+                    ->relationship('creator', 'name') // Assuming you have a User model
+                    ->required(),
+                Forms\Components\Toggle::make('is_public')
+                    ->required(),
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'active' => 'Active',
+                        'inactive' => 'Inactive',
+                    ])
+                    ->required(),
+                    Forms\Components\DateTimePicker::make('last_updated_date')
+    ->default(now())
+    ->required(),
+
+    Forms\Components\Select::make('owner_id')
+    ->label('Owner')
+    ->relationship('owner', 'name') // Assumes a relation like: $this->belongsTo(User::class, 'owner_id')
+    ->required(),
+
             ]);
     }
-
     public static function table(Table $table): Table
     {
         return $table

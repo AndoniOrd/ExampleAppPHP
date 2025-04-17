@@ -38,4 +38,20 @@ class EmailContact extends Model
             ->withPivot('status', 'subscribed_at', 'unsubscribed_at')
             ->withTimestamps();
     }
+
+    protected static function boot()
+{
+    parent::boot();
+
+  
+    static::updating(function ($model) {
+        $model->last_updated_date = now();
+    });
+
+    static::creating(function ($model) {
+        $now = now();
+        $model->creation_date = $now;
+        $model->last_updated_date = $now;
+    });
+}
 }

@@ -54,6 +54,16 @@ class EmailTemplateResource extends Resource
                         ->dehydrated(true),
                     Forms\Components\Hidden::make('preview_content')
                         ->dehydrated(false),
+
+                        Forms\Components\TextInput::make('from_name')
+    ->required()
+    ->label('From Name')
+    ->maxLength(255),
+Forms\Components\TextInput::make('from_address')
+    ->required()
+    ->label('From Email')
+    ->email()
+    ->maxLength(255),
                         
                     Forms\Components\Tabs::make('Content')
                         ->tabs([

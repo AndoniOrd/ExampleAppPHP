@@ -68,6 +68,7 @@ class CampaignPlanning extends Model
         'send_from_name',
         'reply_to_email',
         'tracking_options',
+        
     ];
 
     protected $casts = [
@@ -103,6 +104,17 @@ public function emailTemplate()
         'mailing_list_id', // Local key on campaign_plannings table
         'id' // Local key on mailing_lists table
     )->wherePivot('status', 'subscribed');
+}
+
+protected static function boot()
+{
+    parent::boot();
+    
+    static::creating(function ($model) {
+        if (!$model->creation_date) {
+            $model->creation_date = now();
+        }
+    });
 }
 
     

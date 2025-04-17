@@ -26,6 +26,7 @@ class CampaignPlanningResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Campaign Details')
+                
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
@@ -113,7 +114,7 @@ class CampaignPlanningResource extends Resource
                             ->preload(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Sender Information')
+                    Forms\Components\Section::make('Sender Information')
                     ->schema([
                         Forms\Components\TextInput::make('send_from_email')
                             ->email()
@@ -134,7 +135,14 @@ class CampaignPlanningResource extends Resource
                                 'none' => 'No Tracking',
                             ])
                             ->required(),
+                        // Ensure the DatePicker is a separate element in the schema array
+                        Forms\Components\DatePicker::make('creation_date')
+                            ->required()
+                            ->default(now())
+                            ->label('Creation Date'),
                     ])->columns(2),
+
+                    
             ]);
     }
 

@@ -13,12 +13,15 @@ class MailingList extends Model
 
     protected $fillable = [
         'name',
+        'creation_date',
         'description',
         'created_by',
         'is_public',
-        'status'
+        'status',
+        'last_updated_date',
+        'owner_id', // ← add this
     ];
-
+    
     protected $casts = [
         'is_public' => 'boolean',
         'created_at' => 'datetime',
@@ -92,4 +95,9 @@ class MailingList extends Model
     {
         return $this->emailContacts()->detach($contact->id);
     }
+
+    public function owner()
+{
+    return $this->belongsTo(User::class, 'owner_id');
+}
 }
