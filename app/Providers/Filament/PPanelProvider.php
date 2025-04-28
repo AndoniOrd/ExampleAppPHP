@@ -26,7 +26,8 @@ class PPanelProvider extends PanelProvider
             ->id('1')
             ->path('1')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Slate,
+                'gray'    => Color::Zinc,
             ])
             ->discoverResources(in: app_path('Filament/1/Resources'), for: 'App\\Filament\\1\\Resources')
             ->discoverPages(in: app_path('Filament/1/Pages'), for: 'App\\Filament\\1\\Pages')
