@@ -16,8 +16,11 @@ class DictionaryResource extends Resource
 {
     protected static ?string $model = Dictionary::class;
 
+    protected static ?string $navigationGroup = 'System'; // Same group as Dictionary Items
+protected static ?int $navigationSort = 1; // Comes before Items in the group
+
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
-    protected static ?string $navigationGroup = 'Dictionaries'; // Optional grouping
+    
 
     public static function form(Form $form): Form
     {

@@ -16,45 +16,56 @@ class EmailContactResource extends Resource
     protected static ?string $model = EmailContact::class;
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
 
-        public static function form(Form $form): Form
-        {
-            return $form
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                        ->required()
-                        ->maxLength(255),
-                    Forms\Components\TextInput::make('last_name') // Add this field
-                        ->required()
-                        ->maxLength(255),
-                    Forms\Components\TextInput::make('email')
-                        ->email()
-                        ->required()
-                        ->unique(ignoreRecord: true),
-                    Forms\Components\Select::make('status')
-                        ->options([
-                            'active' => 'Active',
-                            'inactive' => 'Inactive',
-                            'pending' => 'Pending'
-                        ])
-                        ->required(),
-                    Forms\Components\Select::make('source')
-                        ->options([
-                            'web' => 'Web',
-                            'api' => 'API',
-                            'manual' => 'Manual'
-                        ])
-                        ->required(),
-                    Forms\Components\DatePicker::make('opt_in_date')
-                        ->required(),
-                    Forms\Components\Toggle::make('opt_in_confirmation')
-                        ->required(),
-                    Forms\Components\Select::make('mailingLists')
-                        ->relationship('mailingLists', 'name')
-                        ->multiple()
-                        ->preload()
-                        ->searchable(),
-                ]);
-        }
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('last_name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->required()
+                    ->unique(ignoreRecord: true),
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'active' => 'Active',
+                        'inactive' => 'Inactive',
+                        'pending' => 'Pending'
+                    ])
+                    ->required(),
+                Forms\Components\Select::make('source')
+                    ->options([
+                        'web' => 'Web',
+                        'api' => 'API',
+                        'manual' => 'Manual',
+                        'other' => 'Other',
+                    ])
+                    ->required(),
+                Forms\Components\Toggle::make('has_crm')
+                    ->label('Do you have CRM?')
+                    ->required(),
+                Forms\Components\DatePicker::make('opt_in_date')
+                    ->required(),
+                Forms\Components\Toggle::make('opt_in_confirmation')
+                    ->required(),
+                Forms\Components\Textarea::make('notes') // <-- Campo nuevo para Notas
+                    ->label('Notes')
+                    ->maxLength(1000)
+                    ->rows(5)
+                    ->placeholder('Write any additional notes here...'),
+                Forms\Components\Select::make('mailingLists')
+                    ->relationship('mailingLists', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
+            ]);
+    }
+    
+    
 
     public static function table(Table $table): Table
     {

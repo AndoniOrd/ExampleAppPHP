@@ -16,6 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class DictionaryItemResource extends Resource
 {
     protected static ?string $model = DictionaryItem::class;
+    protected static ?string $navigationGroup = 'System';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

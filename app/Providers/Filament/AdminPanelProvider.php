@@ -33,13 +33,17 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('images/logo.jpg'))
             ->brandLogo(asset('images/logo.jpg'))
             
-            //->viteTheme('resources/css/filament/admin/theme.css')
-              ->colors([
-            'primary' => Color::Indigo,   // changes the primary accent
-            'success' => Color::Emerald,   // updates success buttons, badges, etc.
-            'danger'  => Color::Rose,
-            // you can override all 6 default colors: primary, success, danger, gray, blue, warning
-        ])
+            //->viteTheme('public\css\filament\admin\theme.css')
+            ->colors([
+                'primary' => Color::Blue,     // Vibrant blue for main color
+                'success' => Color::Emerald,  // Vibrant green for success
+                'danger'  => Color::Rose,     // Vivid red-pink for errors
+                'warning' => Color::Amber,    // Bright amber for warnings
+                'info'    => Color::Sky,      // Soft vibrant light blue for info
+                'gray'    => Color::Zinc,     // Clean neutral gray
+            ])
+            
+            
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([

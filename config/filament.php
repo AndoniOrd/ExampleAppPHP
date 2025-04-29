@@ -16,6 +16,13 @@ return [
         // \Vormkracht10\FilamentMails\Resources\MailResource::class, // Ejemplo de paquete
         // \Vormkracht10\FilamentMails\Resources\EventResource::class, // ¡Cuidado con nombres duplicados!
     ],
+'panel' => [
+    'default' => [
+        'pages' => [
+            \App\Filament\Pages\ListDashboards::class,
+        ],
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------

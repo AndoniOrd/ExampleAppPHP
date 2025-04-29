@@ -30,6 +30,7 @@ class EmailContact extends Model
         'custom_fields',
         'creation_date',
         'last_updated_date',
+        'has_crm',
     ];
 
     public function mailingLists()

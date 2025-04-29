@@ -1,0 +1,5 @@
+/* Make brand logo bigger inside sidebar */
+.fi-sidebar-header img {
+    height: 4rem; /* Default is usually 2rem or 2.5rem — you can adjust this */
+    width: auto; /* Keep aspect ratio */
+}
