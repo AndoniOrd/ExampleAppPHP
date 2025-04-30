@@ -25,8 +25,8 @@ class EmailTemplate extends Model
 
     protected $fillable = [
         'name',
-        'description',
         'subject_line',
+        'description',
         'html_content',
         'plain_text_version',
         'creator',
@@ -36,8 +36,9 @@ class EmailTemplate extends Model
         'status',
         'preview_image_url',
         'from_name',
-        'from_address'
+        'from_address',
     ];
+
 
     protected $casts = [
         'creation_date' => 'date',

@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class CampaignPlanningResource extends Resource
 {
@@ -26,68 +27,108 @@ class CampaignPlanningResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Campaign Details')
-                
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\Textarea::make('description')
                             ->columnSpanFull(),
-                        Forms\Components\Select::make('email_template_id')
-                            ->label('Email Template')
-                            ->relationship('emailTemplate', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('name')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('subject')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\RichEditor::make('content')
-                                    ->required()
-                                    ->columnSpanFull(),
-                            ])
-                            ->suffixAction(
-                                Forms\Components\Actions\Action::make('view_template')
-                                    ->icon('heroicon-m-eye')
-                                    ->label('Preview')
-                                    ->requiresConfirmation(false)
-                                    ->modalHeading('Email Template Preview')
-                                    ->modalDescription('Preview of the selected email template')
-                                    ->modalSubmitAction(false)
-                                    ->modalCancelAction(false)
-                                    ->modalWidth('xl')
-                                    ->action(function () {
-                                        // Modal is shown
-                                    })
-                                    ->visible(fn (Forms\Get $get) => $get('email_template_id') !== null)
-                                    ->modalContent(function (Forms\Get $get) {
-                                        $templateId = $get('email_template_id');
-                                        
-                                        if (!$templateId) {
-                                            return 'No template selected';
-                                        }
-                                        
-                                        $emailTemplate = EmailTemplate::find($templateId);
-                                        
-                                        if (!$emailTemplate) {
-                                            return 'Template not found';
-                                        }
 
-                                        return view('filament.resources.email-template-preview', [
-                                            'emailTemplate' => $emailTemplate,
-                                            'showCode' => false
-                                        ]);
-                                    })
-                            ),
+                        // Custom implementation for email template selection
+                        Forms\Components\Grid::make()
+                            ->schema([
+                                Forms\Components\Select::make('email_template_id')
+                                    ->label('Email Template')
+                                    ->relationship('emailTemplate', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->createOptionAction(
+                                        function (Forms\Components\Actions\Action $action) {
+                                            return $action
+                                                ->modalHeading('Create Email Template')
+                                                ->modalSubmitActionLabel('Create')
+                                                ->form([
+                                                    Forms\Components\TextInput::make('name')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    Forms\Components\TextInput::make('subject_line')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    Forms\Components\TextInput::make('from_name')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    Forms\Components\TextInput::make('from_address')
+                                                        ->required()
+                                                        ->email()
+                                                        ->maxLength(255),
+                                                    Forms\Components\RichEditor::make('html_content')
+                                                        ->required(),
+                                                ])
+                                                ->action(function (array $data, Forms\Components\Actions\Action $action) {
+                                                    // Manually create the email template with all required fields
+                                                    $template = new EmailTemplate();
+                                                    $template->name = $data['name'];
+                                                    $template->subject_line = $data['subject_line'];
+                                                    $template->from_name = $data['from_name'];
+                                                    $template->from_address = $data['from_address'];
+                                                    $template->html_content = $data['html_content'];
+                                                    $template->plain_text_version = strip_tags($data['html_content']);
+                                                    $template->creator = auth()->id();
+                                                    $template->creation_date = now()->format('Y-m-d');
+                                                    $template->last_updated_date = now()->format('Y-m-d');
+                                                    $template->category = 'marketing';
+                                                    $template->status = 'active';
+                                                    $template->save();
+
+                                                    $action->success();
+                                                    
+                                                    return $template->id;
+                                                });
+                                        }
+                                    )
+                                    ->suffixAction(
+                                        Forms\Components\Actions\Action::make('view_template')
+                                            ->icon('heroicon-m-eye')
+                                            ->label('Preview')
+                                            ->requiresConfirmation(false)
+                                            ->modalHeading('Email Template Preview')
+                                            ->modalDescription('Preview of the selected email template')
+                                            ->modalSubmitAction(false)
+                                            ->modalCancelAction(false)
+                                            ->modalWidth('xl')
+                                            ->action(function () {
+                                                // Modal is shown
+                                            })
+                                            ->visible(fn (Forms\Get $get) => $get('email_template_id') !== null)
+                                            ->modalContent(function (Forms\Get $get) {
+                                                $templateId = $get('email_template_id');
+
+                                                if (!$templateId) {
+                                                    return 'No template selected';
+                                                }
+
+                                                $emailTemplate = EmailTemplate::find($templateId);
+
+                                                if (!$emailTemplate) {
+                                                    return 'Template not found';
+                                                }
+
+                                                return view('filament.resources.email-template-preview', [
+                                                    'emailTemplate' => $emailTemplate,
+                                                    'showCode' => false
+                                                ]);
+                                            })
+                                    ),
+                            ])
+                            ->columnSpanFull(),
+
                         Forms\Components\Select::make('mailing_list_id')
                             ->relationship('mailingList', 'name')
                             ->required()
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->columnSpanFull(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Schedule Information')
@@ -114,7 +155,7 @@ class CampaignPlanningResource extends Resource
                             ->preload(),
                     ])->columns(2),
 
-                    Forms\Components\Section::make('Sender Information')
+                Forms\Components\Section::make('Sender Information')
                     ->schema([
                         Forms\Components\TextInput::make('send_from_email')
                             ->email()
@@ -135,14 +176,11 @@ class CampaignPlanningResource extends Resource
                                 'none' => 'No Tracking',
                             ])
                             ->required(),
-                        // Ensure the DatePicker is a separate element in the schema array
                         Forms\Components\DatePicker::make('creation_date')
                             ->required()
                             ->default(now())
                             ->label('Creation Date'),
                     ])->columns(2),
-
-                    
             ]);
     }
 
@@ -207,9 +245,7 @@ class CampaignPlanningResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
