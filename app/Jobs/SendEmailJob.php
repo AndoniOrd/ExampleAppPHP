@@ -96,13 +96,15 @@ class SendEmailJob implements ShouldQueue
             Config::set('mail.from.name', $fromName);
             
             // Actually send the email
-            Mail::send($this->emailData['template'], $this->emailData['data'], function ($message) use ($fromAddress, $fromName) {
+            Mail::send([], [], function ($message) use ($fromAddress, $fromName) {
                 $message->to(
                     $this->emailData['contact_email'],
                     $this->emailData['contact_name'] ?? null
                 )
                 ->subject($this->emailData['subject'] ?? 'No Subject')
-                ->from($fromAddress, $fromName);
+                ->from($fromAddress, $fromName)
+                ->html($this->emailData['html_content']) // Use HTML content from template
+                ->text($this->emailData['plain_text_content']); // Include plain text version
             });
 
             Log::channel('daily')->info('Email sent successfully', [
