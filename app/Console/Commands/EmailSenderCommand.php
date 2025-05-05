@@ -133,26 +133,30 @@ class EmailSenderCommand extends Command
                         'port' => $providerData['port']
                     ]);
 
-                    SendEmailJob::dispatch([
-                        'campaign_id' => $campaign->id,
-                        'contact_id' => $contact->id,
-                        'provider' => $providerData,
-                        'contact_email' => $contact->email,
-                        'contact_name' => $contact->name,
-                        'subject' => optional($campaign->emailTemplate)->subject ?? $campaign->name,
-                        'template' => 'emails.campaign',
-                        'data' => [
-                            'campaign_name' => $campaign->name,
-                            'contact_name' => $contact->name ?? 'Valued Customer',
-                            'contact_email' => $contact->email,
-                            'unsubscribe_link' => $campaign->tracking_options !== 'none'
-                                ? route('unsubscribe', [
-                                    'contact' => $contact->id,
-                                    'campaign' => $campaign->id
-                                  ])
-                                : null
-                        ]
-                    ]);
+                   // In processCampaign() method:
+$emailTemplate = $campaign->emailTemplate;
+
+SendEmailJob::dispatch([
+    'campaign_id' => $campaign->id,
+    'contact_id' => $contact->id,
+    'provider' => $providerData,
+    'contact_email' => $contact->email,
+    'contact_name' => $contact->name,
+    'subject' => $emailTemplate->subject_line ?? $campaign->name, // Use template subject
+    'html_content' => $emailTemplate->html_content, // Include HTML content
+    'plain_text_content' => $emailTemplate->plain_text_version,
+    'data' => [
+        'campaign_name' => $campaign->name,
+        'contact_name' => $contact->name ?? 'Valued Customer',
+        'contact_email' => $contact->email,
+        'unsubscribe_link' => $campaign->tracking_options !== 'none'
+            ? route('unsubscribe', [
+                'contact' => $contact->id,
+                'campaign' => $campaign->id
+              ])
+            : null
+    ]
+]);
 
                     $sent = true;
                     $totalEmailsDispatched++;
