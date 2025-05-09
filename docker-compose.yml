@@ -3,9 +3,13 @@ services:
         build:
             context: .
             dockerfile: docker/Dockerfile
-        container_name: laravel-app
+        container_name: maily_server
         volumes:
             - .:/var/www
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.maily_server-route.rule=Host(`maily.onxwork.pl`)"
+            - "traefik.http.routers.maily_server-route.entrypoints=web"
         depends_on:
             - db
         networks:
@@ -32,3 +36,5 @@ volumes:
 networks:
     private:
         driver: bridge
+    traefik_webgateway:
+        external: true
