@@ -20,6 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+Route::redirect('/', '/admin');
+
 // routes/web.php
 Route::get('/enviar-correo-de-prueba', function () {
     $datos = [
