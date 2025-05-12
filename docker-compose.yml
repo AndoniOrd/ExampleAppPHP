@@ -4,8 +4,6 @@ services:
             context: .
             dockerfile: docker/Dockerfile
         container_name: maily_server
-        volumes:
-            - .:/var/www
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.maily_server-route.rule=Host(`maily.onxwork.pl`)"
