@@ -13,6 +13,10 @@ use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Support\Markdown;
 use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\RichEditor;
+use Kahusoftware\FilamentCkeditorField\CKEditor;     // for the CKEditor facade
+ // for the actual form component
+
 
 class EmailTemplateResource extends Resource
 {
@@ -66,34 +70,35 @@ class EmailTemplateResource extends Resource
                             ->tabs([
                                 Forms\Components\Tabs\Tab::make('HTML Editor')
                                     ->schema([
-                                        Forms\Components\Textarea::make('html_content')
-                                            ->label('HTML Content')
-                                            ->required()
-                                            ->live(onBlur: true)
-                                            ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                                // Remove any trailing unwanted patterns
-                                                $cleanedState = preg_replace('/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i', '', $state);
-                                                $cleanedState = preg_replace('/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p>$/i', '', $cleanedState);
-                                                
-                                                // Set the cleaned state back to the field if it was changed
-                                                if ($cleanedState !== $state) {
-                                                    $set('html_content', $cleanedState);
-                                                }
-                                                
-                                                $set('plain_text_version', strip_tags($cleanedState));
-                                            })
-                                            ->dehydrateStateUsing(function ($state) {
-                                                // Clean the HTML content before saving to database
-                                                $cleanedState = preg_replace('/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i', '', $state);
-                                                $cleanedState = preg_replace('/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p>$/i', '', $cleanedState);
-                                                return $cleanedState;
-                                            })
-                                            ->extraInputAttributes([
-                                                'style' => 'font-family: monospace;',
-                                                'spellcheck' => 'false'
-                                            ])
-                                            ->rows(20)
-                                            ->columnSpanFull(),
+                                        CKEditor::make('html_content')
+    ->label('HTML Content')
+    ->required()
+    
+    //->fileAttachmentsDisk(config('filesystems.default'))
+    //->fileAttachmentsDirectory('email-templates')
+    ->live(onBlur: true)
+    ->afterStateUpdated(function ($state, Forms\Set $set) {
+        // Sanitize trailing patterns
+        $cleaned = preg_replace(
+            '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
+            '',
+            $state
+        );
+        if ($cleaned !== $state) {
+            $set('html_content', $cleaned);
+        }
+        // Update plain text version
+        $set('plain_text_version', strip_tags($cleaned));
+    })
+    ->dehydrateStateUsing(function ($state) {
+        // Clean before saving
+        return preg_replace(
+            '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
+            '',
+            $state
+        );
+    })
+    ->columnSpanFull()
                                     ]),
                                 Forms\Components\Tabs\Tab::make('Plain Text')
                                     ->schema([
@@ -142,9 +147,6 @@ class EmailTemplateResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
             ->actions([
                 Tables\Actions\Action::make('preview')
                     ->label('Preview')
@@ -152,7 +154,7 @@ class EmailTemplateResource extends Resource
                     ->modalHeading(fn($record) => $record->name . ' - Preview')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
-                    ->modalWidth('max-w-5xl') // Make the modal wider
+                    ->modalWidth('max-w-5xl')
                     ->modalContent(fn($record) => view('filament.resources.email-template-preview', [
                         'emailTemplate' => $record,
                         'showCode' => false
@@ -163,7 +165,7 @@ class EmailTemplateResource extends Resource
                     ->modalHeading(fn($record) => $record->name . ' - HTML Code')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
-                    ->modalWidth('max-w-5xl') // Make the modal wider
+                    ->modalWidth('max-w-5xl')
                     ->modalContent(fn($record) => view('filament.resources.email-template-preview', [
                         'emailTemplate' => $record,
                         'showCode' => true
@@ -210,7 +212,6 @@ class EmailTemplateResource extends Resource
                             ])
                             ->columnSpanFull(),
                     ]),
-                    
                 Infolists\Components\Section::make('Usage')
                     ->schema([
                         Infolists\Components\RepeatableEntry::make('campaigns')
@@ -235,7 +236,7 @@ class EmailTemplateResource extends Resource
                     ->collapsible(),
             ]);
     }
-        
+
     public static function getRelations(): array
     {
         return [

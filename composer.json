@@ -12,6 +12,7 @@
         "filament/filament": "3.3",
         "flowframe/laravel-trend": "*",
         "inertiajs/inertia-laravel": "^2.0",
+        "kahusoftware/filament-ckeditor-field": "^0.0.4@alpha",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
@@ -20,7 +21,8 @@
         "santigarcor/laratrust": "8.4",
         "spatie/laravel-permission": "^6.16",
         "tightenco/ziggy": "^2.4",
-        "vormkracht10/filament-mails": "*"
+        "vormkracht10/filament-mails": "*",
+        "wiebenieuwenhuis/filament-code-editor": "^1.2"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",

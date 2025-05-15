@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CkeditorController;
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -53,6 +54,8 @@ Route::get('/test-email', function() {
         return 'Error: '.$e->getMessage();
     }
 });
+
+Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
 
 Route::get('/test-smtp', function() {
     $provider = App\Models\Provider::first();
