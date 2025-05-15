@@ -32,8 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->favicon(asset('images/logo.jpg'))
             ->brandLogo(asset('images/logo.jpg'))
-            
             //->viteTheme('public\css\filament\admin\theme.css')
+            //asset('css/filament/admin/ckeditor-dark.css'),
             ->colors([
                 'primary' => Color::Blue,     // Vibrant blue for main color
                 'success' => Color::Emerald,  // Vibrant green for success
@@ -41,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Amber,    // Bright amber for warnings
                 'info'    => Color::Sky,      // Soft vibrant light blue for info
                 'gray'    => Color::Zinc,     // Clean neutral gray
+                
             ])
             
             

@@ -1,0 +1,15 @@
+/* resources/css/filament/ckeditor-dark.css */
+
+.dark .ck-source-editing-area textarea {
+    background-color: #1f2937 !important; /* bg-gray-800 */
+    color: #e5e7eb !important; /* text-gray-200 */
+}
+
+.dark .ck-editor__main {
+    background-color: #1f2937 !important;
+}
+
+.dark .ck.ck-toolbar {
+    background-color: #374151 !important; /* bg-gray-700 */
+    border-color: #4b5563 !important; /* border-gray-600 */
+}
