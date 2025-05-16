@@ -46,6 +46,12 @@ class Kernel extends HttpKernel
         \App\Console\Commands\ImportEmailContacts::class,
     ];
 
+    protected $middlewareGroups = [
+    'web' => [
+        \App\Http\Middleware\ForceHttps::class,
+    ],
+];
+
       /**
      * Define the application's command schedule.
      *
