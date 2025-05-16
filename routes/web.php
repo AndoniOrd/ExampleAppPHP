@@ -87,5 +87,9 @@ Route::delete('/received-emails/{receivedEmail}', [App\Http\Controllers\Received
 Route::post('/received-emails/batch', [App\Http\Controllers\ReceivedEmailController::class, 'batch'])
     ->name('received-emails.batch');
 
+    Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
+    ->name('ckeditor.upload')
+    ->middleware('auth'); 
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

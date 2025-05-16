@@ -10,6 +10,11 @@ class CkeditorController extends Controller
 {
     public function upload(Request $request)
     {
+
+       /*  $request->validate([
+            'upload' => 'required|image|max:2048',  // 2MB max
+        ]);*/
+
         if ($request->hasFile('upload')) {
             $file = $request->file('upload');
             $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();

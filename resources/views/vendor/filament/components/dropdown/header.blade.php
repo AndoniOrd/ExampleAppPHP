@@ -5,7 +5,7 @@
 @props([
     'color' => 'gray',
     'icon' => null,
-    'iconSize' => IconSize::Medium,
+    'iconSize' => IconSize::Large,
     'tag' => 'div',
 ])
 

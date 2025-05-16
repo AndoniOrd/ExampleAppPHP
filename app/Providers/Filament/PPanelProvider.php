@@ -24,6 +24,7 @@ class PPanelProvider extends PanelProvider
     {
         return $panel
             ->id('1')
+             ->globalSearch(false)
             ->path('1')
             ->colors([
                 'primary' => Color::Slate,
