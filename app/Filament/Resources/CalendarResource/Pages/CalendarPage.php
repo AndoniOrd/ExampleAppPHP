@@ -15,6 +15,9 @@ class CalendarPage extends BasePage
     // Configuración básica
     protected static string $view = 'pages.calendar-page';
     protected static string $resource = CalendarResource::class;
+    
+    // Change the page title
+    protected static ?string $title = 'Calendar test';
 
     // Registra los widgets
     protected function getHeaderWidgets(): array
