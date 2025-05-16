@@ -15,8 +15,6 @@ use Filament\Support\Markdown;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\RichEditor;
 use Kahusoftware\FilamentCkeditorField\CKEditor;     // for the CKEditor facade
- // for the actual form component
-
 
 class EmailTemplateResource extends Resource
 {
@@ -52,18 +50,23 @@ class EmailTemplateResource extends Resource
                             ->maxLength(255),
                         Forms\Components\Hidden::make('creator')
                             ->default(auth()->id())
+                            ->required()
                             ->dehydrated(true),
                         Forms\Components\Hidden::make('creation_date')
                             ->default(now()->format('Y-m-d'))
+                            ->required()
                             ->dehydrated(true),
                         Forms\Components\Hidden::make('last_updated_date')
                             ->default(now()->format('Y-m-d'))
+                            ->required()
                             ->dehydrated(true),
                         Forms\Components\Hidden::make('category')
                             ->default('marketing')
+                            ->required()
                             ->dehydrated(true),
                         Forms\Components\Hidden::make('status')
                             ->default('active')
+                            ->required()
                             ->dehydrated(true),
 
                         Forms\Components\Tabs::make('Content')
@@ -71,34 +74,31 @@ class EmailTemplateResource extends Resource
                                 Forms\Components\Tabs\Tab::make('HTML Editor')
                                     ->schema([
                                         CKEditor::make('html_content')
-    ->label('HTML Content')
-    ->required()
-    
-    //->fileAttachmentsDisk(config('filesystems.default'))
-    //->fileAttachmentsDirectory('email-templates')
-    ->live(onBlur: true)
-    ->afterStateUpdated(function ($state, Forms\Set $set) {
-        // Sanitize trailing patterns
-        $cleaned = preg_replace(
-            '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
-            '',
-            $state
-        );
-        if ($cleaned !== $state) {
-            $set('html_content', $cleaned);
-        }
-        // Update plain text version
-        $set('plain_text_version', strip_tags($cleaned));
-    })
-    ->dehydrateStateUsing(function ($state) {
-        // Clean before saving
-        return preg_replace(
-            '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
-            '',
-            $state
-        );
-    })
-    ->columnSpanFull()
+                                            ->label('HTML Content')
+                                            ->required()
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                                // Sanitize trailing patterns
+                                                $cleaned = preg_replace(
+                                                    '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
+                                                    '',
+                                                    $state
+                                                );
+                                                if ($cleaned !== $state) {
+                                                    $set('html_content', $cleaned);
+                                                }
+                                                // Update plain text version
+                                                $set('plain_text_version', strip_tags($cleaned));
+                                            })
+                                            ->dehydrateStateUsing(function ($state) {
+                                                // Clean before saving
+                                                return preg_replace(
+                                                    '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
+                                                    '',
+                                                    $state
+                                                );
+                                            })
+                                            ->columnSpanFull(),
                                     ]),
                                 Forms\Components\Tabs\Tab::make('Plain Text')
                                     ->schema([
@@ -119,7 +119,9 @@ class EmailTemplateResource extends Resource
                             ->activeTab(0)
                             ->columnSpanFull(),
                     ]),
-            ]);
+            ])
+            ->statePath('data')
+            ->model(EmailTemplate::class);
     }
 
     public static function table(Table $table): Table

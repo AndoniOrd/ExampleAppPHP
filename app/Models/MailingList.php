@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\EmailContact;
+use App\Models\User;
 
 class MailingList extends Model
 {
@@ -15,17 +17,16 @@ class MailingList extends Model
         'name',
         'creation_date',
         'description',
-        'created_by',
-        'is_public',
         'status',
         'last_updated_date',
-        'owner_id', // ← add this
+        'owner_id',
     ];
     
     protected $casts = [
-        'is_public' => 'boolean',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'creation_date' => 'datetime',
+        'last_updated_date' => 'datetime'
     ];
 
     /**
@@ -52,8 +53,6 @@ class MailingList extends Model
             ->withPivot('status', 'subscribed_at', 'unsubscribed_at')
             ->withTimestamps();
     }
-
-    // Keep your other existing methods
     
     /**
      * Get only subscribed contacts
@@ -96,8 +95,11 @@ class MailingList extends Model
         return $this->emailContacts()->detach($contact->id);
     }
 
+    /**
+     * Get the owner of the mailing list
+     */
     public function owner()
-{
-    return $this->belongsTo(User::class, 'owner_id');
-}
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 }

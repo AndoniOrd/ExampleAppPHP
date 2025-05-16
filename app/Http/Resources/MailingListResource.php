@@ -24,34 +24,28 @@ class MailingListResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->nullable(),
                 Forms\Components\DateTimePicker::make('creation_date')
-                    ->default(now())
-                    ->required(),
-                // Add other required fields from your database table
-                Forms\Components\TextInput::make('description')
-                    ->required(),
-                Forms\Components\Select::make('created_by')
-                    ->relationship('creator', 'name') // Assuming you have a User model
-                    ->required(),
-                Forms\Components\Toggle::make('is_public')
-                    ->required(),
+                    ->default(now()),
                 Forms\Components\Select::make('status')
                     ->options([
                         'active' => 'Active',
                         'inactive' => 'Inactive',
+                        'archived' => 'Archived',
                     ])
+                    ->default('active')
                     ->required(),
-                    Forms\Components\DateTimePicker::make('last_updated_date')
-    ->default(now())
-    ->required(),
-
-    Forms\Components\Select::make('owner_id')
-    ->label('Owner')
-    ->relationship('owner', 'name') // Assumes a relation like: $this->belongsTo(User::class, 'owner_id')
-    ->required(),
-
+                Forms\Components\DateTimePicker::make('last_updated_date')
+                    ->default(now()),
+                Forms\Components\Select::make('owner_id')
+                    ->label('Owner')
+                    ->relationship('owner', 'name')
+                    ->default(auth()->id())
+                    ->required(),
             ]);
     }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -62,6 +56,14 @@ class MailingListResource extends Resource
                 Tables\Columns\TextColumn::make('creation_date')
                     ->dateTime()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'warning',
+                        'archived' => 'danger',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('emailContacts_count')
                     ->counts('emailContacts')
                     ->label('Contacts'),
