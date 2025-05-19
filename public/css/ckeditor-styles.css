@@ -1,0 +1,81 @@
+/* public/css/ckeditor-styles.css */
+
+/* Improve CKEditor appearance in Filament */
+.ck-editor__editable {
+    min-height: 300px;
+}
+
+/* Image alignment classes */
+.image-align-left {
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.image-align-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.image-align-right {
+    float: right;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+/* Image caption styling */
+.image-captioned figcaption {
+    background-color: #f7f7f7;
+    padding: 5px;
+    font-style: italic;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* CKEditor integration with Filament theme */
+.cke_chrome {
+    border-color: #e5e7eb !important;
+    border-radius: 0.375rem !important;
+}
+
+.cke_top {
+    background: #f9fafb !important;
+    border-bottom-color: #e5e7eb !important;
+}
+
+/* Focus styling */
+.cke_focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+}
+
+/* Button styling */
+.cke_button {
+    border-radius: 0.25rem !important;
+}
+
+.cke_button_on {
+    background: #e5e7eb !important;
+}
+
+/* Toolbar dropdown styling */
+.cke_combo_button {
+    border-color: #d1d5db !important;
+}
+
+/* Dialog styling */
+.cke_dialog_body {
+    border-radius: 0.375rem !important;
+}
+
+.cke_dialog_title {
+    background: #f9fafb !important;
+    color: #111827 !important;
+}
+
+/* Fix for the image upload preview in dialog */
+.cke_dialog_ui_input_file {
+    height: auto !important;
+}

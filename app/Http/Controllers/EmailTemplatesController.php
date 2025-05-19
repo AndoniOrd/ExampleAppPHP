@@ -49,6 +49,35 @@ class EmailTemplatesController extends Controller
         return response()->json($emailTemplate);
     }
 
+    public function upload(Request $request)
+{
+    $request->validate([
+        'upload' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    if ($request->hasFile('upload')) {
+        $originName = $request->file('upload')->getClientOriginalName();
+        $fileName = pathinfo($originName, PATHINFO_FILENAME);
+        $extension = $request->file('upload')->getClientOriginalExtension();
+        $fileName = $fileName . '_' . time() . '.' . $extension;
+
+        $request->file('upload')->storeAs('public/uploads/email-templates', $fileName);
+
+        $url = asset('storage/uploads/email-templates/' . $fileName);
+
+        return response()->json([
+            'fileName' => $fileName,
+            'uploaded' => 1,
+            'url' => $url
+        ]);
+    }
+
+    return response()->json([
+        'uploaded' => 0,
+        'error' => ['message' => 'File upload failed']
+    ], 400);
+}
+
     /**
      * Update the specified email template in storage.
      */

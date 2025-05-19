@@ -81,10 +81,9 @@ class CalendarWidget extends FullCalendarWidget
                         ->label('Starting date')
                         ->required(),
                     // Se fuerza que ends_at sea igual a starts_at, por lo que se deshabilita su edición.
-                    Forms\Components\DateTimePicker::make('ends_at')
-                        ->label('Finishing date')
-                        ->disabled()
-                        ->required(),
+                    Forms\Components\Hidden::make('ends_at')
+                        ->dehydrated(true)       
+                        ->default(fn() => now()),  
                 ]),
 
             Toggle::make('status_type')

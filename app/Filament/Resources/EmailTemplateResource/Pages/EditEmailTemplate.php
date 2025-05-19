@@ -5,7 +5,9 @@ namespace App\Filament\Resources\EmailTemplateResource\Pages;
 use App\Filament\Resources\EmailTemplateResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
+use Filament\Facades\Filament;
 
 class EditEmailTemplate extends EditRecord
 {
@@ -19,25 +21,25 @@ class EditEmailTemplate extends EditRecord
         ];
     }
     
-    protected function mutateFormDataBeforeSave(array $data): array
+    public function mount($record): void
     {
-        // Always update the last_updated_date
-        $data['last_updated_date'] = now()->format('Y-m-d');
+        parent::mount($record);
         
-        // Ensure plain_text_version is populated if missing
-        if (empty($data['plain_text_version']) && !empty($data['html_content'])) {
-            $data['plain_text_version'] = strip_tags($data['html_content']);
-        }
-        
-        return $data;
+        // Add CKEditor scripts
+        $this->addCkeditorScripts();
     }
     
-    protected function handleRecordUpdate(Model $record, array $data): Model
+    protected function addCkeditorScripts(): void
     {
-        $record->update($data);
+        // Add CKEditor script to the page
+        Filament::registerScripts([
+            'ckeditor-script' => 'https://cdn.ckeditor.com/4.16.2/standard-all/ckeditor.js',
+            'ckeditor-config' => asset('js/ckeditor-config.js'),
+        ]);
         
-        // Handle any post-update logic if needed
-        
-        return $record;
+        // Add custom CSS for the editor
+        Filament::registerStyles([
+            'ckeditor-styles' => asset('css/ckeditor-styles.css'),
+        ]);
     }
 }

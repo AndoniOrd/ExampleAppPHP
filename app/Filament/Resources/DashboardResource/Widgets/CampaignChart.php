@@ -3,28 +3,37 @@
 namespace App\Filament\Resources\DashboardResource\Widgets;
 
 use App\Models\CampaignPlanning;
-use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 
 class CampaignChart extends ChartWidget
 {
-    protected static ?string $heading = 'Campaign Performance (Last 30 Days)';
-    
+    protected static ?string $heading = 'Campaign Performance';
+
     protected static ?string $pollingInterval = null;
-    
+
     protected static ?string $maxHeight = '300px';
-    
-    protected int | string | array $columnSpan = 'full';
-    
+
+    protected int|string|array $columnSpan = 'full';
+
     public ?string $filter = 'month';
+
+    public function getHeading(): string
+    {
+        return match ($this->filter) {
+            'week' => 'Campaign Performance (Last 7 Days)',
+            'month' => 'Campaign Performance (Last 30 Days)',
+            'year' => 'Campaign Performance (This Year)',
+            default => 'Campaign Performance',
+        };
+    }
 
     protected function getData(): array
     {
         $activeData = $this->getCampaignData('scheduled', 'processing');
         $completedData = $this->getCampaignData('completed');
-        
+
         return [
             'datasets' => [
                 [
@@ -43,12 +52,12 @@ class CampaignChart extends ChartWidget
             'labels' => $activeData['labels'],
         ];
     }
-    
+
     protected function getCampaignData(string ...$statuses): array
     {
         $query = CampaignPlanning::query()
             ->whereIn('status_type', $statuses);
-        
+
         $data = match ($this->filter) {
             'week' => Trend::query($query)
                 ->between(
@@ -57,13 +66,15 @@ class CampaignChart extends ChartWidget
                 )
                 ->perDay()
                 ->count(),
+
             'month' => Trend::query($query)
                 ->between(
-                    start: now()->startOfMonth()->subDays(30),
-                    end: now()->endOfMonth(),
+                    start: now()->subDays(30),
+                    end: now(),
                 )
                 ->perDay()
                 ->count(),
+
             'year' => Trend::query($query)
                 ->between(
                     start: now()->startOfYear(),
@@ -72,18 +83,18 @@ class CampaignChart extends ChartWidget
                 ->perMonth()
                 ->count(),
         };
-        
+
         return [
-            'labels' => $data->map(fn (TrendValue $value) => $value->date)->toArray(),
-            'values' => $data->map(fn (TrendValue $value) => $value->aggregate),
+            'labels' => $data->map(fn(TrendValue $value) => $value->date)->toArray(),
+            'values' => $data->map(fn(TrendValue $value) => $value->aggregate),
         ];
     }
-    
+
     protected function getType(): string
     {
         return 'line';
     }
-    
+
     protected function getFilters(): ?array
     {
         return [

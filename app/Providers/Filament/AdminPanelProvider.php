@@ -20,6 +20,10 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Vormkracht10\FilamentMails\Facades\FilamentMails;
 use Vormkracht10\FilamentMails\FilamentMailsPlugin;
+use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -44,6 +48,13 @@ class AdminPanelProvider extends PanelProvider
                 'gray'    => Color::Zinc,     // Clean neutral gray
                 
             ])
+
+            ->assets([
+    Js::make('ckeditor', 'https://cdn.ckeditor.com/4.16.2/standard-all/ckeditor.js'),
+    Js::make('ckeditor-config', asset('js/ckeditor-config.js')),
+    Css::make('ckeditor-styles', asset('css/ckeditor-styles.css')),
+])
+
             
             
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

@@ -41,11 +41,8 @@ class EventResource extends Resource
                                 $set('ends_at', $state);
                             }),
                         // Campo ends_at: se muestra pero deshabilitado; se fuerza su deshidratación para que se incluya en el envío
-                        Forms\Components\DateTimePicker::make('ends_at')
-                            ->label('Finishing date')
-                            ->disabled()
+                        Forms\Components\Hidden::make('ends_at')
                             ->dehydrated(true)
-                            ->required()
                             ->default(fn() => now()),
                     ]),
                 Forms\Components\Select::make('campaign_planning_id')

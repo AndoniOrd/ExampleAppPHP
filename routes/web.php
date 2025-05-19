@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CkeditorController;
+use App\Http\Controllers\EmailTemplatesController;
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -87,9 +88,11 @@ Route::delete('/received-emails/{receivedEmail}', [App\Http\Controllers\Received
 Route::post('/received-emails/batch', [App\Http\Controllers\ReceivedEmailController::class, 'batch'])
     ->name('received-emails.batch');
 
-    Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
+  /*  Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])
     ->name('ckeditor.upload')
-    ->middleware('auth'); 
+    ->middleware('auth'); */
+
+    Route::post('/ckeditor/upload', [EmailTemplatesController::class, 'upload'])->name('ckeditor.upload');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
