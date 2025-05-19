@@ -52,7 +52,7 @@ class EmailContactResource extends Resource
                     ->required(),
                 Forms\Components\Toggle::make('opt_in_confirmation')
                     ->required(),
-                Forms\Components\Textarea::make('notes') // <-- Campo nuevo para Notas
+                Forms\Components\Textarea::make('notes')
                     ->label('Notes')
                     ->maxLength(1000)
                     ->rows(5)
@@ -64,41 +64,39 @@ class EmailContactResource extends Resource
                     ->searchable(),
             ]);
     }
-    
-    
 
-  public static function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('name')
-                ->searchable()
-                ->sortable(),
-            Tables\Columns\TextColumn::make('email')
-                ->searchable()
-                ->sortable(),
-            Tables\Columns\TextColumn::make('mailingLists.name')
-                ->badge()
-                ->separator(','),
-            Tables\Columns\TextColumn::make('created_at')
-                ->label('Created At')
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-        ])
-        ->defaultSort('creation_date', 'desc') // <-- Add this line
-        ->filters([
-            // Filters can be added here
-        ])
-        ->actions([
-            Tables\Actions\EditAction::make(),
-        ])
-        ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]),
-        ]);
-}
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('mailingLists.name')
+                    ->badge()
+                    ->separator(','),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->defaultSort('created_at', 'desc') // Updated key
+            ->filters([
+                // Filters can be added here
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
 
     public static function getRelations(): array
     {

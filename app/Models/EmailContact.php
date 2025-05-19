@@ -19,19 +19,21 @@ class EmailContact extends Model
         'last_updated_date' => 'datetime',
     ];
 
-    protected $fillable = [
-        'email',
-        'name',
-        'last_name',
-        'status',
-        'source',
-        'opt_in_date',
-        'opt_in_confirmation',
-        'custom_fields',
-        'creation_date',
-        'last_updated_date',
-        'has_crm',
-    ];
+
+protected $fillable = [
+    'email',
+    'name',
+    'last_name',
+    'status',
+    'source',
+    'opt_in_date',
+    'opt_in_confirmation',
+    'custom_fields',
+    'creation_date',
+    'last_updated_date',
+    'has_crm',
+    'notes', 
+];
 
     public function mailingLists()
     {
@@ -40,17 +42,17 @@ class EmailContact extends Model
             ->withTimestamps();
     }
 
-    protected static function boot()
+protected static function boot()
 {
     parent::boot();
 
-  
     static::updating(function ($model) {
-        $model->last_updated_date = now();
+        // Use the application timezone
+        $model->last_updated_date = now()->timezone(config('app.timezone'));
     });
 
     static::creating(function ($model) {
-        $now = now();
+        $now = now()->timezone(config('app.timezone'));
         $model->creation_date = $now;
         $model->last_updated_date = $now;
     });

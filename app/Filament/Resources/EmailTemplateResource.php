@@ -125,63 +125,68 @@ class EmailTemplateResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('subject_line')
-                    ->label('Subject')
-                    ->limit(50)
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('from_name')
-                    ->label('From Name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('from_address')
-                    ->label('From Email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->actions([
-                Tables\Actions\Action::make('preview')
-                    ->label('Preview')
-                    ->icon('heroicon-o-eye')
-                    ->modalHeading(fn($record) => $record->name . ' - Preview')
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
-                    ->modalWidth('max-w-5xl')
-                    ->modalContent(fn($record) => view('filament.resources.email-template-preview', [
-                        'emailTemplate' => $record,
-                        'showCode' => false
-                    ])),
-                Tables\Actions\Action::make('view_code')
-                    ->label('View Code')
-                    ->icon('heroicon-o-code-bracket')
-                    ->modalHeading(fn($record) => $record->name . ' - HTML Code')
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
-                    ->modalWidth('max-w-5xl')
-                    ->modalContent(fn($record) => view('filament.resources.email-template-preview', [
-                        'emailTemplate' => $record,
-                        'showCode' => true
-                    ])),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+{
+    return $table
+        ->columns([
+            Tables\Columns\TextColumn::make('name')->searchable(),
+            Tables\Columns\TextColumn::make('subject_line')
+                ->label('Subject')
+                ->limit(50)
+                ->searchable(),
+            Tables\Columns\TextColumn::make('from_name')
+                ->label('From Name')
+                ->searchable(),
+            Tables\Columns\TextColumn::make('from_address')
+                ->label('From Email')
+                ->searchable(),
+            Tables\Columns\TextColumn::make('creation_date')
+                ->label('Creation Date')
+                ->date()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            Tables\Columns\TextColumn::make('created_at')
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            Tables\Columns\TextColumn::make('updated_at')
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+        ])
+        ->defaultSort('creation_date', 'desc')
+        ->actions([
+            Tables\Actions\Action::make('preview')
+                ->label('Preview')
+                ->icon('heroicon-o-eye')
+                ->modalHeading(fn($record) => $record->name . ' - Preview')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->modalWidth('max-w-5xl')
+                ->modalContent(fn($record) => view('filament.resources.email-template-preview', [
+                    'emailTemplate' => $record,
+                    'showCode' => false
+                ])),
+            Tables\Actions\Action::make('view_code')
+                ->label('View Code')
+                ->icon('heroicon-o-code-bracket')
+                ->modalHeading(fn($record) => $record->name . ' - HTML Code')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->modalWidth('max-w-5xl')
+                ->modalContent(fn($record) => view('filament.resources.email-template-preview', [
+                    'emailTemplate' => $record,
+                    'showCode' => true
+                ])),
+            Tables\Actions\ViewAction::make(),
+            Tables\Actions\EditAction::make(),
+            Tables\Actions\DeleteAction::make(),
+        ])
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ]);
+}
 
     public static function infolist(Infolist $infolist): Infolist
     {
