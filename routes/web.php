@@ -43,18 +43,18 @@ Route::resource('email-contacts', EmailContactController::class);
 Route::get('/import-contacts', [EmailContactFileController::class, 'showImportForm'])->name('contacts.import.form');
 Route::post('/import-contacts', [EmailContactFileController::class, 'import'])->name('contacts.import');
 
-Route::get('/test-email', function() {
+Route::get('/test-email', function () {
     try {
         Mail::to('admin@admin.com')->send(new \App\Mail\TestEmail());
         return 'Email sent successfully';
     } catch (\Exception $e) {
-        return 'Error: '.$e->getMessage();
+        return 'Error: ' . $e->getMessage();
     }
 });
 
-Route::get('/test-smtp', function() {
+Route::get('/test-smtp', function () {
     $provider = App\Models\Provider::first();
-    
+
     $result = App\Support\MailConfigHelper::testConnection([
         'host' => $provider->smtp_host,
         'port' => $provider->smtp_port,
@@ -81,6 +81,21 @@ Route::delete('/received-emails/{receivedEmail}', [App\Http\Controllers\Received
     ->name('received-emails.destroy');
 Route::post('/received-emails/batch', [App\Http\Controllers\ReceivedEmailController::class, 'batch'])
     ->name('received-emails.batch');
+
+/*Route::get('/dashboard', function () {
+    $campaignId = \App\Models\CampaignPlanning::processing()->latest()->value('id') ?? 0;
+    return view('dashboard.progress', compact('campaignId'));
+});*/
+
+Route::get('/dashboard', function () {
+    $campaignId = CampaignPlanning::whereIn('status_type', ['scheduled', 'processing'])
+        ->latest('scheduled_time')
+        ->value('id') ?? 0;
+
+    return Inertia::render('Dashboard', [
+        'campaignId' => $campaignId,
+    ]);
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

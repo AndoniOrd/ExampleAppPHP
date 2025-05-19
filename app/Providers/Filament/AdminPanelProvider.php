@@ -20,6 +20,8 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Vormkracht10\FilamentMails\Facades\FilamentMails;
 use Vormkracht10\FilamentMails\FilamentMailsPlugin;
+use App\Filament\Widgets\CampaignProgress;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -53,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                CampaignProgress::class,
             ])
             ->middleware([
                 EncryptCookies::class,

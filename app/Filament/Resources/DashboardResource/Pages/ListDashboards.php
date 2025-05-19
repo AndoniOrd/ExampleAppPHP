@@ -25,6 +25,8 @@ class ListDashboards extends ListRecords
         return [
             \App\Filament\Resources\DashboardResource\Widgets\StatsOverview::class,
             \App\Filament\Resources\DashboardResource\Widgets\CampaignChart::class,
+            \App\Filament\Widgets\CampaignProgress::class,
+
         ];
     }
 

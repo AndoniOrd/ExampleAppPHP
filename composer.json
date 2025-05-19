@@ -16,6 +16,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
+        "pusher/pusher-php-server": "^2.1",
         "saade/filament-fullcalendar": "^3.2",
         "santigarcor/laratrust": "8.4",
         "spatie/laravel-permission": "^6.16",
@@ -78,6 +79,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
+            "composer/installers": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         }

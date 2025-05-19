@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\EmailProgressUpdated;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,128 +17,64 @@ class SendEmailJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $emailData;
+    protected $totalEmails;
+    protected $campaignId;
 
-    public function __construct(array $emailData)
+    public function __construct(array $emailData, int $totalEmails, int $campaignId)
     {
-        // Make sure we validate provider data on job creation
-        if (empty($emailData['provider']['host'])) {
-            Log::critical('Missing host in provider configuration when creating job');
-            
-            // Set default from config
-            $emailData['provider']['host'] = config('mail.mailers.smtp.host');
-            
-            // If still empty, use a fallback
-            if (empty($emailData['provider']['host'])) {
-                $emailData['provider']['host'] = 'smtp.gmail.com';
-            }
-        }
-        
         $this->emailData = $emailData;
+        $this->totalEmails = $totalEmails;
+        $this->campaignId = $campaignId;
     }
 
     public function handle()
     {
         try {
-            // Get provider data or use an empty array if not set
+            // Configurar SMTP dinámico
             $provider = $this->emailData['provider'] ?? [];
             
-            // Validate critical connection info
-            $host = $provider['host'] ?? null;
-            if (empty($host)) {
-                // Get from .env config
-                $host = config('mail.mailers.smtp.host');
-                
-                // If still empty, use Gmail as fallback
-                if (empty($host)) {
-                    $host = 'smtp.gmail.com';
-                }
-                
-                Log::warning('Missing host in provider config, using fallback', ['host' => $host]);
-            }
-            
-            // Ensure port is set and valid
-            $port = isset($provider['port']) ? (int)$provider['port'] : null;
-            if (empty($port) || $port <= 0) {
-                $port = (int)config('mail.mailers.smtp.port', 587);
-            }
-            
-            // Get encryption
-            $encryption = $provider['encryption'] ?? config('mail.mailers.smtp.encryption', 'tls');
-            
-            // Log what we're using for debugging
-            Log::info('Setting mail transport configuration', [
-                'host' => $host,
-                'port' => $port,
-                'encryption' => $encryption
-            ]);
-            
-            // Configure mailer with verified values
-            Config::set('mail.mailers.smtp.transport', 'smtp');
-            Config::set('mail.mailers.smtp.host', $host);
-            Config::set('mail.mailers.smtp.port', $port);
-            Config::set('mail.mailers.smtp.encryption', $encryption);
+            Config::set('mail.mailers.smtp.host', $provider['host'] ?? config('mail.mailers.smtp.host'));
+            Config::set('mail.mailers.smtp.port', $provider['port'] ?? config('mail.mailers.smtp.port'));
+            Config::set('mail.mailers.smtp.encryption', $provider['encryption'] ?? config('mail.mailers.smtp.encryption'));
             Config::set('mail.mailers.smtp.username', $provider['username'] ?? config('mail.mailers.smtp.username'));
             Config::set('mail.mailers.smtp.password', $provider['password'] ?? config('mail.mailers.smtp.password'));
-            Config::set('mail.mailers.smtp.timeout', 30);
             
-            // Ensure from address is set
-            $fromAddress = $provider['from_address'] ?? null;
-            if (empty($fromAddress)) {
-                $fromAddress = config('mail.from.address');
-                if (empty($fromAddress)) {
-                    $fromAddress = 'noreply@example.com';
-                }
-            }
-            
-            $fromName = $provider['from_name'] ?? config('mail.from.name', 'System');
-            
-            // Set from address
-            Config::set('mail.from.address', $fromAddress);
-            Config::set('mail.from.name', $fromName);
-            
-            // Actually send the email
+            $fromAddress = $provider['from_address'] ?? config('mail.from.address');
+            $fromName = $provider['from_name'] ?? config('mail.from.name');
+
+            // Enviar un solo email
             Mail::send([], [], function ($message) use ($fromAddress, $fromName) {
-                $message->to(
-                    $this->emailData['contact_email'],
-                    $this->emailData['contact_name'] ?? null
-                )
-                ->subject($this->emailData['subject'] ?? 'No Subject')
-                ->from($fromAddress, $fromName)
-                ->html($this->emailData['html_content']) // Use HTML content from template
-                ->text($this->emailData['plain_text_content']); // Include plain text version
+                $message
+                    ->to($this->emailData['contact_email'], $this->emailData['contact_name'])
+                    ->subject($this->emailData['subject'])
+                    ->from($fromAddress, $fromName)
+                    ->html($this->emailData['html_content'])
+                    ->text($this->emailData['plain_text_content']);
             });
 
-            Log::channel('daily')->info('Email sent successfully', [
+            // Emitir evento de progreso
+            $percent = (int) (($this->attempts() / $this->totalEmails) * 100);
+            broadcast(new EmailProgressUpdated($this->campaignId, $percent));
+
+            Log::info('Email sent', [
                 'contact_email' => $this->emailData['contact_email'],
-                'using_host' => config('mail.mailers.smtp.host') // Log what host was actually used
-            ]);
-        } catch (\Exception $e) {
-            Log::channel('daily')->error('Email sending failed', [
-                'contact_email' => $this->emailData['contact_email'] ?? 'unknown',
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'config' => [
-                    'host' => config('mail.mailers.smtp.host'),
-                    'port' => config('mail.mailers.smtp.port'),
-                    'encryption' => config('mail.mailers.smtp.encryption')
-                ]
+                'progress' => $percent
             ]);
 
+        } catch (\Exception $e) {
+            Log::error('Email sending failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             throw $e;
         }
     }
 
     public function failed(\Throwable $exception)
     {
-        Log::channel('daily')->critical('Email job failed', [
-            'contact_email' => $this->emailData['contact_email'] ?? 'unknown',
-            'exception' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString(),
-            'config' => [
-                'host' => config('mail.mailers.smtp.host'),
-                'port' => config('mail.mailers.smtp.port'),
-                'encryption' => config('mail.mailers.smtp.encryption')
-            ]
+        Log::critical('Email job failed', [
+            'campaign_id' => $this->campaignId,
+            'exception' => $exception->getMessage()
         ]);
     }
 }

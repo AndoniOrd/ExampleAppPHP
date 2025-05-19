@@ -5,11 +5,9 @@ namespace App\Console\Commands;
 use App\Jobs\SendEmailJob;
 use App\Models\CampaignPlanning;
 use App\Models\Provider;
-use App\Helpers\MailConfigHelper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
 
 class EmailSenderCommand extends Command
 {
@@ -19,9 +17,9 @@ class EmailSenderCommand extends Command
     public function handle()
     {
         $activeProviders = Provider::where('active', true)
-    ->whereNotNull('smtp_host')
-    ->whereNotNull('smtp_port')
-    ->get();
+            ->whereNotNull('smtp_host')
+            ->whereNotNull('smtp_port')
+            ->get();
 
         $fallbackConfig = [
             'smtp_host' => config('mail.mailers.smtp.host'),
@@ -93,6 +91,9 @@ class EmailSenderCommand extends Command
 
         $this->info("Dispatching {$contacts->count()} emails for campaign: {$campaign->name}");
 
+        $emailTemplate = $campaign->emailTemplate;
+        $totalContacts = $contacts->count();
+
         foreach ($contacts as $contact) {
             $retryCount = 0;
             $sent = false;
@@ -127,36 +128,22 @@ class EmailSenderCommand extends Command
                         'from_name' => $provider->from_name ?? config('mail.from.name'),
                     ];
 
-                    Log::info("Using provider", [
-                        'provider_name' => $provider->name,
-                        'host' => $providerData['host'],
-                        'port' => $providerData['port']
-                    ]);
-
-                   // In processCampaign() method:
-$emailTemplate = $campaign->emailTemplate;
-
-SendEmailJob::dispatch([
-    'campaign_id' => $campaign->id,
-    'contact_id' => $contact->id,
-    'provider' => $providerData,
-    'contact_email' => $contact->email,
-    'contact_name' => $contact->name,
-    'subject' => $emailTemplate->subject_line ?? $campaign->name, // Use template subject
-    'html_content' => $emailTemplate->html_content, // Include HTML content
-    'plain_text_content' => $emailTemplate->plain_text_version,
-    'data' => [
-        'campaign_name' => $campaign->name,
-        'contact_name' => $contact->name ?? 'Valued Customer',
-        'contact_email' => $contact->email,
-        'unsubscribe_link' => $campaign->tracking_options !== 'none'
-            ? route('unsubscribe', [
-                'contact' => $contact->id,
-                'campaign' => $campaign->id
-              ])
-            : null
-    ]
-]);
+                    // Despachar un job por cada contacto con los 3 parámetros
+                    SendEmailJob::dispatch(
+                        [
+                            'provider' => $providerData,
+                            'contact_email' => $contact->email,
+                            'contact_name' => $contact->name,
+                            'subject' => $emailTemplate->subject_line ?? $campaign->name,
+                            'html_content' => $emailTemplate->html_content,
+                            'plain_text_content' => $emailTemplate->plain_text_version,
+                            'unsubscribe_link' => $campaign->tracking_options !== 'none'
+                                ? route('unsubscribe', ['contact' => $contact->id, 'campaign' => $campaign->id])
+                                : null
+                        ],
+                        $totalContacts,
+                        $campaign->id
+                    );
 
                     $sent = true;
                     $totalEmailsDispatched++;
@@ -172,42 +159,6 @@ SendEmailJob::dispatch([
             }
         }
 
-        $this->info("ACTIVE PROVIDERS:");
-        foreach ($providers as $p) {
-            $this->info(" - {$p->name} ({$p->smtp_host}:{$p->smtp_port})");
-        }
-
-        $this->info("Processing {$contacts->count()} contacts...");
-
         $campaign->update(['status_type' => 'completed']);
-    }
-
-    public function debugMailingListContacts($mailingList)
-    {
-        $this->info("Debugging Mailing List: {$mailingList->name} (ID: {$mailingList->id})");
-
-        $directContacts = $mailingList->emailContacts;
-        $this->info("Direct contacts count: " . $directContacts->count());
-
-        $relationshipMethodContacts = $mailingList->emailContacts();
-        $this->info("Relationship method contacts query: " . $relationshipMethodContacts->toSql());
-
-        $filteredContacts = $mailingList->emailContacts()
-            ->wherePivot('status', 'subscribed')
-            ->whereNotNull('email')
-            ->where('email', 'LIKE', '%@%')
-            ->toSql();
-
-        $this->info("Filtered contacts SQL: " . $filteredContacts);
-
-        $pivotEntries = \DB::table('email_contact_mailing_list')
-            ->where('mailing_list_id', $mailingList->id)
-            ->get();
-
-        $this->info("Pivot table entries count: " . $pivotEntries->count());
-
-        foreach ($pivotEntries as $entry) {
-            $this->info("Pivot Entry Debug: " . json_encode($entry));
-        }
     }
 }
