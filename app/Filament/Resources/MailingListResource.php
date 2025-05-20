@@ -92,13 +92,15 @@ public static function form(Form $form): Form
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->label('Type')
-                    ->sortable()
-                    ->enum([
-                        'newsletter' => 'Newsletter',
-                        'promotions' => 'Promotions',
-                        'updates'    => 'Updates',
-                    ]),
+                ->label('Type')
+                ->sortable()
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'newsletter' => 'Newsletter',
+                    'promotions' => 'Promotions',
+                    'updates'    => 'Updates',
+                    default      => ucfirst($state),
+                }),
+
 
                 Tables\Columns\TextColumn::make('creation_date')
                     ->dateTime()
