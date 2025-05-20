@@ -12,14 +12,13 @@ class CreateMailingList extends CreateRecord
     
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Assign current user as owner if not explicitly set
         $data['owner_id'] = $data['owner_id'] ?? auth()->id();
-        
-        // Ensure required fields have default values if not provided
+        $data['created_by'] = auth()->id();
         $data['status'] = $data['status'] ?? 'active';
+        $data['type'] = $data['type'] ?? 'newsletter'; // Ensure type field has a default
         $data['description'] = $data['description'] ?? '';
-        $data['last_updated_date'] = $data['last_updated_date'] ?? now();
-        $data['creation_date'] = $data['creation_date'] ?? now();
+        $data['last_updated_date'] = now();
+        $data['creation_date'] = now();
         
         return $data;
     }

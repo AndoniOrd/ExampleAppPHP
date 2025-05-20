@@ -16,4 +16,10 @@ class EditMailingList extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+    
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['last_updated_date'] = now();
+        return $data;
+    }
 }

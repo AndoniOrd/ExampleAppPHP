@@ -17,16 +17,69 @@ class MailingListResource extends Resource
     protected static ?string $model = MailingList::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                DateTimePicker::make('creation_date')
-                    ->default(now())
-                    ->required(),
+                // First section - Basic information (most important fields)
+                Forms\Components\Section::make('Basic Information')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\Select::make('type')
+                            ->options([
+                                'newsletter' => 'Newsletter',
+                                'promotions' => 'Promotions',
+                                'updates' => 'Updates',
+                            ])
+                            ->required(),
+
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'active' => 'Active',
+                                'draft' => 'Draft',
+                                'archived' => 'Archived',
+                            ])
+                            ->default('active')
+                            ->required(),
+                    ])->columns(3),
+
+                // Second section - Additional details
+                Forms\Components\Section::make('Additional Details')
+                    ->schema([
+                        Forms\Components\Textarea::make('description')
+                            ->nullable(),
+
+                        Forms\Components\TextInput::make('tags')
+                            ->nullable()
+                            ->helperText('Comma-separated list of tags (e.g. "summer,sale,2025")'),
+
+                        Forms\Components\DateTimePicker::make('creation_date')
+                            ->default(now())
+                            ->required(),
+
+                        Forms\Components\DateTimePicker::make('last_updated_date')
+                            ->default(now())
+                            ->required(),
+                    ])->columns(2)->collapsed(),
+
+                // Third section - Ownership Information
+                Forms\Components\Section::make('Ownership')
+                    ->schema([
+                        Forms\Components\Select::make('owner_id')
+                            ->label('Owner')
+                            ->relationship('owner', 'name')
+                            ->default(auth()->id())
+                            ->required(),
+
+                        Forms\Components\Select::make('created_by')
+                            ->label('Created By')
+                            ->relationship('creator', 'name')
+                            ->default(auth()->id())
+                            ->required(),
+                    ])->columns(2)->collapsed(),
             ]);
     }
 
@@ -37,15 +90,35 @@ class MailingListResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Type')
+                    ->sortable()
+                    ->enum([
+                        'newsletter' => 'Newsletter',
+                        'promotions' => 'Promotions',
+                        'updates'    => 'Updates',
+                    ]),
+
                 Tables\Columns\TextColumn::make('creation_date')
                     ->dateTime()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'active'   => 'success',
+                        'draft'    => 'warning',
+                        'archived' => 'danger',
+                        default    => 'gray',
+                    }),
+
                 Tables\Columns\TextColumn::make('emailContacts_count')
                     ->counts('emailContacts')
                     ->label('Contacts'),
             ])
             ->filters([
-                // Filters can be added here
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

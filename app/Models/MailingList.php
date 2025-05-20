@@ -14,19 +14,22 @@ class MailingList extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'creation_date',
-        'description',
-        'status',
-        'last_updated_date',
-        'owner_id',
-    ];
-    
+    'name',
+    'description',
+    'creation_date',
+    'status',
+    'type',
+    'tags',
+    'last_updated_date',
+    'owner_id',
+    'created_by'
+];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'creation_date' => 'datetime',
-        'last_updated_date' => 'datetime'
+        'last_updated_date' => 'datetime',
     ];
 
     /**
@@ -34,26 +37,20 @@ class MailingList extends Model
      */
     public function contacts()
     {
-        // You can either remove this method or keep it with a deprecation notice
-        // that logs a warning when used
         \Log::warning('The contacts() relationship is deprecated. Use emailContacts() instead.');
-        
-        // Forward to the correct relationship to maintain backward compatibility
         return $this->emailContacts();
     }
 
     /**
      * The email contacts that belong to this mailing list.
-     * 
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function emailContacts()
+    public function emailContacts(): BelongsToMany
     {
         return $this->belongsToMany(EmailContact::class, 'email_contact_mailing_list')
             ->withPivot('status', 'subscribed_at', 'unsubscribed_at')
             ->withTimestamps();
     }
-    
+
     /**
      * Get only subscribed contacts
      */
@@ -98,8 +95,16 @@ class MailingList extends Model
     /**
      * Get the owner of the mailing list
      */
-    public function owner()
+    public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    /**
+     * Get the creator of the mailing list
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
