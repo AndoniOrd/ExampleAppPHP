@@ -127,12 +127,7 @@ class CampaignPlanningResource extends Resource
                             ->required()
                             ->maxLength(255),
                         Forms\Components\Select::make('tracking_options')
-                            ->options([
-                                'open' => 'Opens Only',
-                                'click' => 'Clicks Only',
-                                'open_click' => 'Opens and Clicks',
-                                'none' => 'No Tracking',
-                            ])
+                            ->options(TrackingOptions::class) 
                             ->required(),
                     ])->columns(2),
             ]);
