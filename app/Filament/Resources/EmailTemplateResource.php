@@ -25,104 +25,100 @@ class EmailTemplateResource extends Resource
     protected static ?string $navigationGroup = 'Marketing';
 
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Template Details')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('subject_line')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('description')
-                            ->nullable()
-                            ->maxLength(500),
-                        Forms\Components\TextInput::make('from_name')
-                            ->required()
-                            ->label('From Name')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('from_address')
-                            ->required()
-                            ->label('From Email')
-                            ->email()
-                            ->maxLength(255),
-                        Forms\Components\Hidden::make('creator')
-                            ->default(auth()->id())
-                            ->required()
-                            ->dehydrated(true),
-                        Forms\Components\Hidden::make('creation_date')
-                            ->default(now()->format('Y-m-d'))
-                            ->required()
-                            ->dehydrated(true),
-                        Forms\Components\Hidden::make('last_updated_date')
-                            ->default(now()->format('Y-m-d'))
-                            ->required()
-                            ->dehydrated(true),
-                        Forms\Components\Hidden::make('category')
-                            ->default('marketing')
-                            ->required()
-                            ->dehydrated(true),
-                        Forms\Components\Hidden::make('status')
-                            ->default('active')
-                            ->required()
-                            ->dehydrated(true),
+{
+    return $form
+        ->schema([
+            Forms\Components\Section::make('Template Details')
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(255),
+                    Forms\Components\TextInput::make('subject_line')
+                        ->required()
+                        ->maxLength(255),
+                    Forms\Components\Textarea::make('description')
+                        ->nullable()
+                        ->maxLength(500),
+                    Forms\Components\TextInput::make('from_name')
+                        ->required()
+                        ->label('From Name')
+                        ->maxLength(255),
+                    Forms\Components\TextInput::make('from_address')
+                        ->required()
+                        ->label('From Email')
+                        ->email()
+                        ->maxLength(255),
+                    Forms\Components\Hidden::make('creator')
+                        ->default(auth()->id())
+                        ->required()
+                        ->dehydrated(true),
+                    Forms\Components\Hidden::make('creation_date')
+                        ->default(now()->format('Y-m-d'))
+                        ->required()
+                        ->dehydrated(true),
+                    Forms\Components\Hidden::make('last_updated_date')
+                        ->default(now()->format('Y-m-d'))
+                        ->required()
+                        ->dehydrated(true),
+                    Forms\Components\Hidden::make('category')
+                        ->default('marketing')
+                        ->required()
+                        ->dehydrated(true),
+                    Forms\Components\Hidden::make('status')
+                        ->default('active')
+                        ->required()
+                        ->dehydrated(true),
 
-                        Forms\Components\Tabs::make('Content')
-                            ->tabs([
-                                Forms\Components\Tabs\Tab::make('HTML Editor')
-                                    ->schema([
-                                        CKEditor::make('html_content')
-                                            ->label('HTML Content')
-                                            ->required()
-                                            ->live(onBlur: true)
-                                            ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                                // Sanitize trailing patterns
-                                                $cleaned = preg_replace(
-                                                    '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
-                                                    '',
-                                                    $state
-                                                );
-                                                if ($cleaned !== $state) {
-                                                    $set('html_content', $cleaned);
-                                                }
-                                                // Update plain text version
-                                                $set('plain_text_version', strip_tags($cleaned));
-                                            })
-                                            ->dehydrateStateUsing(function ($state) {
-                                                // Clean before saving
-                                                return preg_replace(
-                                                    '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
-                                                    '',
-                                                    $state
-                                                );
-                                            })
-                                            ->columnSpanFull(),
-                                    ]),
-                                Forms\Components\Tabs\Tab::make('Plain Text')
-                                    ->schema([
-                                        Forms\Components\Textarea::make('plain_text_version')
-                                            ->required()
-                                            ->rows(10)
-                                            ->columnSpanFull(),
-                                    ]),
-                                Forms\Components\Tabs\Tab::make('Preview')
-                                    ->schema([
-                                        Forms\Components\Placeholder::make('preview')
-                                            ->content(function (Forms\Get $get) {
-                                                return new HtmlString($get('html_content') ?: 'No content to preview');
-                                            })
-                                            ->columnSpanFull(),
-                                    ]),
-                            ])
-                            ->activeTab(0)
-                            ->columnSpanFull(),
-                    ]),
-            ])
-            ->statePath('data')
-            ->model(EmailTemplate::class);
-    }
+                    Forms\Components\Tabs::make('Content')
+                        ->tabs([
+                            Forms\Components\Tabs\Tab::make('HTML Editor')
+                                ->schema([
+                                    CKEditor::make('html_content')
+                                        ->label('HTML Content')
+                                        ->required()
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                            $cleaned = preg_replace(
+                                                '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
+                                                '',
+                                                $state
+                                            );
+                                            if ($cleaned !== $state) {
+                                                $set('html_content', $cleaned);
+                                            }
+                                            $set('plain_text_version', strip_tags($cleaned));
+                                        })
+                                        ->dehydrateStateUsing(function ($state) {
+                                            return preg_replace(
+                                                '/<p><br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<br>&nbsp;\|&nbsp;<\/p><p>$/i',
+                                                '',
+                                                $state
+                                            );
+                                        })
+                                        ->columnSpanFull(),
+                                ]),
+                            Forms\Components\Tabs\Tab::make('Plain Text')
+                                ->schema([
+                                    Forms\Components\Textarea::make('plain_text_version')
+                                        ->required()
+                                        ->rows(10)
+                                        ->columnSpanFull(),
+                                ]),
+                            Forms\Components\Tabs\Tab::make('Preview')
+                                ->schema([
+                                    Forms\Components\Placeholder::make('preview')
+                                        ->content(function (Forms\Get $get) {
+                                            return new HtmlString($get('html_content') ?: 'No content to preview');
+                                        })
+                                        ->columnSpanFull(),
+                                ]),
+                        ])
+                        ->activeTab(0)
+                        ->columnSpanFull(),
+                ]),
+        ])
+        ->model(EmailTemplate::class);
+}
 
     public static function table(Table $table): Table
 {

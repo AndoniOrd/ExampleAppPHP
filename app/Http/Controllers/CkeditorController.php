@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Controller for handling CKEditor image uploads
+ * 
+ * @route POST /ckeditor/upload - Handles file uploads from CKEditor
+ */
 class CkeditorController extends Controller
 {
     public function upload(Request $request)
@@ -18,22 +23,22 @@ class CkeditorController extends Controller
         ]);
 
         try {
-        $request->validate([
-            'upload' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:5120',
-        ]);
-
-        if ($request->hasFile('upload')) {
-            $file = $request->file('upload');
-            $fileName = Str::random(40).'.'.$file->extension();
-            
-            // Store using public disk
-            $path = $file->storeAs('email-templates', $fileName, 'public');
-            
-            return response()->json([
-                'uploaded' => true,
-                'url' => asset(Storage::disk('public')->url($path))
+            $request->validate([
+                'upload' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:5120',
             ]);
-        }
+
+            if ($request->hasFile('upload')) {
+                $file = $request->file('upload');
+                $fileName = Str::random(40).'.'.$file->extension();
+                
+                // Store using public disk
+                $path = $file->storeAs('email-templates', $fileName, 'public');
+                
+                return response()->json([
+                    'uploaded' => true,
+                    'url' => Storage::disk('public')->url($path)
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('Error uploading file', [
                 'error' => $e->getMessage(),
@@ -47,5 +52,12 @@ class CkeditorController extends Controller
                 ],
             ], 500);
         }
+
+        return response()->json([
+            'uploaded' => false,
+            'error' => [
+                'message' => 'No file was uploaded',
+            ],
+        ], 400);
     }
 }
