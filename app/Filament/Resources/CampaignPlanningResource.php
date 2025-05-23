@@ -153,6 +153,8 @@ class CampaignPlanningResource extends Resource
                         'scheduled' => 'warning',
                         'processing' => 'info',
                         'completed' => 'success',
+                        'failed' => 'danger', 
+                        default => 'gray',
                     }),
             ])
             ->filters([

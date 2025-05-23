@@ -17,7 +17,7 @@ class MailingListResource extends Resource
     protected static ?string $model = MailingList::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-public static function form(Form $form): Form
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -58,10 +58,18 @@ public static function form(Form $form): Form
 
                         Forms\Components\DateTimePicker::make('creation_date')
                             ->default(now())
+                            ->seconds(false)
+                            ->displayFormat('M j, Y H:i')
+                            ->native(false)
+                            ->disabled() // Make it read-only since it's set automatically
+                            ->dehydrated() // Ensure the value is still saved
                             ->required(),
 
                         Forms\Components\DateTimePicker::make('last_updated_date')
                             ->default(now())
+                            ->seconds(false)
+                            ->displayFormat('M j, Y H:i')
+                            ->native(false)
                             ->required(),
                     ])->columns(2)->collapsed(),
 
@@ -92,18 +100,17 @@ public static function form(Form $form): Form
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('type')
-                ->label('Type')
-                ->sortable()
-                ->formatStateUsing(fn (string $state): string => match ($state) {
-                    'newsletter' => 'Newsletter',
-                    'promotions' => 'Promotions',
-                    'updates'    => 'Updates',
-                    default      => ucfirst($state),
-                }),
-
+                    ->label('Type')
+                    ->sortable()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'newsletter' => 'Newsletter',
+                        'promotions' => 'Promotions',
+                        'updates'    => 'Updates',
+                        default      => ucfirst($state),
+                    }),
 
                 Tables\Columns\TextColumn::make('creation_date')
-                    ->dateTime()
+                    ->dateTime('M j, Y H:i') // Show time in table
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('status')

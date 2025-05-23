@@ -40,7 +40,7 @@ class EmailSenderCommand extends Command
             $providers = $activeProviders;
         }
 
-        $campaigns = CampaignPlanning::with(['mailingList.contacts'])
+        $campaigns = CampaignPlanning::with(['mailingList.emailContacts'])
             ->where('status_type', 'scheduled')
             ->where('scheduled_time', '<=', Carbon::now())
             ->get();
@@ -134,29 +134,29 @@ class EmailSenderCommand extends Command
                     ]);
 
                    // In processCampaign() method:
-$emailTemplate = $campaign->emailTemplate;
+                $emailTemplate = $campaign->emailTemplate;
 
-SendEmailJob::dispatch([
-    'campaign_id' => $campaign->id,
-    'contact_id' => $contact->id,
-    'provider' => $providerData,
-    'contact_email' => $contact->email,
-    'contact_name' => $contact->name,
-    'subject' => $emailTemplate->subject_line ?? $campaign->name, // Use template subject
-    'html_content' => $emailTemplate->html_content, // Include HTML content
-    'plain_text_content' => $emailTemplate->plain_text_version,
-    'data' => [
-        'campaign_name' => $campaign->name,
-        'contact_name' => $contact->name ?? 'Valued Customer',
-        'contact_email' => $contact->email,
-        'unsubscribe_link' => $campaign->tracking_options !== 'none'
-            ? route('unsubscribe', [
-                'contact' => $contact->id,
-                'campaign' => $campaign->id
-              ])
-            : null
-    ]
-]);
+                SendEmailJob::dispatch([
+                    'campaign_id' => $campaign->id,
+                    'contact_id' => $contact->id,
+                    'provider' => $providerData,
+                    'contact_email' => $contact->email,
+                    'contact_name' => $contact->name,
+                    'subject' => $emailTemplate->subject_line ?? $campaign->name, // Use template subject
+                    'html_content' => $emailTemplate->html_content, // Include HTML content
+                    'plain_text_content' => $emailTemplate->plain_text_version,
+                    'data' => [
+                        'campaign_name' => $campaign->name,
+                        'contact_name' => $contact->name ?? 'Valued Customer',
+                        'contact_email' => $contact->email,
+                        'unsubscribe_link' => $campaign->tracking_options !== 'none'
+                            ? route('unsubscribe', [
+                                'contact' => $contact->id,
+                                'campaign' => $campaign->id
+                            ])
+                            : null
+                    ]
+                ]);
 
                     $sent = true;
                     $totalEmailsDispatched++;

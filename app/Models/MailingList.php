@@ -8,22 +8,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\EmailContact;
 use App\Models\User;
+use Carbon\Carbon;
 
 class MailingList extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-    'name',
-    'description',
-    'creation_date',
-    'status',
-    'type',
-    'tags',
-    'last_updated_date',
-    'owner_id',
-    'created_by'
-];
+        'name',
+        'description',
+        'creation_date',
+        'status',
+        'type',
+        'tags',
+        'last_updated_date',
+        'owner_id',
+        'created_by'
+    ];
 
     protected $casts = [
         'created_at' => 'datetime',
@@ -32,18 +33,38 @@ class MailingList extends Model
         'last_updated_date' => 'datetime',
     ];
 
-    /**
-     * @deprecated Use emailContacts() instead
-     */
-    public function contacts()
+    // IMPORTANT: Override the create method to ensure creation_date is set
+    public static function create(array $attributes = [])
     {
-        \Log::warning('The contacts() relationship is deprecated. Use emailContacts() instead.');
-        return $this->emailContacts();
+        // Force set creation_date and last_updated_date with current timestamp
+        $attributes['creation_date'] = Carbon::now();
+        $attributes['last_updated_date'] = Carbon::now();
+        
+        return parent::create($attributes);
     }
 
-    /**
-     * The email contacts that belong to this mailing list.
-     */
+    // Also handle it in boot method as backup
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            // Force set creation_date with current timestamp including time
+            if (empty($model->creation_date)) {
+                $model->creation_date = Carbon::now();
+            }
+            if (empty($model->last_updated_date)) {
+                $model->last_updated_date = Carbon::now();
+            }
+        });
+        
+        static::updating(function ($model) {
+            // Update last_updated_date when updating
+            $model->last_updated_date = Carbon::now();
+        });
+    }
+
+    // Your existing relationships...
     public function emailContacts(): BelongsToMany
     {
         return $this->belongsToMany(EmailContact::class, 'email_contact_mailing_list')
@@ -51,9 +72,6 @@ class MailingList extends Model
             ->withTimestamps();
     }
 
-    /**
-     * Get only subscribed contacts
-     */
     public function subscribedContacts()
     {
         return $this->emailContacts()
@@ -61,9 +79,6 @@ class MailingList extends Model
             ->wherePivotNull('unsubscribed_at');
     }
 
-    /**
-     * Get only unsubscribed contacts
-     */
     public function unsubscribedContacts()
     {
         return $this->emailContacts()
@@ -71,9 +86,6 @@ class MailingList extends Model
             ->orWherePivotNotNull('unsubscribed_at');
     }
 
-    /**
-     * Add a contact to the mailing list
-     */
     public function addContact(EmailContact $contact, array $attributes = [])
     {
         $defaults = [
@@ -84,25 +96,16 @@ class MailingList extends Model
         return $this->emailContacts()->attach($contact->id, array_merge($defaults, $attributes));
     }
 
-    /**
-     * Remove a contact from the mailing list
-     */
     public function removeContact(EmailContact $contact)
     {
         return $this->emailContacts()->detach($contact->id);
     }
 
-    /**
-     * Get the owner of the mailing list
-     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    /**
-     * Get the creator of the mailing list
-     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

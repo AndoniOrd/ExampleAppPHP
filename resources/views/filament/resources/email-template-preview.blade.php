@@ -4,10 +4,10 @@
     <div class="flex items-center justify-between">
         <div>
             <h3 class="text-lg font-medium">
-                {{ $emailTemplate->subject_line ?? $emailTemplate->subject ?? 'No Subject' }}
+                {{ $emailTemplate->subject_line ?: 'No Subject' }}
             </h3>
             <p class="text-sm text-gray-500">
-                Template: {{ $emailTemplate->name }}
+                Template: {{ $emailTemplate->name ?: 'N/A' }}
             </p>
         </div>
         
@@ -27,15 +27,17 @@
         @endif
     </div>
 
-    @if (!$showCode)
-        <div class="bg-white border border-gray-200 rounded shadow p-4 overflow-auto" style="min-height: 300px; color: #333;">
-            {!! $emailTemplate->html_content ?? $emailTemplate->content ?? '<p>No content available</p>' !!}
+    @if(!$showCode)
+        <div class="bg-white border border-gray-200 rounded shadow p-4 overflow-auto" style="min-height: 300px;">
+            @if($emailTemplate->html_content)
+                {!! $emailTemplate->html_content !!}
+            @else
+                <div class="text-gray-500 italic">No content available</div>
+            @endif
         </div>
     @else
         <div class="bg-gray-100 rounded shadow p-4 overflow-auto max-h-[600px]">
-            <pre class="text-sm" style="color: #333;">
-                <code>{{ htmlspecialchars($emailTemplate->html_content ?? $emailTemplate->content ?? '') }}</code>
-            </pre>
+            <pre class="text-sm"><code>{{ htmlspecialchars($emailTemplate->html_content) }}</code></pre>
         </div>
     @endif
 </div>

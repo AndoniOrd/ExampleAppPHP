@@ -34,7 +34,7 @@ class CampaignPlanningResource extends Resource
                         Forms\Components\Textarea::make('description')
                             ->columnSpanFull(),
 
-                        // Custom implementation for email template selection
+                        // Fixed email template selection
                         Forms\Components\Grid::make()
                             ->schema([
                                 Forms\Components\Select::make('email_template_id')
@@ -63,27 +63,31 @@ class CampaignPlanningResource extends Resource
                                                         ->email()
                                                         ->maxLength(255),
                                                     Forms\Components\RichEditor::make('html_content')
-                                                        ->required(),
+                                                        ->label('Email Content')
+                                                        ->required()
+                                                        ->columnSpanFull(),
                                                 ])
-                                                ->action(function (array $data, Forms\Components\Actions\Action $action) {
-                                                    // Manually create the email template with all required fields
-                                                    $template = new EmailTemplate();
-                                                    $template->name = $data['name'];
-                                                    $template->subject_line = $data['subject_line'];
-                                                    $template->from_name = $data['from_name'];
-                                                    $template->from_address = $data['from_address'];
-                                                    $template->html_content = $data['html_content'];
-                                                    $template->plain_text_version = strip_tags($data['html_content']);
-                                                    $template->creator = auth()->id();
-                                                    $template->creation_date = now()->format('Y-m-d');
-                                                    $template->last_updated_date = now()->format('Y-m-d');
-                                                    $template->category = 'marketing';
-                                                    $template->status = 'active';
-                                                    $template->save();
+                                                ->action(function (array $data) {
+                                                    // Use Filament's model creation with proper data mapping
+                                                    $template = EmailTemplate::create([
+                                                        'name' => $data['name'],
+                                                        'subject_line' => $data['subject_line'],
+                                                        'from_name' => $data['from_name'],
+                                                        'from_address' => $data['from_address'],
+                                                        'html_content' => $data['html_content'],
+                                                        'plain_text_version' => strip_tags($data['html_content']),
+                                                        'creator' => auth()->id(),
+                                                        'creation_date' => now()->format('Y-m-d'),
+                                                        'last_updated_date' => now()->format('Y-m-d'),
+                                                        'category' => 'marketing',
+                                                        'status' => 'active',
+                                                    ]);
 
-                                                    $action->success();
-                                                    
-                                                    return $template->id;
+                                                    return $template->getKey();
+                                                })
+                                                ->after(function (Forms\Components\Select $component, $state) {
+                                                    // Refresh the select options after creation
+                                                    $component->getSelectComponent()->refresh();
                                                 });
                                         }
                                     )
