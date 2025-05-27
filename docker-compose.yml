@@ -5,6 +5,10 @@ services:
             dockerfile: ./docker/Dockerfile
         container_name: maily-app
         restart: unless-stopped
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.maily_server-route.rule=Host(`maily.onxwork.pl`)"
+            - "traefik.http.routers.maily_server-route.entrypoints=web"
         ports:
             - "${APP_PORT:-8080}:80"
         volumes:
@@ -42,7 +46,7 @@ services:
             - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
             - MAIL_FROM_NAME="${MAIL_FROM_NAME}"
         networks:
-            - nginx_network
+            - traefik_webgateway
             - maily-network
         depends_on:
             - mysql
@@ -175,10 +179,10 @@ services:
 #            - redis
 
 networks:
-    nginx_network:
-        external: true
     maily-network:
         driver: bridge
+    traefik_webgateway:
+        external: true
 
 volumes:
     mysql-data:
