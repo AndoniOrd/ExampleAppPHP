@@ -19,6 +19,7 @@ COPY . .
 
 # Instalacja zależności PHP
 RUN composer install --optimize-autoloader --no-dev --no-scripts
+RUN composer update
 
 # Instalacja zależności Node.js i budowanie assetów Vue
 RUN npm ci && npm run build
