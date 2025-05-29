@@ -14,9 +14,13 @@ class DatabaseSeeder extends Seeder
     // database/seeders/DatabaseSeeder.php
 public function run(): void
 {
+    User::factory()->create([
+        'name' => 'damikozi223@gmail.com',
+        'password' => bcrypt('password'),
+    ]);
     User::factory(10)->create();
     MailingList::factory(10)->create();
-    
+
     $this->call([
         AllPermissionSeeder::class, // This already calls UserPermissionSeeder and MailingListPermissionSeeder
         // Remove BasePermissionSeeder::class from here
@@ -28,10 +32,10 @@ public function run(): void
         ListContactRelationshipSeeder::class,
         MailingListPermissionSeeder::class,
         MailingListSeeder::class,
-     
 
-        LaratrustSeeder::class, 
-        FixPermissionsSeeder::class, 
+
+        LaratrustSeeder::class,
+        FixPermissionsSeeder::class,
         UsersTableSeeder::class,
         ContactMailingListSeeder::class,
         DictionarySeeder::class,

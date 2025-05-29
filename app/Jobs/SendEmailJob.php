@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Message;
 
 class SendEmailJob implements ShouldQueue
 {
@@ -19,112 +20,139 @@ class SendEmailJob implements ShouldQueue
 
     public function __construct(array $emailData)
     {
-        // Make sure we validate provider data on job creation
-        if (empty($emailData['provider']['host'])) {
-            Log::critical('Missing host in provider configuration when creating job');
-            
-            // Set default from config
-            $emailData['provider']['host'] = config('mail.mailers.smtp.host');
-            
-            // If still empty, use a fallback
-            if (empty($emailData['provider']['host'])) {
-                $emailData['provider']['host'] = 'smtp.gmail.com';
-            }
-        }
-        
         $this->emailData = $emailData;
     }
 
     public function handle()
     {
         try {
-            // Get provider data or use an empty array if not set
             $provider = $this->emailData['provider'] ?? [];
-            
-            // Validate critical connection info
-            $host = $provider['host'] ?? null;
-            if (empty($host)) {
-                // Get from .env config
-                $host = config('mail.mailers.smtp.host');
-                
-                // If still empty, use Gmail as fallback
-                if (empty($host)) {
-                    $host = 'smtp.gmail.com';
-                }
-                
-                Log::warning('Missing host in provider config, using fallback', ['host' => $host]);
-            }
-            
-            // Ensure port is set and valid
-            $port = isset($provider['port']) ? (int)$provider['port'] : null;
-            if (empty($port) || $port <= 0) {
-                $port = (int)config('mail.mailers.smtp.port', 587);
-            }
-            
-            // Get encryption
-            $encryption = $provider['encryption'] ?? config('mail.mailers.smtp.encryption', 'tls');
-            
-            // Log what we're using for debugging
-            Log::info('Setting mail transport configuration', [
-                'host' => $host,
-                'port' => $port,
-                'encryption' => $encryption
-            ]);
-            
-            // Configure mailer with verified values
-            Config::set('mail.mailers.smtp.transport', 'smtp');
-            Config::set('mail.mailers.smtp.host', $host);
-            Config::set('mail.mailers.smtp.port', $port);
-            Config::set('mail.mailers.smtp.encryption', $encryption);
-            Config::set('mail.mailers.smtp.username', $provider['username'] ?? config('mail.mailers.smtp.username'));
-            Config::set('mail.mailers.smtp.password', $provider['password'] ?? config('mail.mailers.smtp.password'));
-            Config::set('mail.mailers.smtp.timeout', 30);
-            
-            // Ensure from address is set
-            $fromAddress = $provider['from_address'] ?? null;
-            if (empty($fromAddress)) {
-                $fromAddress = config('mail.from.address');
-                if (empty($fromAddress)) {
-                    $fromAddress = 'noreply@example.com';
-                }
-            }
-            
-            $fromName = $provider['from_name'] ?? config('mail.from.name', 'System');
-            
-            // Set from address
-            Config::set('mail.from.address', $fromAddress);
-            Config::set('mail.from.name', $fromName);
-            
-            // Actually send the email
-            Mail::send([], [], function ($message) use ($fromAddress, $fromName) {
-                $message->to(
-                    $this->emailData['contact_email'],
-                    $this->emailData['contact_name'] ?? null
-                )
-                ->subject($this->emailData['subject'] ?? 'No Subject')
-                ->from($fromAddress, $fromName)
-                ->html($this->emailData['html_content']) // Use HTML content from template
-                ->text($this->emailData['plain_text_content']); // Include plain text version
-            });
+
+            // Validate critical SMTP settings
+            $this->validateSmtpConfig($provider);
+
+            // Configure mailer
+            $this->configureMailer($provider);
+
+            // Send email
+            $this->sendEmail();
 
             Log::channel('daily')->info('Email sent successfully', [
                 'contact_email' => $this->emailData['contact_email'],
-                'using_host' => config('mail.mailers.smtp.host') // Log what host was actually used
+                'using_host' => config('mail.mailers.smtp.host')
             ]);
+
         } catch (\Exception $e) {
             Log::channel('daily')->error('Email sending failed', [
                 'contact_email' => $this->emailData['contact_email'] ?? 'unknown',
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'config' => [
-                    'host' => config('mail.mailers.smtp.host'),
-                    'port' => config('mail.mailers.smtp.port'),
-                    'encryption' => config('mail.mailers.smtp.encryption')
-                ]
+                'trace' => $e->getTraceAsString()
             ]);
 
             throw $e;
         }
+    }
+
+    private function validateSmtpConfig(array $provider): void
+    {
+        $host = $provider['host'] ?? config('mail.mailers.smtp.host');
+        $username = $provider['username'] ?? config('mail.mailers.smtp.username');
+        $password = $provider['password'] ?? config('mail.mailers.smtp.password');
+
+        if (empty($host)) {
+            throw new \InvalidArgumentException('SMTP host is required');
+        }
+
+        if (empty($username) || empty($password)) {
+            throw new \InvalidArgumentException('SMTP credentials are required');
+        }
+    }
+
+    private function configureMailer(array $provider): void
+    {
+        $host = $provider['host'] ?? config('mail.mailers.smtp.host');
+        $port = isset($provider['port']) ? (int)$provider['port'] : (int)config('mail.mailers.smtp.port', 587);
+        $encryption = $provider['encryption'] ?? config('mail.mailers.smtp.encryption', 'tls');
+        $username = $provider['username'] ?? config('mail.mailers.smtp.username');
+        $password = $provider['password'] ?? config('mail.mailers.smtp.password');
+
+        Config::set([
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => $host,
+            'mail.mailers.smtp.port' => $port,
+            'mail.mailers.smtp.encryption' => $encryption,
+            'mail.mailers.smtp.username' => $username,
+            'mail.mailers.smtp.password' => $password,
+            'mail.mailers.smtp.timeout' => 30,
+        ]);
+
+        // Set from address
+        $fromAddress = $provider['from_address'] ?? config('mail.from.address');
+        $fromName = $provider['from_name'] ?? config('mail.from.name', 'System');
+
+        if (empty($fromAddress)) {
+            throw new \InvalidArgumentException('From address is required');
+        }
+
+        Config::set([
+            'mail.from.address' => $fromAddress,
+            'mail.from.name' => $fromName
+        ]);
+
+        Log::info('Mail configuration set', [
+            'host' => $host,
+            'port' => $port,
+            'encryption' => $encryption,
+            'from' => $fromAddress
+        ]);
+
+        app()->forgetInstance('mailer');
+        app()->forgetInstance('swift.mailer');
+    }
+
+    private function sendEmail(): void
+    {
+        $hasHtml = !empty($this->emailData['html_content']);
+        $hasText = !empty($this->emailData['plain_text_content']);
+
+        if (!$hasHtml && !$hasText) {
+            throw new \InvalidArgumentException('Email must have either HTML or plain text content');
+        }
+
+        $mailer = Mail::mailer('smtp');
+
+        if ($hasHtml && $hasText) {
+            $mailer->send([], [], function (Message $message) {
+                $this->buildMessage($message);
+                $message->html($this->emailData['html_content'])
+                    ->text($this->emailData['plain_text_content']);
+            });
+        } elseif ($hasHtml) {
+            $mailer->html($this->emailData['html_content'], function (Message $message) {
+                $this->buildMessage($message);
+            });
+        } else {
+            $mailer->raw($this->emailData['plain_text_content'], function (Message $message) {
+                $this->buildMessage($message);
+            });
+        }
+
+        Log::info('Email sending attempt completed', [
+            'contact_email' => $this->emailData['contact_email'],
+            'has_html' => $hasHtml,
+            'has_text' => $hasText,
+            'mailer_used' => 'smtp'
+        ]);
+    }
+
+    private function buildMessage(Message $message): void
+    {
+        $fromAddress = config('mail.from.address');
+        $fromName = config('mail.from.name');
+
+        $message->to($this->emailData['contact_email'], $this->emailData['contact_name'] ?? null)
+            ->subject($this->emailData['subject'] ?? 'No Subject')
+            ->from($fromAddress, $fromName);
     }
 
     public function failed(\Throwable $exception)
@@ -132,12 +160,7 @@ class SendEmailJob implements ShouldQueue
         Log::channel('daily')->critical('Email job failed', [
             'contact_email' => $this->emailData['contact_email'] ?? 'unknown',
             'exception' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString(),
-            'config' => [
-                'host' => config('mail.mailers.smtp.host'),
-                'port' => config('mail.mailers.smtp.port'),
-                'encryption' => config('mail.mailers.smtp.encryption')
-            ]
+            'trace' => $exception->getTraceAsString()
         ]);
     }
 }
