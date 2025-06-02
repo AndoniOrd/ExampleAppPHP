@@ -1,0 +1,41 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        container_name: maily_server
+        ports:
+            - "8081:80"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.maily_server-route.rule=Host(`maily.onxwork.pl`)"
+            - "traefik.http.routers.maily_server-route.entrypoints=web"
+        depends_on:
+            - db
+        networks:
+            - private
+            - traefik_webgateway
+
+    db:
+        image: mysql:8
+        container_name: mysql-db
+        environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - dbdata:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        networks:
+            - private
+
+volumes:
+    dbdata:
+
+networks:
+    private:
+        driver: bridge
+    traefik_webgateway:
+        external: true
