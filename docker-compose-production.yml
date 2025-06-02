@@ -1,0 +1,183 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        container_name: maily-app
+        restart: unless-stopped
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.maily_server-route.rule=Host(`maily.onxwork.pl`)"
+            - "traefik.http.routers.maily_server-route.entrypoints=web"
+        ports:
+            - "${APP_PORT:-8080}:80"
+        volumes:
+            - ./storage/app:/app/storage/app
+            - ./storage/logs:/app/storage/logs
+        environment:
+            - APP_ENV=${APP_ENV:-production}
+            - APP_DEBUG=${APP_DEBUG:-false}
+            - APP_URL=${APP_URL:-http://localhost}
+            - DB_CONNECTION=${DB_CONNECTION:-mysql}
+            - DB_HOST=${DB_HOST:-mysql}
+            - DB_PORT=${DB_PORT:-3306}
+            - DB_DATABASE=${DB_DATABASE:-laravel}
+            - DB_USERNAME=${DB_USERNAME:-laravel}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+            - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
+            - SESSION_DRIVER=${SESSION_DRIVER:-redis}
+            - REDIS_HOST=${REDIS_HOST:-redis}
+            - REDIS_PORT=${REDIS_PORT:-6379}
+            - PUSHER_APP_ID=${PUSHER_APP_ID}
+            - PUSHER_APP_KEY=${PUSHER_APP_KEY}
+            - PUSHER_APP_SECRET=${PUSHER_APP_SECRET}
+            - PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}
+            - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+            - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+            - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+            - AWS_BUCKET=${AWS_BUCKET}
+        networks:
+            - traefik_webgateway
+            - maily-network
+        depends_on:
+            - mysql
+            - redis
+
+    mysql:
+        image: mysql:8.0
+        container_name: maily-mysql
+        restart: unless-stopped
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root}
+            - MYSQL_DATABASE=${DB_DATABASE:-laravel}
+            - MYSQL_USER=${DB_USERNAME:-laravel}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+        volumes:
+            - mysql-data:/var/lib/mysql
+        networks:
+            - maily-network
+
+    redis:
+        image: redis:7-alpine
+        container_name: maily-redis
+        restart: unless-stopped
+        volumes:
+            - redis-data:/data
+        networks:
+            - maily-network
+
+    # Queue Worker
+    queue:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        container_name: maily-queue
+        restart: unless-stopped
+        command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+        volumes:
+            - ./storage/app:/app/storage/app
+            - ./storage/logs:/app/storage/logs
+        environment:
+            - APP_ENV=${APP_ENV:-production}
+            - APP_DEBUG=${APP_DEBUG:-false}
+            - APP_KEY=${APP_KEY}
+            - DB_CONNECTION=${DB_CONNECTION:-mysql}
+            - DB_HOST=${DB_HOST:-mysql}
+            - DB_PORT=${DB_PORT:-3306}
+            - DB_DATABASE=${DB_DATABASE:-laravel}
+            - DB_USERNAME=${DB_USERNAME:-laravel}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - REDIS_HOST=${REDIS_HOST:-redis}
+            - REDIS_PORT=${REDIS_PORT:-6379}
+        networks:
+            - maily-network
+        depends_on:
+            - mysql
+            - redis
+
+    # Scheduler
+    scheduler:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        container_name: maily-scheduler
+        restart: unless-stopped
+        command: /bin/sh -c "while true; do php artisan schedule:run --verbose --no-interaction & sleep 60; done"
+        volumes:
+            - ./storage/app:/app/storage/app
+            - ./storage/logs:/app/storage/logs
+        environment:
+            - APP_ENV=${APP_ENV:-production}
+            - APP_DEBUG=${APP_DEBUG:-false}
+            - APP_KEY=${APP_KEY}
+            - DB_CONNECTION=${DB_CONNECTION:-mysql}
+            - DB_HOST=${DB_HOST:-mysql}
+            - DB_PORT=${DB_PORT:-3306}
+            - DB_DATABASE=${DB_DATABASE:-laravel}
+            - DB_USERNAME=${DB_USERNAME:-laravel}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - REDIS_HOST=${REDIS_HOST:-redis}
+            - REDIS_PORT=${REDIS_PORT:-6379}
+        networks:
+            - maily-network
+        depends_on:
+            - mysql
+            - redis
+
+    phpmyadmin:
+        depends_on:
+            - mysql
+        image: phpmyadmin
+        environment:
+            - PMA_HOST=mysql
+            - PMA_PORT=3306
+        networks:
+            - maily-network
+        ports:
+            - '8050:80'
+
+#    # WebSockets (jeśli używasz)
+#    websockets:
+#        build:
+#            context: .
+#            dockerfile: ./docker/Dockerfile
+#        container_name: maily-websockets
+#        restart: unless-stopped
+#        command: php artisan websockets:serve
+#        volumes:
+#            - ./storage/app:/app/storage/app
+#            - ./storage/logs:/app/storage/logs
+#        environment:
+#            - APP_ENV=${APP_ENV:-production}
+#            - APP_DEBUG=${APP_DEBUG:-false}
+#            - APP_KEY=${APP_KEY}
+#            - DB_CONNECTION=${DB_CONNECTION:-mysql}
+#            - DB_HOST=${DB_HOST:-mysql}
+#            - DB_PORT=${DB_PORT:-3306}
+#            - DB_DATABASE=${DB_DATABASE:-laravel}
+#            - DB_USERNAME=${DB_USERNAME:-laravel}
+#            - DB_PASSWORD=${DB_PASSWORD}
+#            - REDIS_HOST=${REDIS_HOST:-redis}
+#            - REDIS_PORT=${REDIS_PORT:-6379}
+#            - PUSHER_APP_ID=${PUSHER_APP_ID}
+#            - PUSHER_APP_KEY=${PUSHER_APP_KEY}
+#            - PUSHER_APP_SECRET=${PUSHER_APP_SECRET}
+#            - PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}
+#        networks:
+#            - maily-network
+#        depends_on:
+#            - mysql
+#            - redis
+
+networks:
+    maily-network:
+        driver: bridge
+    traefik_webgateway:
+        external: true
+
+volumes:
+    mysql-data:
+        driver: local
+    redis-data:
+        driver: local
